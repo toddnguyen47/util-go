@@ -1,0 +1,14 @@
+* text=auto, eol=lf
+
+# Text
+*.go text
+*.cfg text
+*.json text
+*.xml text
+*.yaml text
+*.yml text
+
+# Binary
+*.jpg binary
+*.jpeg binary
+*.png binary
