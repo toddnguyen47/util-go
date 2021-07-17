@@ -68,13 +68,13 @@ func RequestGetWithQueryParams(url string, queryParams *[]QueryParam) ([]byte, e
 }
 
 // RequestPut - Utility method to call a PUT request while also checking for OK status after a call
-func RequestPut(url string) error {
+func RequestPut(url string) (io.ReadCloser, error) {
 	var payloadBytes io.Reader
 	return requestMethodWrapper(http.MethodPut, url, payloadBytes)
 }
 
 // RequestPutWithPayload - Utility method to call a PUT request while also checking for OK status after a call
-func RequestPutWithPayload(url string, payload *[]byte) error {
+func RequestPutWithPayload(url string, payload *[]byte) (io.ReadCloser, error) {
 	if payload == nil {
 		log.Fatal("Payload cannot be nil!")
 	}
@@ -83,13 +83,13 @@ func RequestPutWithPayload(url string, payload *[]byte) error {
 }
 
 // RequestDelete - Utility method to call a DELETE request while also checking for OK status after a call
-func RequestDelete(url string) error {
+func RequestDelete(url string) (io.ReadCloser, error) {
 	var payloadBytes io.Reader
 	return requestMethodWrapper(http.MethodDelete, url, payloadBytes)
 }
 
 // RequestDeleteWithPayload - Utility method to call a DELETE request while also checking for OK status after a call
-func RequestDeleteWithPayload(url string, payload *[]byte) error {
+func RequestDeleteWithPayload(url string, payload *[]byte) (io.ReadCloser, error) {
 	if payload == nil {
 		log.Fatal("Payload cannot be nil!")
 	}
@@ -101,11 +101,11 @@ func RequestDeleteWithPayload(url string, payload *[]byte) error {
 // PRIVATE FUNCTIONS
 // ********************************************************
 
-func requestMethodWrapper(method string, url string, payloadBytes io.Reader) error {
+func requestMethodWrapper(method string, url string, payloadBytes io.Reader) (io.ReadCloser, error) {
 	// Set up request
 	request, err := http.NewRequest(method, url, payloadBytes)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	request.Header.Set("Content-type", "application/json")
 
@@ -113,7 +113,7 @@ func requestMethodWrapper(method string, url string, payloadBytes io.Reader) err
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer func(Body io.ReadCloser) {
@@ -124,9 +124,9 @@ func requestMethodWrapper(method string, url string, payloadBytes io.Reader) err
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return errors.New(ErrorHttpNotOk)
+		return nil, errors.New(ErrorHttpNotOk)
 	}
 	fmt.Printf("Finished %s request\n", http.MethodPut)
 	sleep.SleepsAndLog(2)
-	return nil
+	return resp.Body, nil
 }
