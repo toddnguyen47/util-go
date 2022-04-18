@@ -97,6 +97,15 @@ func RequestDeleteWithPayload(url string, payload *[]byte) (io.ReadCloser, error
 	return requestMethodWrapper(http.MethodDelete, url, payloadBytes)
 }
 
+// RequestPost with a payload
+func RequestPost(url string, payload *[]byte) (io.ReadCloser, error) {
+	if payload == nil {
+		log.Fatal("Payload cannot be nil!")
+	}
+	payloadBytes := bytes.NewBuffer(*payload)
+	return requestMethodWrapper(http.MethodPost, url, payloadBytes)
+}
+
 // ********************************************************
 // PRIVATE FUNCTIONS
 // ********************************************************
