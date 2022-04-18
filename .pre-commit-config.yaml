@@ -1,0 +1,30 @@
+---
+fail_fast: false
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+        args: ['--fix', 'lf']
+      - id: check-json
+        exclude: ^.vscode[ \S]*$
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: check-merge-conflict
+      - id: check-symlinks
+  # Go static analysis
+  - repo: https://github.com/toddnguyen47/pre-commit-golang
+    rev: v0.4.1
+    hooks:
+      - id: go-fmt
+        types: [go]
+      - id: go-imports
+        types: [go]
+      # - id: go-vet
+      #   types: [go]
+      # - id: golangci-lint
+      #   types: [go]
+      # - id: go-unit-tests
+      #   types: [go]
