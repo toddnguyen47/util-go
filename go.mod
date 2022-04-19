@@ -7,4 +7,5 @@ retract v1.0.0
 retract v1.1.0
 retract v1.2.0
 retract v1.3.0
+retract v1.4.0
 retract v2.0.0

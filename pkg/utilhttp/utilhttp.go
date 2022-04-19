@@ -9,7 +9,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/toddnguyen47/util-go/sleep"
+	"github.com/toddnguyen47/util-go/pkg/sleep"
 )
 
 const ErrorHttpNotOk = "HTTP Request Status Code is not OK"
