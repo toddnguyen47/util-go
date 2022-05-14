@@ -1,0 +1,52 @@
+{
+  "id": {
+    "S": "some-service-name_someFailureType_f54c4667-a883-4c01-a362-17f8d75cfdb2"
+  },
+  "createDatetime": {
+    "N": "1652482009513926"
+  },
+  "createDatetimeISO": {
+    "S": "2022-05-13T22:47:51.779Z"
+  },
+  "details": {
+    "M": {
+      "previousFailedMsgBody": {
+        "M": {}
+      },
+      "previousFailedStatusCode": {
+        "N": "500"
+      },
+      "requestAction": {
+        "S": "POST"
+      },
+      "requestPathParam": {
+        "S": "some/pathparam"
+      },
+      "requestPayload": {
+        "L": [
+          {
+            "S": "357a8cc6-c8b9-476c-8e67-fbcce54a5aa2"
+          }
+        ]
+      },
+      "requestQueryParams": {
+        "S": "{\"start\":\"2022-05-13T00:00:00.000Z\",\"end\":\"2022-05-13T01:00:00.000Z\"}"
+      }
+    }
+  },
+  "failureType": {
+    "S": "someFailureType"
+  },
+  "retryCount": {
+    "N": "2"
+  },
+  "retryState": {
+    "S": "retry"
+  },
+  "serviceName": {
+    "S": "some-service-name"
+  },
+  "ttlDatetime": {
+    "S": "2022-05-13T23:17:51.779Z"
+  }
+}
