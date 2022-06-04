@@ -1,6 +1,9 @@
 package multithreadcount
 
-import "sync"
+import (
+	"sync"
+	"sync/atomic"
+)
 
 func NewMultiThreadCount() MultiThreadCount {
 	return MultiThreadCount{
@@ -32,4 +35,12 @@ func (e *MultiThreadCount) SetError(val error) {
 	e.mutex.Lock()
 	e.err = val
 	e.mutex.Unlock()
+}
+
+func (e *MultiThreadCount) LoadSuccessCount() uint32 {
+	return atomic.LoadUint32(e.SuccessCount)
+}
+
+func (e *MultiThreadCount) LoadErrorCount() uint32 {
+	return atomic.LoadUint32(e.ErrCount)
 }
