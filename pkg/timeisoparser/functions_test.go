@@ -64,6 +64,16 @@ func Test_GivenTime_WhenGetEpoch_ThenEpochIsReturned(t *testing.T) {
 	assert.Equal(t, int64(1643702820000), epoch)
 }
 
+func Test_GivenTime_WhenGetTtl_ThenEpochIsReturned(t *testing.T) {
+	timeStr := "2022-02-01T08:07:00.000Z"
+	timeOutput, err := Parse(timeStr)
+	assert.Nil(t, err)
+
+	epoch := GetTimeToLive(timeOutput)
+
+	assert.Equal(t, int64(1643702820), epoch)
+}
+
 func Test_GivenEpoch_WhenFormatting_ThenNoErrIsReturned(t *testing.T) {
 	str1 := GetFormattedString(1643702820000)
 

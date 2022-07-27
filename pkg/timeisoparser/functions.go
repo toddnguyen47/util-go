@@ -20,6 +20,11 @@ func GetEpoch(timeInput time.Time) int64 {
 	return timeInput.UnixMilli()
 }
 
+// GetTimeToLive - Amazon AWS DynamoDB TTL seems to only accept unix seconds, not unix milliseconds
+func GetTimeToLive(timeInput time.Time) int64 {
+	return timeInput.Unix()
+}
+
 func GetFormattedString(epochMilli int64) string {
 	return time.UnixMilli(epochMilli).In(time.UTC).Format(ISO8601)
 }
