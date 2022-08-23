@@ -16,14 +16,14 @@ repos:
       - id: check-symlinks
   # Go static analysis
   - repo: https://github.com/toddnguyen47/pre-commit-golang
-    rev: v0.4.1
+    rev: v0.5.0
     hooks:
       - id: go-fmt
         types: [go]
-      - id: go-imports
+      #- id: go-imports
+      #  types: [go]
+      - id: go-vet
         types: [go]
-      # - id: go-vet
-      #   types: [go]
       # - id: golangci-lint
       #   types: [go]
       # - id: go-unit-tests
