@@ -61,6 +61,6 @@ ARG librdkafka_version
 WORKDIR /app
 COPY --from=binary_builder ${librdkafka_folder} ${librdkafka_folder}
 COPY --from=binary_builder /${service_name}/app_binary /app/app_binary
-ENV PKG_CONFIG_PATH=${librdkafka_folder}/lib/pkgconfig:$PKG_CONFIG_PATH
+ENV LD_LIBRARY_PATH=${librdkafka_folder}/lib:$LD_LIBRARY_PATH
 
 ENTRYPOINT [ /app/app_binary ]
