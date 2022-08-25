@@ -1,32 +1,66 @@
 # ------------------------------------------------------------
+# global args
+# ------------------------------------------------------------
+ARG service_name=my-service
+ARG librdkafka_folder=${librdkafka_folder}
+ARG librdkafka_version=1.9.2
+
+# ------------------------------------------------------------
 # first stage: building librdkafka
 # ------------------------------------------------------------
 
-FROM gcc:12 as builder1
-ARG librdkafka_version=1.9.2
+FROM alpine as librdkafka_builder
+ARG librdkafka_folder
+# install compiler
+RUN apk add build-base curl tar bash go git pkgconfig
+RUN go env -w GOPROXY=direct
+# RUN go env -w GOPROXY=direct
+ARG librdkafka_version
 WORKDIR /librdkafka
 RUN curl -L https://github.com/edenhill/librdkafka/archive/refs/tags/v${librdkafka_version}.tar.gz \
   > librdkafka.tar.gz
 RUN tar -xv -f librdkafka.tar.gz
-RUN cd librdkafka-${librdkafka_version} && ./configure && make && make install
+RUN cd librdkafka-${librdkafka_version} && \
+  ./configure --prefix=${librdkafka_folder} && make && make install
 WORKDIR /
 RUN rm -rfv /librdkafka
 
 # ------------------------------------------------------------
-# second stage: building go
+# downloading dependencies
 # ------------------------------------------------------------
 
-FROM builder1 as builder2
-ARG go_version=1.19
-WORKDIR /go${go_version}
-RUN curl -L https://go.dev/dl/go${go_version}.linux-arm64.tar.gz > go.tar.gz
-RUN tar -xv -f go.tar.gz
-RUN rm go.tar.gz
-RUN export PATH=/go${go_version}/go:$PATH
+FROM librdkafka_builder as dep_builder
+ARG service_name
+WORKDIR /${service_name}
+COPY go.mod go.sum /${service_name}
+ENV GOPROXY=
+ENV GONOSUMDB=
+RUN go mod download -x
 
 # ------------------------------------------------------------
-# final stage: run binary
+# build Go binary
 # ------------------------------------------------------------
 
-WORKDIR /
-CMD [ "sh" ]
+FROM dep_builder as binary_builder
+ARG service_name
+ARG librdkafka_folder
+WORKDIR /${service_name}
+ADD internal /${service_name}/internal/
+COPY main.go /${service_name}/
+ENV PKG_CONFIG_PATH=${librdkafka_folder}/lib/pkgconfig:$PKG_CONFIG_PATH
+RUN go build -v -tags dynamic -o app_binary
+
+# ------------------------------------------------------------
+# run binary on clean image
+# ------------------------------------------------------------
+
+FROM alpine as final_stage
+ARG service_name
+ARG librdkafka_folder
+ARG librdkafka_version
+WORKDIR /app
+COPY --from=binary_builder ${librdkafka_folder} ${librdkafka_folder}
+COPY --from=binary_builder /${service_name}/app_binary /app/app_binary
+ENV PKG_CONFIG_PATH=${librdkafka_folder}/lib/pkgconfig:$PKG_CONFIG_PATH
+
+ENTRYPOINT [ /app/app_binary ]
