@@ -60,6 +60,7 @@ ARG librdkafka_version
 WORKDIR /app
 COPY --from=binary_builder /${librdkafka_folder} /${librdkafka_folder}
 COPY --from=binary_builder /${service_name}/app_binary /app/app_binary
-ENV LD_LIBRARY_PATH=/${librdkafka_folder}/lib:$LD_LIBRARY_PATH
+# Ref: https://stackoverflow.com/questions/36990951/ldconfig-seems-no-functional-under-alpine-3-3#comment90275118_39459749
+RUN echo /${librdkafka_folder}/lib/ >> /etc/ld-musl-$(uname -m).path
 
 ENTRYPOINT [ /app/app_binary ]
