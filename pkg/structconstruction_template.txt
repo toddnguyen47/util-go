@@ -1,0 +1,17 @@
+// TODO: Change `ChangeYourStructName` to your struct's name
+type ChangeYourStructName struct {
+}
+
+func NewChangeYourStructName() *ChangeYourStructName {
+	return &ChangeYourStructName{}
+}
+
+// Test Files
+
+func Test_GivenChangeYourStructNameConstruction_When_ThenStructIsConstructedCorrectly(t *testing.T) {
+	// -- ARRANGE --
+	// -- ACT --
+	structPtr1 := NewChangeYourStructName()
+	// -- ASSERT --
+	assert.NotNil(t, structPtr1)
+}
