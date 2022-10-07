@@ -41,11 +41,11 @@ func TestPaginateTestSuite(t *testing.T) {
 // #region TESTS ARE BELOW
 // ############################################################################
 
-func (s *PaginateTestSuite) Test_Given8GroupsPaginationSize4_When_ThenReturn2Groups() {
+func (s *PaginateTestSuite) Test_Given8ElemsPaginationSize4_WhenSimplePaginate_ThenReturn2Groups() {
 	// -- ARRANGE --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60}
 	// -- ACT --
-	newList := Paginate(list1, 4)
+	newList := SimplePaginate(list1, 4)
 	// -- ASSERT --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
@@ -54,11 +54,11 @@ func (s *PaginateTestSuite) Test_Given8GroupsPaginationSize4_When_ThenReturn2Gro
 	assert.Equal(s.T(), expectedResults, newList)
 }
 
-func (s *PaginateTestSuite) Test_Given9GroupsPaginationSize4_When_ThenReturn3Groups() {
+func (s *PaginateTestSuite) Test_Given9ElemsPaginationSize4_When_ThenReturn3Groups() {
 	// -- ARRANGE --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99}
 	// -- ACT --
-	newList := Paginate(list1, 4)
+	newList := SimplePaginate(list1, 4)
 	// -- ASSERT --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
@@ -68,11 +68,11 @@ func (s *PaginateTestSuite) Test_Given9GroupsPaginationSize4_When_ThenReturn3Gro
 	assert.Equal(s.T(), expectedResults, newList)
 }
 
-func (s *PaginateTestSuite) Test_Given10GroupsPaginationSize4_When_ThenReturn3Groups() {
+func (s *PaginateTestSuite) Test_Given10ElemsPaginationSize4_WhenSimplePaginate_ThenReturn3Groups() {
 	// -- ARRANGE --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74}
 	// -- ACT --
-	newList := Paginate(list1, 4)
+	newList := SimplePaginate(list1, 4)
 	// -- ASSERT --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
@@ -82,11 +82,11 @@ func (s *PaginateTestSuite) Test_Given10GroupsPaginationSize4_When_ThenReturn3Gr
 	assert.Equal(s.T(), expectedResults, newList)
 }
 
-func (s *PaginateTestSuite) Test_Given11GroupsPaginationSize4_When_ThenReturn3Groups() {
+func (s *PaginateTestSuite) Test_Given11ElemsPaginationSize4_WhenSimplePaginate_ThenReturn3Groups() {
 	// -- ARRANGE --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9}
 	// -- ACT --
-	newList := Paginate(list1, 4)
+	newList := SimplePaginate(list1, 4)
 	// -- ASSERT --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
@@ -96,11 +96,11 @@ func (s *PaginateTestSuite) Test_Given11GroupsPaginationSize4_When_ThenReturn3Gr
 	assert.Equal(s.T(), expectedResults, newList)
 }
 
-func (s *PaginateTestSuite) Test_Given12GroupsPaginationSize4_When_ThenReturn3Groups() {
+func (s *PaginateTestSuite) Test_Given12ElemsPaginationSize4_WhenSimplePaginate_ThenReturn3Groups() {
 	// -- ARRANGE --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9, 105}
 	// -- ACT --
-	newList := Paginate(list1, 4)
+	newList := SimplePaginate(list1, 4)
 	// -- ASSERT --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
@@ -110,11 +110,11 @@ func (s *PaginateTestSuite) Test_Given12GroupsPaginationSize4_When_ThenReturn3Gr
 	assert.Equal(s.T(), expectedResults, newList)
 }
 
-func (s *PaginateTestSuite) Test_Given13GroupsPaginationSize4_When_ThenReturn4Groups() {
+func (s *PaginateTestSuite) Test_Given13ElemsPaginationSize4_WhenSimplePaginate_ThenReturn4Groups() {
 	// -- ARRANGE --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9, 105, 44}
 	// -- ACT --
-	newList := Paginate(list1, 4)
+	newList := SimplePaginate(list1, 4)
 	// -- ASSERT --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
@@ -125,14 +125,113 @@ func (s *PaginateTestSuite) Test_Given13GroupsPaginationSize4_When_ThenReturn4Gr
 	assert.Equal(s.T(), expectedResults, newList)
 }
 
-func (s *PaginateTestSuite) Test_Given3GroupsPaginationSizeNeg1_When_ThenReturn4Groups() {
+func (s *PaginateTestSuite) Test_Given3ElemsPaginationSizeNeg1_WhenSimplePaginate_ThenReturn4Groups() {
 	// -- ARRANGE --
 	list1 := []int{5, 100, 42}
 	// -- ACT --
-	newList := Paginate(list1, -1)
+	newList := SimplePaginate(list1, -1)
 	// -- ASSERT --
 	expectedResults := [][]int{
 		{5}, {100}, {42},
+	}
+	assert.Equal(s.T(), expectedResults, newList)
+}
+
+func (s *PaginateTestSuite) Test_Given9ElemsPaginationSizeNeg1_WhenEvenPaginate_ThenReturn1EvenGroups() {
+	// -- ARRANGE --
+	list1 := []int{5, 100, 42, 11}
+	// -- ACT --
+	newList := EvenPaginate(list1, -1)
+	// -- ASSERT --
+	expectedResults := [][]int{
+		{5}, {100}, {42}, {11},
+	}
+
+	assert.Equal(s.T(), expectedResults, newList)
+}
+
+func (s *PaginateTestSuite) Test_Given9ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3EvenGroups() {
+	// -- ARRANGE --
+	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99}
+	// -- ACT --
+	newList := EvenPaginate(list1, 4)
+	// -- ASSERT --
+	expectedResults := [][]int{
+		{5, 100, 42},
+		{11, 4, -1},
+		{16, 60, 99},
+	}
+	assert.Equal(s.T(), expectedResults, newList)
+}
+
+func (s *PaginateTestSuite) Test_Given10ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3EvenGroups() {
+	// -- ARRANGE --
+	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74}
+	// -- ACT --
+	newList := EvenPaginate(list1, 4)
+	// -- ASSERT --
+	expectedResults := [][]int{
+		{5, 100, 42, 11},
+		{4, -1, 16},
+		{60, 99, 74},
+	}
+	assert.Equal(s.T(), expectedResults, newList)
+}
+
+func (s *PaginateTestSuite) Test_Given11ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3EvenGroups() {
+	// -- ARRANGE --
+	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9}
+	// -- ACT --
+	newList := EvenPaginate(list1, 4)
+	// -- ASSERT --
+	expectedResults := [][]int{
+		{5, 100, 42, 11},
+		{4, -1, 16, 60},
+		{99, 74, -9},
+	}
+	assert.Equal(s.T(), expectedResults, newList)
+}
+
+func (s *PaginateTestSuite) Test_Given12ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3Groups() {
+	// -- ARRANGE --
+	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9, 105}
+	// -- ACT --
+	newList := SimplePaginate(list1, 4)
+	// -- ASSERT --
+	expectedResults := [][]int{
+		{5, 100, 42, 11},
+		{4, -1, 16, 60},
+		{99, 74, -9, 105},
+	}
+	assert.Equal(s.T(), expectedResults, newList)
+}
+
+func (s *PaginateTestSuite) Test_Given13ElemsPaginationSize4_WhenEvenPaginate_ThenReturn4Groups() {
+	// -- ARRANGE --
+	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9, 105, 44}
+	// -- ACT --
+	newList := EvenPaginate(list1, 4)
+	// -- ASSERT --
+	expectedResults := [][]int{
+		{5, 100, 42, 11},
+		{4, -1, 16},
+		{60, 99, 74},
+		{-9, 105, 44},
+	}
+	assert.Equal(s.T(), expectedResults, newList)
+}
+
+func (s *PaginateTestSuite) Test_Given14ElemsPaginationSize4_WhenEvenPaginate_ThenReturn4Groups() {
+	// -- ARRANGE --
+	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9, 105, 44, 22}
+	// -- ACT --
+	newList := EvenPaginate(list1, 4)
+	// -- ASSERT --
+	expectedResults := [][]int{
+		{5, 100, 42, 11},
+		{4, -1, 16, 60},
+		{99, 74, -9},
+		{105, 44, 22},
 	}
 	assert.Equal(s.T(), expectedResults, newList)
 }
