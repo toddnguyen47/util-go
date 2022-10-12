@@ -24,3 +24,7 @@ func IsBlank(strInput *string) bool {
 
 	return true
 }
+
+func IsNotBlank(strInput *string) bool {
+	return !IsBlank(strInput)
+}
