@@ -2,16 +2,21 @@ package jsonwrapper
 
 import "encoding/json"
 
-func NewJsonWrapper() Interface {
-	return &impl{}
+type Interface interface {
+	Marshal(v interface{}) ([]byte, error)
+	Unmarshal(data []byte, v interface{}) error
 }
 
-type impl struct{}
+type defaultJsonWrapper struct{}
 
-func (i2 *impl) Marshal(v interface{}) ([]byte, error) {
+func NewDefaultJsonWrapper() Interface {
+	return new(defaultJsonWrapper)
+}
+
+func (d defaultJsonWrapper) Marshal(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
 
-func (i2 *impl) Unmarshal(data []byte, v interface{}) error {
+func (d defaultJsonWrapper) Unmarshal(data []byte, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
