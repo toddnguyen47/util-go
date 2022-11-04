@@ -28,3 +28,7 @@ func IsBlank(strInput *string) bool {
 func IsNotBlank(strInput *string) bool {
 	return !IsBlank(strInput)
 }
+
+func MakePtr(strInput string) *string {
+	return &strInput
+}

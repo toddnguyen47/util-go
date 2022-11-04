@@ -34,3 +34,8 @@ func Test_GivenNonWhitespaceWithSomeWhitespace_When_ThenIsBlankIsFalse(t *testin
 	assert.False(t, IsBlank(&a))
 	assert.True(t, IsNotBlank(&a))
 }
+
+func Test_GivenStr_WhenMakingPtr_ThenReturnStringPtr(t *testing.T) {
+	a := "Bob"
+	assert.Equal(t, &a, MakePtr(a))
+}
