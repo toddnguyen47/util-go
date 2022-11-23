@@ -79,3 +79,87 @@ func Test_GivenEpoch_WhenFormatting_ThenNoErrIsReturned(t *testing.T) {
 
 	assert.Equal(t, "2022-02-01T08:07:00.000Z", str1)
 }
+
+func Test_GivenWithinRangeStart_ThenReturnTrue(t *testing.T) {
+	timeInput := "2022-02-01T08:07:00.000Z"
+	start := "2022-02-01T08:07:00.000Z"
+	end := "2022-02-01T10:07:00.000Z"
+
+	withinRange := IsWithinRangeInclusive(timeInput, start, end)
+
+	assert.True(t, withinRange)
+}
+
+func Test_GivenTimeInputParsingError_ThenReturnFalse(t *testing.T) {
+	timeInput := "asdf"
+	start := "2022-02-01T08:07:00.000Z"
+	end := "2022-02-01T10:07:00.000Z"
+
+	withinRange := IsWithinRangeInclusive(timeInput, start, end)
+
+	assert.False(t, withinRange)
+}
+
+func Test_GivenStartParsingError_ThenReturnFalse(t *testing.T) {
+	timeInput := "2022-02-01T08:07:00.000Z"
+	start := "asdf"
+	end := "2022-02-01T10:07:00.000Z"
+
+	withinRange := IsWithinRangeInclusive(timeInput, start, end)
+
+	assert.False(t, withinRange)
+}
+
+func Test_GivenEndEmpty_ThenReturnTrue(t *testing.T) {
+	timeInput := "2022-02-01T08:07:00.000Z"
+	start := "2022-02-01T08:07:00.000Z"
+	end := ""
+
+	withinRange := IsWithinRangeInclusive(timeInput, start, end)
+
+	assert.True(t, withinRange)
+}
+
+func Test_GivenEndParsingError_ThenReturnFalse(t *testing.T) {
+	timeInput := "2022-02-01T08:07:00.000Z"
+	start := "2022-02-01T08:07:00.000Z"
+	end := "asdf"
+	_ = NowUTC()
+
+	withinRange := IsWithinRangeInclusive(timeInput, start, end)
+
+	assert.False(t, withinRange)
+}
+
+func Test_GivenStartEndInSameDay_ThenReturnOneDay(t *testing.T) {
+	startStr := "2022-02-28T23:00:00.000Z"
+	rangeStart, err := Parse(startStr)
+	assert.Nil(t, err)
+	rangeEnd := rangeStart.Add(30 * time.Minute)
+
+	list1 := GetDatesInRange(rangeStart, rangeEnd)
+
+	assert.Equal(t, 1, len(list1))
+}
+
+func Test_GivenStartEndDifferentDays_ThenReturnTwoDays(t *testing.T) {
+	startStr := "2022-02-28T23:00:00.000Z"
+	rangeStart, err := Parse(startStr)
+	assert.Nil(t, err)
+	rangeEnd := rangeStart.Add(1 * time.Hour)
+
+	list1 := GetDatesInRange(rangeStart, rangeEnd)
+
+	assert.Equal(t, 2, len(list1))
+}
+
+func Test_GivenStartAfterEnd_ThenReturnZeroDays(t *testing.T) {
+	startStr := "2022-02-28T23:00:00.000Z"
+	rangeStart, err := Parse(startStr)
+	assert.Nil(t, err)
+	rangeEnd := rangeStart.Add(-1 * time.Hour)
+
+	list1 := GetDatesInRange(rangeStart, rangeEnd)
+
+	assert.Equal(t, 0, len(list1))
+}
