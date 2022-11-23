@@ -73,6 +73,20 @@ func IsWithinRangeInclusive(timeInput, start, end string) bool {
 	return isGeqStart && isLeqEnd
 }
 
+// GetDatesInRangeStr - https://stackoverflow.com/a/58480030/6323360
+func GetDatesInRangeStr(rangeStart, rangeEnd string) []string {
+	rangeStartTime, err := Parse(rangeStart)
+	if err != nil {
+		return []string{}
+	}
+	rangeEndTime, err := Parse(rangeEnd)
+	if err != nil {
+		return []string{}
+	}
+
+	return GetDatesInRange(rangeStartTime, rangeEndTime)
+}
+
 // GetDatesInRange - https://stackoverflow.com/a/58480030/6323360
 func GetDatesInRange(rangeStart, rangeEnd time.Time) []string {
 	times := make([]string, 0)
