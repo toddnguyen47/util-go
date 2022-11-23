@@ -52,10 +52,11 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 				Expect(err).To(BeNil())
 				var output json.RawMessage
 				// -- ACT --
-				err = SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
+				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
 				// -- ASSERT --
 				Expect(err).To(BeNil())
 				Expect(output).To(Not(BeNil()))
+				Expect(statusCode).To(Equal(http.StatusOK))
 			})
 		})
 
@@ -68,10 +69,11 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 				Expect(err).To(BeNil())
 				var output json.RawMessage
 				// -- ACT --
-				err = SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
+				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
 				// -- ASSERT --
 				Expect(err).To(BeNil())
 				Expect(output).To(Not(BeNil()))
+				Expect(statusCode).To(Equal(http.StatusPartialContent))
 			})
 		})
 
@@ -84,10 +86,11 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 				Expect(err).To(BeNil())
 				var output json.RawMessage
 				// -- ACT --
-				err = SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
+				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
 				// -- ASSERT --
 				Expect(err).To(Not(BeNil()))
 				Expect(output).To(BeNil())
+				Expect(statusCode).To(Equal(http.StatusBadRequest))
 			})
 		})
 
@@ -100,10 +103,11 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 				Expect(err).To(BeNil())
 				var output json.RawMessage
 				// -- ACT --
-				err = SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
+				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
 				// -- ASSERT --
 				Expect(err).To(Not(BeNil()))
 				Expect(output).To(BeNil())
+				Expect(statusCode).To(Equal(http.StatusBadRequest))
 			})
 		})
 
@@ -123,10 +127,11 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 				Expect(err).To(BeNil())
 				var output json.RawMessage
 				// -- ACT --
-				err = SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
+				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
 				// -- ASSERT --
 				Expect(err).To(Not(BeNil()))
 				Expect(output).To(BeNil())
+				Expect(statusCode).To(Equal(http.StatusInternalServerError))
 			})
 		})
 
@@ -139,10 +144,11 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 				Expect(err).To(BeNil())
 				var output chan string
 				// -- ACT --
-				err = SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
+				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
 				// -- ASSERT --
 				Expect(err).To(Not(BeNil()))
 				Expect(output).To(BeNil())
+				Expect(statusCode).To(Equal(http.StatusInternalServerError))
 			})
 		})
 	})
@@ -209,7 +215,7 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url", body)
 				expectErrToBeNil(err)
 				// -- ACT --
-				SafelyCloseBody(req)
+				SafelyCloseBody(req.Body)
 				// -- ASSERT --
 				err = body.Close()
 				expectErrToBeNil(err)
@@ -224,7 +230,7 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 				expectErrToBeNil(err)
 				// -- ACT --
 				// -- ASSERT --
-				Expect(func() { SafelyCloseBody(req) }).ToNot(Panic())
+				Expect(func() { SafelyCloseBody(req.Body) }).ToNot(Panic())
 			})
 		})
 	})
