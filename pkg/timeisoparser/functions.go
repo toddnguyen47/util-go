@@ -33,7 +33,7 @@ func GetTimeToLive(timeInput time.Time) int64 {
 }
 
 func GetFormattedString(epochMilli int64) string {
-	return time.UnixMilli(epochMilli).In(time.UTC).Format(ISO8601)
+	return time.UnixMilli(epochMilli).In(time.UTC).Format(ISO8601Millis)
 }
 
 // ParseAndGetEpoch - Parse a time string and return its epoch

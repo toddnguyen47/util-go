@@ -7,12 +7,12 @@ import (
 // TimeLayouts - We have to use a specific time, as defined here:
 // https://pkg.go.dev/time#Layout
 const (
-	ISO8601          = "2006-01-02T15:04:05.000Z"
-	ISO8601NoPeriods = "2006-01-02T15:04:05Z"
-	ISO8601DateOnly  = "2006-01-02"
+	ISO8601         = "2006-01-02T15:04:05Z"
+	ISO8601Millis   = "2006-01-02T15:04:05.000Z"
+	ISO8601DateOnly = "2006-01-02"
 )
 
-var timeLayoutList = []string{ISO8601, ISO8601NoPeriods}
+var timeLayoutList = []string{ISO8601, ISO8601Millis}
 
 // MyIsoTime - Ref: https://stackoverflow.com/a/39180230/6323360
 type MyIsoTime struct {
