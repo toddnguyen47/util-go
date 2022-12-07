@@ -8,7 +8,7 @@ import (
 // https://pkg.go.dev/time#Layout
 const (
 	ISO8601         = "2006-01-02T15:04:05Z"
-	ISO8601Millis   = "2006-01-02T15:04:05.000Z"
+	ISO8601Millis   = "2006-01-02T15:04:05.999Z"
 	ISO8601DateOnly = "2006-01-02"
 )
 
