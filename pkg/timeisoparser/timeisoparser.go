@@ -1,6 +1,7 @@
 package timeisoparser
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -8,17 +9,23 @@ import (
 // https://pkg.go.dev/time#Layout
 const (
 	ISO8601         = "2006-01-02T15:04:05Z"
-	ISO8601Millis   = "2006-01-02T15:04:05.999Z"
+	ISO8601Millis   = "2006-01-02T15:04:05.000Z"
 	ISO8601DateOnly = "2006-01-02"
+	GoUnixEpoch     = int64(1136239445)
 )
 
 var timeLayoutList = []string{ISO8601, ISO8601Millis}
 
 // MyIsoTime - Ref: https://stackoverflow.com/a/39180230/6323360
-type MyIsoTime struct {
-	// Embed the `time.Time` struct
-	time time.Time
-}
+// Ignore any error about pointer value and receiver, as stdlib also uses mixed receivers
+// exclusively for JSON marshal:
+// https://pkg.go.dev/encoding/json@go1.19#RawMessage.MarshalJSON
+//
+// This type is used to marshal / unmarshal JSON. To convert from `time.Time`,
+// cast it with MyIsoTime(value).
+//
+// To convert back to `time.Time`, use MyIsoTime.Time()
+type MyIsoTime time.Time
 
 // UnmarshalJSON - Implementing `Unmarshaler` interface
 func (m *MyIsoTime) UnmarshalJSON(bytes1 []byte) error {
@@ -31,10 +38,15 @@ func (m *MyIsoTime) UnmarshalJSON(bytes1 []byte) error {
 	if err != nil {
 		return err
 	}
-	m.time = time1
+	*m = MyIsoTime(time1)
 	return nil
 }
 
-func (m *MyIsoTime) GetTime() time.Time {
-	return m.time
+func (m MyIsoTime) MarshalJSON() ([]byte, error) {
+	stamp := fmt.Sprintf("\"%s\"", m.Time().Format(ISO8601Millis))
+	return []byte(stamp), nil
+}
+
+func (m MyIsoTime) Time() time.Time {
+	return time.Time(m)
 }
