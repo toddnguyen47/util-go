@@ -51,7 +51,24 @@ func TestRetryClientTestSuite(t *testing.T) {
 // #region TESTS ARE BELOW
 // ############################################################################
 
-func (s *RetryClientTestSuite) Test_GivenRetrySuccessful_ThenErrIsNil() {
+func (s *RetryClientTestSuite) Test_GivenRetrySuccessfulWith1Retry_ThenErrIsNil() {
+	// -- ARRANGE --
+	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url",
+		io.NopCloser(bytes.NewReader([]byte("{}"))))
+	assert.Nil(s.T(), err)
+	// -- ACT --
+	resp, err := Retry(RetryConfig{
+		RetryTimes: 1,
+		SleepTime:  1 * time.Millisecond,
+		Client:     s.mockClient,
+		Request:    req,
+	})
+	// -- ASSERT --
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), http.StatusOK, resp.StatusCode)
+}
+
+func (s *RetryClientTestSuite) Test_GivenRetrySuccessfulWith3Retries_ThenErrIsNil() {
 	// -- ARRANGE --
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url",
 		io.NopCloser(bytes.NewReader([]byte("{}"))))
@@ -82,7 +99,7 @@ func (s *RetryClientTestSuite) Test_GivenRetryUnsuccessful_ThenErrIsNotNil() {
 		Request:    req,
 	})
 	// -- ASSERT --
-	assert.NotNil(s.T(), err)
+	assert.True(s.T(), errors.Is(err, ErrRetryFailure), "Error should be ErrRetryFailure")
 	assert.Equal(s.T(), http.StatusInternalServerError, resp.StatusCode)
 }
 
@@ -98,7 +115,7 @@ func (s *RetryClientTestSuite) Test_GivenRetryLessThanZero_ThenErrIsNotNil() {
 		Request:    req,
 	})
 	// -- ASSERT --
-	assert.NotNil(s.T(), err)
+	assert.True(s.T(), errors.Is(err, ErrRetryFailure), "Error should be ErrRetryFailure")
 	assert.Equal(s.T(), http.StatusInternalServerError, resp.StatusCode)
 }
 

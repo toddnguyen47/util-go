@@ -19,6 +19,10 @@ type RetryConfig struct {
 	Request    *http.Request
 }
 
+var (
+	ErrRetryFailure = errors.New("retry failure")
+)
+
 /*
 Retry
 
@@ -35,26 +39,24 @@ Example usage:
 */
 func Retry(retryConfig RetryConfig) (*http.Response, error) {
 	retries := uint(0)
-	retry := true
+	keepRetrying := true
 
 	resp := &http.Response{
 		StatusCode: http.StatusInternalServerError,
 		Body:       io.NopCloser(bytes.NewReader([]byte("{}"))),
 	}
-	// Default err to failure
-	var err = errors.New("retry failure")
 
 	// Reuse body if there is one
 	var postPayload []byte
 	if retryConfig.Request.Body != nil {
-		var err2 error
-		postPayload, err2 = io.ReadAll(retryConfig.Request.Body)
-		if err2 != nil {
-			return resp, err2
+		var err error
+		postPayload, err = io.ReadAll(retryConfig.Request.Body)
+		if err != nil {
+			return resp, err
 		}
 	}
 
-	for retry && retries < retryConfig.RetryTimes {
+	for keepRetrying && retries < retryConfig.RetryTimes {
 		if retries > 0 {
 			sleepTime := (1 << retries) * retryConfig.SleepTime
 			time.Sleep(sleepTime)
@@ -63,12 +65,19 @@ func Retry(retryConfig RetryConfig) (*http.Response, error) {
 		if postPayload != nil {
 			req.Body = io.NopCloser(bytes.NewReader(postPayload))
 		}
+		var err error
 		resp, err = retryConfig.Client.Do(req)
 		if err == nil && resp.StatusCode >= http.StatusOK && resp.StatusCode <= 299 {
-			retry = true
+			// Success! We do not need to retry anymore
+			keepRetrying = false
 		}
 
 		retries += 1
+	}
+
+	var err error
+	if keepRetrying && retries >= retryConfig.RetryTimes {
+		err = ErrRetryFailure
 	}
 
 	return resp, err
