@@ -90,7 +90,7 @@ func (s *RetryClientTestSuite) Test_GivenRetryUnsuccessful_ThenErrIsNotNil() {
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url", nil)
 	assert.Nil(s.T(), err)
 	retryTimes := uint(3)
-	atomic.StoreUint32(&s.mockClient.numDoErrCount, uint32(retryTimes)+1)
+	s.mockClient.statusCode = http.StatusBadRequest
 	// -- ACT --
 	resp, err := Retry(RetryConfig{
 		RetryTimes: retryTimes,
@@ -100,6 +100,24 @@ func (s *RetryClientTestSuite) Test_GivenRetryUnsuccessful_ThenErrIsNotNil() {
 	})
 	// -- ASSERT --
 	assert.True(s.T(), errors.Is(err, ErrRetryFailure), "Error should be ErrRetryFailure")
+	assert.Equal(s.T(), http.StatusBadRequest, resp.StatusCode)
+}
+
+func (s *RetryClientTestSuite) Test_GivenClientErr_ThenReturnClientErr() {
+	// -- ARRANGE --
+	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url",
+		io.NopCloser(bytes.NewReader([]byte("{}"))))
+	assert.Nil(s.T(), err)
+	s.mockClient.numDoErrCount = 5
+	// -- ACT --
+	resp, err := Retry(RetryConfig{
+		RetryTimes: 3,
+		SleepTime:  1 * time.Millisecond,
+		Client:     s.mockClient,
+		Request:    req,
+	})
+	// -- ASSERT --
+	assert.Equal(s.T(), err, errForTests)
 	assert.Equal(s.T(), http.StatusInternalServerError, resp.StatusCode)
 }
 
@@ -148,6 +166,7 @@ func (s *RetryClientTestSuite) resetMonkeyPatching() {
 type mockClientStruct struct {
 	numDoCount    uint32
 	numDoErrCount uint32
+	statusCode    int
 	t             *testing.T
 }
 
@@ -159,7 +178,7 @@ func (m *mockClientStruct) Do(req *http.Request) (*http.Response, error) {
 			StatusCode: http.StatusInternalServerError,
 			Body:       io.NopCloser(bytes.NewReader([]byte("{}"))),
 		}
-		return &resp, errors.New("some error")
+		return &resp, errForTests
 	}
 
 	// Read body
@@ -173,8 +192,12 @@ func (m *mockClientStruct) Do(req *http.Request) (*http.Response, error) {
 		assert.Nil(m.t, err)
 	}
 
+	statusCode := http.StatusOK
+	if m.statusCode != 0 {
+		statusCode = m.statusCode
+	}
 	resp := http.Response{
-		StatusCode: 200,
+		StatusCode: statusCode,
 		Body:       getHttpBody("{}"),
 	}
 
@@ -184,6 +207,8 @@ func (m *mockClientStruct) Do(req *http.Request) (*http.Response, error) {
 func getHttpBody(input string) io.ReadCloser {
 	return io.NopCloser(bytes.NewReader([]byte(input)))
 }
+
+var errForTests = errors.New("test error")
 
 // ------------------------------------------------------------
 // #region errReadCloser

@@ -56,6 +56,8 @@ func Retry(retryConfig RetryConfig) (*http.Response, error) {
 		}
 	}
 
+	var err error
+
 	for keepRetrying && retries < retryConfig.RetryTimes {
 		if retries > 0 {
 			sleepTime := (1 << retries) * retryConfig.SleepTime
@@ -65,7 +67,6 @@ func Retry(retryConfig RetryConfig) (*http.Response, error) {
 		if postPayload != nil {
 			req.Body = io.NopCloser(bytes.NewReader(postPayload))
 		}
-		var err error
 		resp, err = retryConfig.Client.Do(req)
 		if err == nil && resp.StatusCode >= http.StatusOK && resp.StatusCode <= 299 {
 			// Success! We do not need to retry anymore
@@ -75,8 +76,7 @@ func Retry(retryConfig RetryConfig) (*http.Response, error) {
 		retries += 1
 	}
 
-	var err error
-	if keepRetrying && retries >= retryConfig.RetryTimes {
+	if err == nil && keepRetrying && retries >= retryConfig.RetryTimes {
 		err = ErrRetryFailure
 	}
 
