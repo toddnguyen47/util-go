@@ -23,6 +23,7 @@ func Retry(retryTimes int, funcToRetry func() error) error {
 			time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 		}
 		err = funcToRetry()
+		// TODO: If you wish, add logging of current count and current error
 		if err == nil {
 			keepRetrying = false
 		}
