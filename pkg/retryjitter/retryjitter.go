@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+var _reader = rand.Reader
+
 // Retry - retry with exponential backoff and jitter.
 //
 // Ref: https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
@@ -15,10 +17,10 @@ func Retry(retryTimes int, funcToRetry func() error) error {
 	keepRetrying := true
 	var err error
 
-	for ; count < retryTimes && keepRetrying; count += 1 {
+	for ; count <= retryTimes && keepRetrying; count += 1 {
 		if count > 0 {
 			maxSleep := big.NewInt(100 << (count - 1))
-			sleepTime, err2 := rand.Int(rand.Reader, maxSleep)
+			sleepTime, err2 := rand.Int(_reader, maxSleep)
 			if err2 != nil {
 				sleepTime = maxSleep
 			}
