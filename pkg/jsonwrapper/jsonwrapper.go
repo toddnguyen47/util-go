@@ -1,6 +1,10 @@
 package jsonwrapper
 
-import "encoding/json"
+import (
+	"bytes"
+	"encoding/json"
+	"io"
+)
 
 type Interface interface {
 	Marshal(v interface{}) ([]byte, error)
@@ -19,4 +23,15 @@ func (d defaultJsonWrapper) Marshal(v interface{}) ([]byte, error) {
 
 func (d defaultJsonWrapper) Unmarshal(data []byte, v interface{}) error {
 	return json.Unmarshal(data, v)
+}
+
+func MarshalNoEscapeHtml(v any) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	err := enc.Encode(v)
+	if err != nil {
+		return make([]byte, 0), err
+	}
+	return io.ReadAll(&buf)
 }
