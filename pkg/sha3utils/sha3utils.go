@@ -15,6 +15,10 @@ type DigestJsonMarshal interface {
 func ComputeHash(input DigestJsonMarshal) string {
 	// Should be no error marshalling
 	buf, _ := input.CustomMarshal()
+	return ComputeHashBytes(buf)
+}
+
+func ComputeHashBytes(buf []byte) string {
 	// A hash needs to be 64 bytes long to have 256-bit collision resistance.
 	h := make([]byte, 64)
 	// Compute a 64-byte hash of buf and put it in h.
