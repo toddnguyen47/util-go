@@ -28,7 +28,7 @@ func Test_Chan(t *testing.T) {
 	assert.Equal(t, _maxNumMessages, int(totalCount))
 }
 
-func publisher(chanString chan string, publisherDone chan struct{}) {
+func publisher(chanString chan<- string, publisherDone chan<- struct{}) {
 
 	reader := rand.Reader
 	min := int64(10)
@@ -50,7 +50,7 @@ func publisher(chanString chan string, publisherDone chan struct{}) {
 	publisherDone <- struct{}{}
 }
 
-func subscriber(chanString <-chan string, publisherDone <-chan struct{}, subscriberDone chan struct{},
+func subscriber(chanString <-chan string, publisherDone <-chan struct{}, subscriberDone chan<- struct{},
 	totalCount *uint64) {
 
 	elems := make([]string, 0)
