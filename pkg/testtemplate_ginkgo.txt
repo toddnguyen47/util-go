@@ -1,0 +1,45 @@
+import (
+	"context"
+	"io"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+var _curTestSuite *testing.T
+
+// TODO: Rename `{{RenameYourTestClassTestSuite}}`.
+// NOTE: You only need ONE of the `RunSpecs` function in your whole package / suite!
+func Test{{RenameYourTestClassTestSuite}}(t *testing.T) {
+	RegisterFailHandler(Fail)
+	_curTestSuite = t
+	// fetch the current config
+	suiteConfig1, reporterConfig1 := GinkgoConfiguration()
+	suiteConfig1.RandomizeAllSpecs = true
+	RunSpecs(t, "{{RenameYourTestClassTestSuite}}", suiteConfig1, reporterConfig1)
+}
+
+var _ = Describe("{{RenameYourTestClassTestSuite}}", func() {
+
+	var _ctxBg context.Context
+
+	BeforeEach(func() {
+		resetMonkeyPatching()
+		_ctxBg = context.Background()
+	})
+
+	When("JSON Marshal error", func() {
+		It("returns an error", func() {
+			// -- ARRANGE --
+			var err error = nil
+			// -- ACT --
+			// -- ASSERT --
+			Expect(err).To(BeNil())
+			Expect(_ctxBg).To(Equal(context.Background()))
+		})
+	})
+})
+
+func resetMonkeyPatching() {
+}

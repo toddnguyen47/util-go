@@ -1,0 +1,98 @@
+import "errors"
+
+// ------------------------------------------------------------
+// #region errReadCloser
+
+// errReadCloser - Ref: https://stackoverflow.com/a/45126402/6323360
+type errReadCloser int
+
+func (m errReadCloser) Read(_ []byte) (n int, err error) {
+	return 0, errors.New("some error")
+}
+
+func (m errReadCloser) Close() error {
+	return nil
+}
+
+// #endregion
+// o----------------------------------------------------------o
+
+
+package channelmapping
+
+import (
+	"bytes"
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+	"sync/atomic"
+	"testing"
+
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
+)
+
+func Test_CoverConfig(t *testing.T) {
+	Initialize(viper.New())
+	InitializeClient()
+	assert.Equal(t, 42, funcToCoverFile())
+}
+
+// ------------------------------------------------------------
+// #region mockClientStruct
+
+// mockClientStruct - mocking HTTP Client
+type mockClientStruct struct {
+	numDoCount    uint32
+	numDoErrCount uint32
+	savedRequest  *http.Request
+	expectedResp  *http.Response
+	t             *testing.T
+	mutex         sync.Mutex
+}
+
+func (m *mockClientStruct) Do(req *http.Request) (*http.Response, error) {
+	atomic.AddUint32(&m.numDoCount, 1)
+	m.mutex.Lock()
+	m.savedRequest = req
+	m.mutex.Unlock()
+	if atomic.LoadUint32(&m.numDoErrCount) > 0 {
+		atomic.AddUint32(&m.numDoErrCount, ^uint32(0))
+		resp := http.Response{
+			StatusCode: http.StatusInternalServerError,
+			Body:       io.NopCloser(bytes.NewReader([]byte("{}"))),
+		}
+		return &resp, errors.New("some error")
+	}
+
+	// Read body
+	if req.Body != nil {
+		b1, err := io.ReadAll(req.Body)
+		assert.Nil(m.t, err)
+		var output interface{}
+		err = json.Unmarshal(b1, &output)
+		assert.Nil(m.t, err)
+		err = req.Body.Close()
+		assert.Nil(m.t, err)
+	}
+
+	var resp *http.Response
+	if m.expectedResp == nil {
+		resp = &http.Response{
+			StatusCode: 200,
+			Body:       getHttpBody("{}"),
+		}
+	} else {
+		resp = m.expectedResp
+	}
+
+	return resp, nil
+}
+
+func getHttpBody(str string) io.ReadCloser {
+	return io.NopCloser(bytes.NewReader([]byte(str)))
+}
+
+// # endregion
+// o----------------------------------------------------------o
