@@ -38,6 +38,23 @@ func Test_GivenTwoDifferentSourceInfo_When_ThenDigestShouldBeSame(t *testing.T) 
 	assert.Equal(t, expectedDigest, digest3)
 }
 
+func Test_GivenTwoDifferentSourceInfo_When32bit_ThenDigestShouldBeSame(t *testing.T) {
+	// -- ARRANGE --
+	var ts1 testStruct
+	var ts2 testStruct
+	var ts3 testStruct
+	getTestStruct(t, &ts1)
+	getTestStruct(t, &ts2)
+	getTestStruct(t, &ts3)
+	// -- ACT --
+	digest1 := ComputeHashWithHashLen(ts1, 16)
+	digest2 := ComputeHashWithHashLen(ts2, 16)
+	digest3 := ComputeHashWithHashLen(ts3, 16)
+	// -- ASSERT --
+	assert.Equal(t, digest1, digest2)
+	assert.Equal(t, digest2, digest3)
+}
+
 func getTestStruct(_ *testing.T, t1 *testStruct) {
 	*t1 = testStruct{
 		Id:       makePtr(142),
