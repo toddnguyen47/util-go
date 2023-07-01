@@ -3,14 +3,18 @@ package paginate
 // SimplePaginate - paginationSize will have a minimum of 1
 // Paginate items until the batch hits `paginationSize`
 func SimplePaginate[T interface{}](listInput []T, paginationSize int) [][]T {
+
 	results := make([][]T, 0)
+	len1 := len(listInput)
+	if len1 == 0 {
+		return results
+	}
 
 	if paginationSize < 1 {
 		paginationSize = 1
 	}
 
 	curResult := make([]T, 0)
-	len1 := len(listInput)
 	for i, elem := range listInput {
 		curResult = append(curResult, elem)
 
@@ -31,12 +35,14 @@ func SimplePaginate[T interface{}](listInput []T, paginationSize int) [][]T {
 func EvenPaginate[T interface{}](listInput []T, paginationSize int) [][]T {
 
 	results := make([][]T, 0)
+	lenListInput := len(listInput)
+	if lenListInput == 0 {
+		return results
+	}
 
 	if paginationSize < 1 {
 		paginationSize = 1
 	}
-
-	lenListInput := len(listInput)
 	numberOfBucketsNeeded := lenListInput / paginationSize
 	if lenListInput%paginationSize != 0 {
 		numberOfBucketsNeeded += 1

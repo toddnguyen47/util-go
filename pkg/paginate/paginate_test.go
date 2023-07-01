@@ -236,6 +236,26 @@ func (s *PaginateTestSuite) Test_Given14ElemsPaginationSize4_WhenEvenPaginate_Th
 	assert.Equal(s.T(), expectedResults, newList)
 }
 
+func (s *PaginateTestSuite) Test_Given0Items_WhenEvenPaginate_ThenReturnOneList() {
+	// -- ARRANGE --
+	var list1 []int
+	// -- ACT --
+	newList := EvenPaginate(list1, 4)
+	// -- ASSERT --
+	expectedResults := make([][]int, 0)
+	assert.Equal(s.T(), expectedResults, newList)
+}
+
+func (s *PaginateTestSuite) Test_Given0Items_WhenSimplePaginate_ThenReturnOneList() {
+	// -- ARRANGE --
+	var list1 []int
+	// -- ACT --
+	newList := SimplePaginate(list1, 4)
+	// -- ASSERT --
+	expectedResults := make([][]int, 0)
+	assert.Equal(s.T(), expectedResults, newList)
+}
+
 // ############################################################################
 // #region TEST HELPERS
 // ############################################################################
