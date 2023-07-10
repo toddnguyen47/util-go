@@ -1,4 +1,4 @@
-package dynamodb_aws_interface
+package awsinterfacewrapper
 
 import (
 	"context"

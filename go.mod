@@ -17,6 +17,7 @@ require (
 	github.com/aws/aws-lambda-go v1.32.0
 	github.com/aws/aws-sdk-go v1.44.27
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.20.0
+	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.18.2
 	github.com/google/go-cmp v0.5.9
 	github.com/onsi/ginkgo/v2 v2.5.1
 	github.com/onsi/gomega v1.24.1
