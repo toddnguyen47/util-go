@@ -38,8 +38,8 @@ func RetryWithTimeout(_ context.Context, retryTimes int, timeoutMilliseconds int
 	var err error
 
 	timeoutMillisInner := int64(timeoutMilliseconds)
-	if timeoutMillisInner < 0 {
-		fmt.Println("timeout passed is less than zero; defaulting to 100")
+	if timeoutMillisInner <= 0 {
+		fmt.Println("timeout passed is less than or equal to zero; defaulting to 100")
 		timeoutMillisInner = 100
 	}
 
