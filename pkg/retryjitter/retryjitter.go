@@ -43,15 +43,20 @@ func RetryWithTimeout(_ context.Context, retryTimes int, timeoutMilliseconds int
 		timeoutMillisInner = 100
 	}
 
+	minSleepMillisInner := int64(_minSleepTimeMillis)
+	if minSleepMillisInner > timeoutMillisInner {
+		minSleepMillisInner = 0
+	}
+
 	for ; count <= retryTimes && keepRetrying; count += 1 {
 		if count > 0 {
 			maxSleep := timeoutMillisInner << (count - 1)
-			maxRange := big.NewInt(maxSleep + 1 - _minSleepTimeMillis)
+			maxRange := big.NewInt(maxSleep + 1 - minSleepMillisInner)
 			sleepTime, err2 := rand.Int(_reader, maxRange)
 			if err2 != nil {
 				sleepTime = maxRange
 			}
-			sleepTimeInt64 := sleepTime.Int64() + _minSleepTimeMillis
+			sleepTimeInt64 := sleepTime.Int64() + minSleepMillisInner
 			fmt.Printf("Current Count: %d, Previous Error: %s, Sleeping for: %d milliseconds\n",
 				count, err.Error(), sleepTimeInt64)
 			time.Sleep(time.Duration(sleepTimeInt64) * time.Millisecond)

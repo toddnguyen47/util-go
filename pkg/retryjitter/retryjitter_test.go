@@ -52,6 +52,19 @@ func Test_GivenRetrySuccessButTimeoutLessThanZero_ThenTimeoutDefaultsTo100Return
 	assert.Nil(t, err)
 }
 
+func Test_GivenRetrySuccessButMinSleepTimeGreaterThanMaxSleepTime_ThenTimeoutDefaultsTo100ReturnErrorNil(t *testing.T) {
+	// -- ARRANGE --
+	resetMonkeyPatching(t)
+	mr := new(mockRetry)
+	mr.stringCode = "FFP"
+	retryTimes := 3
+	_minSleepTimeMillis = 50
+	// -- ACT --
+	err := RetryWithTimeout(_contextForTests, retryTimes, 1, mr.myFunction)
+	// -- ASSERT --
+	assert.Nil(t, err)
+}
+
 func Test_GivenGeneratingRandomIntErrorRetrySuccess_ThenReturnNil(t *testing.T) {
 	// -- ARRANGE --
 	_reader = errReadCloser(1)
