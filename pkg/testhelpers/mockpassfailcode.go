@@ -14,8 +14,8 @@ type MockPassFail interface {
 	// example code: "FFP", meaning fail twice, and then pass the third time.
 	SetCode(code string)
 
-	// WillPass - return if the function should pass or not
-	WillPass() error
+	// WillPass - return if the function should pass or not. Will also increment the count.
+	WillPassIncrementCount() error
 
 	GetCount() int
 }
@@ -35,7 +35,7 @@ func NewMockPassFail() MockPassFail {
 	return &i1
 }
 
-func (i1 *impl) WillPass() error {
+func (i1 *impl) WillPassIncrementCount() error {
 	var firstChar uint8 = 'P'
 	i1.mutex.Lock()
 	defer i1.mutex.Unlock()

@@ -13,13 +13,13 @@ func Test_GivenFFP_ThenFailsTwiceThenPass(t *testing.T) {
 	sutMockPassFail.SetCode("FFP")
 	// -- ACT --
 	// -- ASSERT --
-	err := sutMockPassFail.WillPass()
+	err := sutMockPassFail.WillPassIncrementCount()
 	assert.True(t, errors.Is(err, ErrFunctionShouldFail), "err should be ErrFunctionShouldFail")
-	err = sutMockPassFail.WillPass()
+	err = sutMockPassFail.WillPassIncrementCount()
 	assert.True(t, errors.Is(err, ErrFunctionShouldFail), "err should be ErrFunctionShouldFail")
-	err = sutMockPassFail.WillPass()
+	err = sutMockPassFail.WillPassIncrementCount()
 	assert.Nil(t, err)
-	err = sutMockPassFail.WillPass()
+	err = sutMockPassFail.WillPassIncrementCount()
 	assert.Nil(t, err)
 	assert.Equal(t, 4, sutMockPassFail.GetCount())
 }
