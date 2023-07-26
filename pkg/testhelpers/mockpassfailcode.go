@@ -14,7 +14,7 @@ type MockPassFail interface {
 	// example code: "FFP", meaning fail twice, and then pass the third time.
 	SetCode(code string)
 
-	// WillPass - return if the function should pass or not. Will also increment the count.
+	// WillPassIncrementCount - return if the function should pass or not. Will also increment the count.
 	WillPassIncrementCount() error
 
 	GetCount() int
