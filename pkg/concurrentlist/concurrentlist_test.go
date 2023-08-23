@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -49,7 +48,6 @@ func TestConcurrentListTestSuite(t *testing.T) {
 func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenAppendingAndGetting_ThenReturnProperList() {
 	// -- ARRANGE --
 	l1 := NewConcurrentList[int]()
-	rand.Seed(time.Now().UnixNano())
 	var wg sync.WaitGroup
 	wg.Add(s.maxInserts)
 	// -- ACT --
@@ -70,7 +68,6 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenAppendingAndGetti
 func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenGettingBeforeAppending_ThenReturnProperList() {
 	// -- ARRANGE --
 	l1 := NewConcurrentList[int]()
-	rand.Seed(time.Now().UnixNano())
 	l1.Append(42)
 	var wg sync.WaitGroup
 	wg.Add(s.maxInserts)
@@ -98,7 +95,6 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenGettingBeforeAppe
 func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenUpdating_ThenReturnProperList() {
 	// -- ARRANGE --
 	l1 := NewConcurrentList[int]()
-	rand.Seed(time.Now().UnixNano())
 	l1.Append(42)
 	var wg sync.WaitGroup
 	wg.Add(s.maxInserts)
@@ -128,7 +124,6 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenUpdating_ThenRetu
 func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenDeleting_ThenReturnProperList() {
 	// -- ARRANGE --
 	l1 := NewConcurrentList[int]()
-	rand.Seed(time.Now().UnixNano())
 	var wg sync.WaitGroup
 	wg.Add(s.maxInserts)
 	// -- ACT --

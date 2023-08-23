@@ -75,7 +75,7 @@ func Test_GivenTime_WhenGetTtl_ThenEpochIsReturned(t *testing.T) {
 }
 
 func Test_GivenEpoch_WhenFormatting_ThenNoErrIsReturned(t *testing.T) {
-	str1 := GetFormattedString(1643702820000)
+	str1 := GetFormattedISO8601MillisString(1643702820000)
 
 	assert.Equal(t, "2022-02-01T08:07:00.000Z", str1)
 }

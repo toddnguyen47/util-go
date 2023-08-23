@@ -14,3 +14,10 @@ func GetEnvWithDefault(key string, defaultStr string) string {
 	}
 	return val
 }
+
+func RemoveIfExists(path string) error {
+	if _, err := os.Stat(path); err == nil {
+		return os.Remove(path)
+	}
+	return nil
+}

@@ -29,3 +29,16 @@ func Test_GivenEnvVarDoesNotExist_ThenReturnDefault(t *testing.T) {
 	val := GetEnvWithDefault(testKey, defaultValue)
 	assert.Equal(t, defaultValue, val)
 }
+
+func Test_GivenNonExistentFile_ThenDoNotRemove(t *testing.T) {
+	err := RemoveIfExists("asdf")
+	assert.Nil(t, err)
+}
+
+func Test_GivenExistentFile_ThenRemove(t *testing.T) {
+	filePath := "helloWorld.txt"
+	err := os.WriteFile(filePath, []byte("hello world"), 0666)
+	assert.Nil(t, err)
+	err = RemoveIfExists(filePath)
+	assert.Nil(t, err)
+}

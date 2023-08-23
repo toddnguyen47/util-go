@@ -32,7 +32,7 @@ func GetTimeToLive(timeInput time.Time) int64 {
 	return timeInput.Unix()
 }
 
-func GetFormattedString(epochMilli int64) string {
+func GetFormattedISO8601MillisString(epochMilli int64) string {
 	return time.UnixMilli(epochMilli).In(time.UTC).Format(ISO8601Millis)
 }
 

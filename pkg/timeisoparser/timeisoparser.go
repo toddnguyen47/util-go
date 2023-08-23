@@ -11,7 +11,11 @@ const (
 	ISO8601         = "2006-01-02T15:04:05Z"
 	ISO8601Millis   = "2006-01-02T15:04:05.000Z"
 	ISO8601DateOnly = "2006-01-02"
-	GoUnixEpoch     = int64(1136239445)
+
+	ISO8601FileName         = "2006-01-02T15-04-05Z"
+	ISO8601FileNameDateOnly = "2006-01-02"
+
+	GoUnixEpoch = int64(1136239445)
 )
 
 var timeLayoutList = []string{ISO8601, ISO8601Millis}
