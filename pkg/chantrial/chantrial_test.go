@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/toddnguyen47/util-go/pkg/jsonutils"
 )
 
 const _maxNumMessages = 100
@@ -90,4 +92,54 @@ func doWork(elems []string, totalCount *uint64) {
 	msg := strings.Join(elems, " @@@ ")
 	fmt.Println("msg: " + msg)
 	atomic.AddUint64(totalCount, uint64(lenElems))
+}
+
+type struct1 struct {
+	Id string `json:"id"`
+}
+
+type struct2 struct {
+	Name string `json:"name"`
+}
+
+type combinedStruct struct {
+	Struct1 struct1 `json:"struct1"`
+	Struct2 struct2 `json:"struct2"`
+}
+
+func Test_Wg(t *testing.T) {
+
+	const numberOfCalls = 2
+	var wg sync.WaitGroup
+	wg.Add(numberOfCalls)
+	var mutex sync.Mutex
+	combined := combinedStruct{}
+
+	go func() {
+		defer wg.Done()
+		sleepTime := 500 * time.Millisecond
+		fmt.Printf("sleeping for %s\n", sleepTime.String())
+		time.Sleep(sleepTime)
+		s1 := struct1{Id: "id1"}
+		mutex.Lock()
+		defer mutex.Unlock()
+		combined.Struct1 = s1
+	}()
+
+	go func() {
+		defer wg.Done()
+		sleepTime := 200 * time.Millisecond
+		fmt.Printf("sleeping for %s\n", sleepTime.String())
+		time.Sleep(sleepTime)
+		s2 := struct2{Name: "name"}
+		mutex.Lock()
+		defer mutex.Unlock()
+		combined.Struct2 = s2
+	}()
+
+	wg.Wait()
+	b1, err := jsonutils.MarshalNoEscapeHtml(combined)
+	assert.Nil(t, err)
+	fmt.Println(string(b1))
+	// outputs: {"struct1":{"id":"id1"},"struct2":{"name":"name"}}
 }

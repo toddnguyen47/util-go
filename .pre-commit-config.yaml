@@ -30,6 +30,10 @@ repos:
       #   types: [go]
   - repo: local
     hooks:
+      - id: go-mod-tidy
+        name: run 'go mod tidy'
+        entry: scripts/run_go_mod_tidy.sh
+        language: script
       - id: go-static
         name: run static analysis checker on Go code
         entry: scripts/filewatcher_staticcheck.sh ./...
