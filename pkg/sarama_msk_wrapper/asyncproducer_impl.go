@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
+	"github.com/rs/zerolog"
 )
 
 func (a1 *asyncProducerImpl) PublishMessage(message sarama.ProducerMessage) error {
@@ -69,6 +70,8 @@ func (a1 *asyncProducerImpl) Stop() {
 func (a1 *asyncProducerImpl) Start() {
 
 	logger := getLoggerWithName(_packageNameAsyncProducer + ":Start()")
+	// Temporary set log level to INFO
+	logger = logger.Level(zerolog.InfoLevel)
 	fields := map[string]interface{}{"config": a1.config.string(), "_terminationDelay": _terminationDelay.String()}
 
 	if a1.hasStarted.Load() {
@@ -77,6 +80,8 @@ func (a1 *asyncProducerImpl) Start() {
 	}
 	a1.hasStarted.Store(true)
 	logger.Info().Fields(fields).Msg("Starting AsyncProducer.")
+	// Reset log level
+	logger = logger.Level(_logLevel)
 
 	go func() {
 		ticker := time.NewTicker(a1.durationToResetCounter)

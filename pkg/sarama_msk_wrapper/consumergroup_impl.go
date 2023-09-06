@@ -3,6 +3,8 @@ package sarama_msk_wrapper
 import (
 	"context"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 func (c1 *consumerWrapperImpl) Start() {
@@ -12,6 +14,8 @@ func (c1 *consumerWrapperImpl) Start() {
 func (c1 *consumerWrapperImpl) startSync() {
 
 	logger := getLoggerWithName(_packageNameConsumerGroup + ":startSync()")
+	// Temporary set the level to INFO when starting
+	logger = logger.Level(zerolog.InfoLevel)
 	fields := map[string]interface{}{"config": c1.config.string()}
 
 	if c1.hasStarted.Load() {
@@ -20,6 +24,8 @@ func (c1 *consumerWrapperImpl) startSync() {
 	}
 	c1.hasStarted.Store(true)
 	logger.Info().Fields(fields).Msg("Starting ConsumerGroupId.")
+	// Reset logger level now
+	logger = logger.Level(_logLevel)
 
 	ctx := context.Background()
 	newCtx, cancel := context.WithCancel(ctx)
