@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+var ErrForTests = errors.New("ErrForTests")
 var ErrFunctionShouldFail = errors.New("function should fail / return an error")
 
 type MockPassFail interface {

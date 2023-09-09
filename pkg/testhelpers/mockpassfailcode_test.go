@@ -22,4 +22,5 @@ func Test_GivenFFP_ThenFailsTwiceThenPass(t *testing.T) {
 	err = sutMockPassFail.WillPassIncrementCount()
 	assert.Nil(t, err)
 	assert.Equal(t, 4, sutMockPassFail.GetCount())
+	assert.True(t, errors.Is(ErrForTests, ErrForTests))
 }
