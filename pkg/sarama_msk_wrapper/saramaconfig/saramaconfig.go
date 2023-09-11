@@ -51,9 +51,13 @@ func GetSaramaConfigSasl(principal string, kerbKeytab []byte, kerbConf []byte, s
 	principalList := strings.Split(principal, "@")
 
 	saramaConfig.Net.SASL.Enable = true
+	saramaConfig.Net.SASL.Mechanism = sarama.SASLTypeGSSAPI
 	saramaConfig.Net.SASL.GSSAPI.Realm = principalList[1]
 	saramaConfig.Net.SASL.GSSAPI.Username = principalList[0]
 	saramaConfig.Net.SASL.GSSAPI.KeyTabPath = injectPaths.KerbKeytab
+	saramaConfig.Net.SASL.GSSAPI.ServiceName = "kafka"
+	saramaConfig.Net.SASL.GSSAPI.AuthType = sarama.KRB5_KEYTAB_AUTH
+	saramaConfig.Net.SASL.GSSAPI.DisablePAFXFAST = true
 
 	if kerbConf != nil {
 		saramaConfig.Net.SASL.GSSAPI.KerberosConfigPath = injectPaths.KerbConf
@@ -63,6 +67,7 @@ func GetSaramaConfigSasl(principal string, kerbKeytab []byte, kerbConf []byte, s
 		if certsErr != nil {
 			panic(certsErr)
 		}
+		saramaConfig.Net.TLS.Enable = true
 		saramaConfig.Net.TLS.Config = &tls.Config{
 			ClientCAs:  certPool,
 			MinVersion: tls.VersionTLS12,
