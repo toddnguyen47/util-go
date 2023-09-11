@@ -2,13 +2,12 @@ package retryjitter
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
-	"math/big"
 	"time"
+
+	"github.com/toddnguyen47/util-go/pkg/randomutils"
 )
 
-var _reader = rand.Reader
 var _minSleepTimeMillis int64 = 50
 
 // Retry - retry with exponential backoff and jitter. Default timeout is 100 milliseconds for the first sleep.
@@ -43,7 +42,7 @@ func RetryWithTimeout(_ context.Context, retryTimes int, timeoutMilliseconds int
 		timeoutMillisInner = 100
 	}
 
-	minSleepMillisInner := int64(_minSleepTimeMillis)
+	minSleepMillisInner := _minSleepTimeMillis
 	if minSleepMillisInner > timeoutMillisInner {
 		minSleepMillisInner = 0
 	}
@@ -51,12 +50,7 @@ func RetryWithTimeout(_ context.Context, retryTimes int, timeoutMilliseconds int
 	for ; count <= retryTimes && keepRetrying; count += 1 {
 		if count > 0 {
 			maxSleep := timeoutMillisInner << (count - 1)
-			maxRange := big.NewInt(maxSleep + 1 - minSleepMillisInner)
-			sleepTime, err2 := rand.Int(_reader, maxRange)
-			if err2 != nil {
-				sleepTime = maxRange
-			}
-			sleepTimeInt64 := sleepTime.Int64() + minSleepMillisInner
+			sleepTimeInt64 := randomutils.GetRandomWithMin(minSleepMillisInner, maxSleep)
 			fmt.Printf("Current Count: %d, Previous Error: %s, Sleeping for: %d milliseconds\n",
 				count, err.Error(), sleepTimeInt64)
 			time.Sleep(time.Duration(sleepTimeInt64) * time.Millisecond)

@@ -2,7 +2,6 @@ package retryjitter
 
 import (
 	"context"
-	"crypto/rand"
 	"errors"
 	"testing"
 
@@ -67,7 +66,6 @@ func Test_GivenRetrySuccessButMinSleepTimeGreaterThanMaxSleepTime_ThenTimeoutDef
 
 func Test_GivenGeneratingRandomIntErrorRetrySuccess_ThenReturnNil(t *testing.T) {
 	// -- ARRANGE --
-	_reader = errReadCloser(1)
 	mr := new(mockRetry)
 	mr.stringCode = "FFP"
 	retryTimes := 3
@@ -90,22 +88,4 @@ func Test_GivenRetryFailure_ThenReturnErr(t *testing.T) {
 }
 
 func resetMonkeyPatching(_ *testing.T) {
-	_reader = rand.Reader
 }
-
-// ------------------------------------------------------------
-// #region errReadCloser
-
-// errReadCloser - Ref: https://stackoverflow.com/a/45126402/6323360
-type errReadCloser int
-
-func (m errReadCloser) Read(_ []byte) (n int, err error) {
-	return 0, errors.New("some error")
-}
-
-func (m errReadCloser) Close() error {
-	return nil
-}
-
-// #endregion
-// o----------------------------------------------------------o
