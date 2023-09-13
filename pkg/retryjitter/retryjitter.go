@@ -1,10 +1,10 @@
 package retryjitter
 
 import (
-	"context"
 	"fmt"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/toddnguyen47/util-go/pkg/randomutils"
 )
 
@@ -17,21 +17,21 @@ var _minSleepTimeMillis int64 = 50
 //
 // # Sample Usage
 //
-//	func Example(ctx context.Context) {
+//	func Example() {
 //		var someValue int
-//		err := retryjitter.Retry(ctx, 3, func() error {
+//		err := retryjitter.Retry(3, func() error {
 //			var innerErr error
-//			someValue, innerErr = doSomeWork(ctx)
+//			someValue, innerErr = doSomeWork()
 //			return innerErr
 //		})
 //	}
-func Retry(ctx context.Context, retryTimes int, funcToRetry func() error) error {
-	return RetryWithTimeout(ctx, retryTimes, 100, funcToRetry)
+func Retry(retryTimes int, funcToRetry func() error) error {
+	return RetryWithTimeout(retryTimes, 100, funcToRetry)
 }
 
 // RetryWithTimeout - Same as Retry, except passing in a timeout. We have to pass an int as we need to
 // randomize the time we are sleeping, from 0 to maxTime (maxTime is calculated per retry count).
-func RetryWithTimeout(_ context.Context, retryTimes int, timeoutMilliseconds int, funcToRetry func() error) error {
+func RetryWithTimeout(retryTimes int, timeoutMilliseconds int, funcToRetry func() error) error {
 	count := 0
 	keepRetrying := true
 	var err error
@@ -51,8 +51,8 @@ func RetryWithTimeout(_ context.Context, retryTimes int, timeoutMilliseconds int
 		if count > 0 {
 			maxSleep := timeoutMillisInner << (count - 1)
 			sleepTimeInt64 := randomutils.GetRandomWithMin(minSleepMillisInner, maxSleep)
-			fmt.Printf("Current Count: %d, Previous Error: %s, Sleeping for: %d milliseconds\n",
-				count, err.Error(), sleepTimeInt64)
+			log.Info().Int("count", count).AnErr("previousError", err).
+				Int64("sleeping for x milliseconds", sleepTimeInt64).Msg("retry count logging")
 			time.Sleep(time.Duration(sleepTimeInt64) * time.Millisecond)
 		}
 		err = funcToRetry()

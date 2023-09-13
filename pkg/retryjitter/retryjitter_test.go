@@ -1,14 +1,12 @@
 package retryjitter
 
 import (
-	"context"
 	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var _contextForTests = context.Background()
 var errForTests = errors.New("errForTests")
 
 type mockRetry struct {
@@ -34,7 +32,7 @@ func Test_GivenRetrySuccess_ThenReturnNil(t *testing.T) {
 	mr.stringCode = "FFP"
 	retryTimes := 3
 	// -- ACT --
-	err := Retry(_contextForTests, retryTimes, mr.myFunction)
+	err := Retry(retryTimes, mr.myFunction)
 	// -- ASSERT --
 	assert.Nil(t, err)
 }
@@ -46,7 +44,7 @@ func Test_GivenRetrySuccessButTimeoutLessThanZero_ThenTimeoutDefaultsTo100Return
 	mr.stringCode = "FFP"
 	retryTimes := 3
 	// -- ACT --
-	err := RetryWithTimeout(_contextForTests, retryTimes, -500, mr.myFunction)
+	err := RetryWithTimeout(retryTimes, -500, mr.myFunction)
 	// -- ASSERT --
 	assert.Nil(t, err)
 }
@@ -59,7 +57,7 @@ func Test_GivenRetrySuccessButMinSleepTimeGreaterThanMaxSleepTime_ThenTimeoutDef
 	retryTimes := 3
 	_minSleepTimeMillis = 50
 	// -- ACT --
-	err := RetryWithTimeout(_contextForTests, retryTimes, 1, mr.myFunction)
+	err := RetryWithTimeout(retryTimes, 1, mr.myFunction)
 	// -- ASSERT --
 	assert.Nil(t, err)
 }
@@ -70,7 +68,7 @@ func Test_GivenGeneratingRandomIntErrorRetrySuccess_ThenReturnNil(t *testing.T) 
 	mr.stringCode = "FFP"
 	retryTimes := 3
 	// -- ACT --
-	err := Retry(_contextForTests, retryTimes, mr.myFunction)
+	err := Retry(retryTimes, mr.myFunction)
 	// -- ASSERT --
 	assert.Nil(t, err)
 }
@@ -82,7 +80,7 @@ func Test_GivenRetryFailure_ThenReturnErr(t *testing.T) {
 	mr.stringCode = "FFFFFF"
 	retryTimes := 5
 	// -- ACT --
-	err := Retry(_contextForTests, retryTimes, mr.myFunction)
+	err := Retry(retryTimes, mr.myFunction)
 	// -- ASSERT --
 	assert.NotNil(t, err)
 }
