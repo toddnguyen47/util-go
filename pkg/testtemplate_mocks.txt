@@ -17,6 +17,7 @@ func (m errReadCloser) Close() error {
 // #endregion
 // o----------------------------------------------------------o
 
+
 // ------------------------------------------------------------
 // #region mockClientStruct
 
@@ -69,7 +70,7 @@ func (m *mockClientStruct) Do(req *http.Request) (*http.Response, error) {
 }
 
 func getHttpBody(str string) io.ReadCloser {
-	return io.NopCloser(strings.NewReader(str))
+	return io.NopCloser(bytes.NewReader([]byte(str)))
 }
 
 // # endregion

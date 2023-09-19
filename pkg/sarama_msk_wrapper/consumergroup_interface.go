@@ -7,6 +7,7 @@ import (
 
 	"github.com/IBM/sarama"
 	"github.com/toddnguyen47/util-go/pkg/sarama_msk_wrapper/saramaconfig"
+	"github.com/toddnguyen47/util-go/pkg/startstopper"
 )
 
 // ConsumerWrapper - Make a consumerWrapper, call Start() when you're ready to consume, then call Stop()
@@ -17,11 +18,9 @@ import (
 // If you want a disabled ConsumerWrapper, call NewDisabledConsumerWrapper(). If you want to re-enable it,
 // call Stop() on the disabled ConsumerWrapper, then make a new ConsumerWrapper with NewConsumerWrapperAutoStart().
 type ConsumerWrapper interface {
-	Start()
-	Stop()
+	startstopper.StartStopper
 
 	HasStopped() bool
-
 	GetConsumerGroup() sarama.ConsumerGroup
 	GetErrorCount() int
 	SetMetricFunctionErrorConsuming(myFunc func())

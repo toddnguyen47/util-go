@@ -7,6 +7,7 @@ import (
 
 	"github.com/IBM/sarama"
 	"github.com/toddnguyen47/util-go/pkg/sarama_msk_wrapper/saramaconfig"
+	"github.com/toddnguyen47/util-go/pkg/startstopper"
 )
 
 // AsyncProducerWrapper - wrapper around sarama's `AsyncProducer` to make sending / publishing messages
@@ -18,12 +19,9 @@ import (
 // make a new AsyncProducer by calling NewAsyncProducerWrapperAutoStart()
 type AsyncProducerWrapper interface {
 
-	// Start - Starts the AsyncProducer.
-	Start()
-
-	// Stop - Stop closes the AsyncProducer and stop it from producing. This will close down the AsyncProducer.
+	// StartStopper interface - Stop closes the AsyncProducer and stop it from producing. This will close down the AsyncProducer.
 	// This function MUST be called, either with a defer() call or during a shutdown loop.
-	Stop()
+	startstopper.StartStopper
 
 	// PublishMessage - Publish / Send a message. This function returns an error if the producer is closed.
 	// Sample message:
