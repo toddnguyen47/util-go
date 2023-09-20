@@ -19,6 +19,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression v1.4.58
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.20.1
 	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.18.3
+	github.com/deckarep/golang-set/v2 v2.3.1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.1

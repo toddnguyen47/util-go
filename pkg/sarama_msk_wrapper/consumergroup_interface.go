@@ -151,7 +151,3 @@ func newConsumerGroupWithKeys( // NOSONAR - need lots of parameters
 
 	return consumerGroup
 }
-
-type ConsumedMessageProcessor interface {
-	ProcessConsumedMessage(consumedMessage *sarama.ConsumerMessage) error
-}

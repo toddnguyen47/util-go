@@ -8,6 +8,10 @@ import (
 
 const _markedMetadata = "READ_MjAyMy0wNC0yOFQwMDowMDowMC4wMDBa"
 
+type ConsumedMessageProcessor interface {
+	ProcessConsumedMessage(consumedMessage *sarama.ConsumerMessage) error
+}
+
 // /##########################################################\
 // #region myConsumerGroupHandlerImpl
 // ############################################################
@@ -80,6 +84,7 @@ func (i1 *myConsumerGroupHandlerImpl) ConsumeClaim(sess sarama.ConsumerGroupSess
 		// If not, will raise `ErrRebalanceInProgress` or `read tcp <ip>:<port>: i/o timeout` when kafka rebalance. see:
 		// https://github.com/IBM/sarama/issues/1192
 		case <-sess.Context().Done():
+			logger.Info().Msg("session context was declared 'Done'")
 			return nil
 		}
 	}

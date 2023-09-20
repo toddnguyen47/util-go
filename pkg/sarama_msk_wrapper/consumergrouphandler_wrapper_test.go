@@ -81,33 +81,4 @@ func (s *SampleConsumerGroupTestSuite) Test_GivenSetup_ThenMakeSureReadyChanIsRe
 func (s *SampleConsumerGroupTestSuite) resetMonkeyPatching() {
 }
 
-type mockConsumerGroupClaimStruct struct {
-	sarama.ConsumerGroupClaim
-
-	chanConsumerMessage chan *sarama.ConsumerMessage
-}
-
-func newMockConsumerGroupClaimStruct() *mockConsumerGroupClaimStruct {
-	m := mockConsumerGroupClaimStruct{
-		chanConsumerMessage: make(chan *sarama.ConsumerMessage),
-	}
-	return &m
-}
-
-func (m *mockConsumerGroupClaimStruct) Topic() string {
-	return "topic"
-}
-
-func (m *mockConsumerGroupClaimStruct) Partition() int32 {
-	return 1
-}
-
-func (m *mockConsumerGroupClaimStruct) InitialOffset() int64 {
-	return 200
-}
-
-func (m *mockConsumerGroupClaimStruct) Messages() <-chan *sarama.ConsumerMessage {
-	return m.chanConsumerMessage
-}
-
 // #endregion
