@@ -91,7 +91,7 @@ func (i1 *myConsumerGroupHandlerBatchImpl) ConsumeClaim(sess sarama.ConsumerGrou
 		"generationId":   sess.GenerationID(),
 		"topic":          claim.Topic(),
 		"partition":      claim.Partition(),
-		"initialOffset":  claim.InitialOffset(),
+		"initialOffset":  _printer.Sprintf(_formatDigit, claim.InitialOffset()),
 		_strBatchSize:    i1.batchSize,
 		_strBatchTimeout: i1.batchTimeout.String(),
 	}
@@ -103,41 +103,50 @@ func (i1 *myConsumerGroupHandlerBatchImpl) ConsumeClaim(sess sarama.ConsumerGrou
 		case msg, ok := <-claim.Messages():
 			if !ok {
 				logger.Info().Msg("message channel was closed")
-				i1.processBeforeCleanup(sess)
+				i1.handleBeforeCleanup(sess)
 				return nil
 			}
-			i1.addToBatch(msg)
-			if len(i1.batch) >= int(i1.batchSize) {
-				// Only process if batch size is reached
-				i1.processBatch(sess)
-			}
+			i1.handleMessage(sess, msg)
 		case <-i1.ticker.C:
 			// Timed out! Process batch regardless of batch size
-			i1.processBatch(sess)
+			i1.handleTicker(sess)
 		// Should return when `session.Context()` is done.
 		// If not, will raise `ErrRebalanceInProgress` or `read tcp <ip>:<port>: i/o timeout` when kafka rebalance. see:
 		// https://github.com/IBM/sarama/issues/1192
 		case <-sess.Context().Done():
 			logger.Info().Msg("session context was declared 'Done'")
-			i1.processBeforeCleanup(sess)
+			i1.handleBeforeCleanup(sess)
 			return nil
 		}
 	}
 }
 
-func (i1 *myConsumerGroupHandlerBatchImpl) addToBatch(message *sarama.ConsumerMessage) {
+func (i1 *myConsumerGroupHandlerBatchImpl) handleMessage(sess sarama.ConsumerGroupSession,
+	message *sarama.ConsumerMessage) {
+
 	i1.mutex.Lock()
 	defer i1.mutex.Unlock()
-	if message != nil {
-		i1.batch = append(i1.batch, *message)
+	i1.batch = append(i1.batch, *message)
+	if len(i1.batch) >= int(i1.batchSize) {
+		// Only process if batch size is reached
+		i1.processBatch(sess)
 	}
+}
+
+func (i1 *myConsumerGroupHandlerBatchImpl) handleBeforeCleanup(sess sarama.ConsumerGroupSession) {
+	i1.handleTicker(sess)
+	i1.ticker.Stop()
+}
+
+func (i1 *myConsumerGroupHandlerBatchImpl) handleTicker(sess sarama.ConsumerGroupSession) {
+	i1.mutex.Lock()
+	defer i1.mutex.Unlock()
+	i1.processBatch(sess)
 }
 
 func (i1 *myConsumerGroupHandlerBatchImpl) processBatch(sess sarama.ConsumerGroupSession) {
 	lenBatch := len(i1.batch)
 	if lenBatch > 0 {
-		i1.mutex.Lock()
-		defer i1.mutex.Unlock()
 		logger := getLoggerWithName(_strBatchImpl + ":processBatch()")
 		fields := map[string]interface{}{
 			"memberId":         sess.MemberID(),
@@ -153,16 +162,11 @@ func (i1 *myConsumerGroupHandlerBatchImpl) processBatch(sess sarama.ConsumerGrou
 		if err != nil {
 			logger.Error().Err(err).Fields(fields).Msg(_msgErrorProcessingBatch)
 		}
-		// Only mark messages as completed after batch processes successfully
+		// Only mark messages as completed after each message processes successfully
 		for _, msg := range successfullyConsumedMessages {
 			sess.MarkMessage(&msg, _markedMetadata)
 		}
 		// Reset batch regardless of completion
 		i1.batch = make([]sarama.ConsumerMessage, 0)
 	}
-}
-
-func (i1 *myConsumerGroupHandlerBatchImpl) processBeforeCleanup(sess sarama.ConsumerGroupSession) {
-	i1.processBatch(sess)
-	i1.ticker.Stop()
 }

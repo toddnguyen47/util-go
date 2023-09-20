@@ -60,7 +60,7 @@ func (i1 *myConsumerGroupHandlerImpl) ConsumeClaim(sess sarama.ConsumerGroupSess
 		"generationId":  sess.GenerationID(),
 		"topic":         claim.Topic(),
 		"partition":     claim.Partition(),
-		"initialOffset": claim.InitialOffset(),
+		"initialOffset": _printer.Sprintf(_formatDigit, claim.InitialOffset()),
 	}
 
 	logger.Info().Fields(fields).Msg("Started ConsumeClaim")
