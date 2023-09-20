@@ -96,7 +96,6 @@ func (a1 *asyncProducerImpl) Start() {
 			ticker.Stop()
 		}()
 
-		// TODO: Add function to handle what happens if we did not publish a message within x hours
 	ProducerLoop:
 		for {
 			select {

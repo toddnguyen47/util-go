@@ -47,7 +47,6 @@ func (c1 *consumerWrapperImpl) startSync() {
 			ticker.Stop()
 		}()
 
-		// TODO: Write check for not consuming within x minutes / hours / etc.
 	ErrorLoop:
 		for {
 			select {
