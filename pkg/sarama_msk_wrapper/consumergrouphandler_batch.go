@@ -1,7 +1,6 @@
 package sarama_msk_wrapper
 
 import (
-	"strconv"
 	"sync"
 	"time"
 
@@ -89,10 +88,10 @@ func (i1 *myConsumerGroupHandlerBatchImpl) ConsumeClaim(sess sarama.ConsumerGrou
 	logger := getLoggerWithName(_strBatchImpl + ":ConsumeClaim()")
 	fields := map[string]interface{}{
 		"memberId":       sess.MemberID(),
-		"generationId":   string(sess.GenerationID()),
+		"generationId":   sess.GenerationID(),
 		"topic":          claim.Topic(),
-		"partition":      string(claim.Partition()),
-		"initialOffset":  strconv.FormatInt(claim.InitialOffset(), 10),
+		"partition":      claim.Partition(),
+		"initialOffset":  claim.InitialOffset(),
 		_strBatchSize:    i1.batchSize,
 		_strBatchTimeout: i1.batchTimeout.String(),
 	}
@@ -142,7 +141,7 @@ func (i1 *myConsumerGroupHandlerBatchImpl) processBatch(sess sarama.ConsumerGrou
 		logger := getLoggerWithName(_strBatchImpl + ":processBatch()")
 		fields := map[string]interface{}{
 			"memberId":         sess.MemberID(),
-			"generationId":     string(sess.GenerationID()),
+			"generationId":     sess.GenerationID(),
 			"currentBatchSize": lenBatch,
 			_strBatchSize:      i1.batchSize,
 			_strBatchTimeout:   i1.batchTimeout.String(),

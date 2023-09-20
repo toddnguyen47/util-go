@@ -1,8 +1,6 @@
 package sarama_msk_wrapper
 
 import (
-	"strconv"
-
 	"github.com/IBM/sarama"
 )
 
@@ -59,10 +57,10 @@ func (i1 *myConsumerGroupHandlerImpl) ConsumeClaim(sess sarama.ConsumerGroupSess
 	logger := getLoggerWithName(_packageNameConsumerGroup + ":ConsumeClaim()")
 	fields := map[string]interface{}{
 		"memberId":      sess.MemberID(),
-		"generationId":  string(sess.GenerationID()),
+		"generationId":  sess.GenerationID(),
 		"topic":         claim.Topic(),
-		"partition":     string(claim.Partition()),
-		"initialOffset": strconv.FormatInt(claim.InitialOffset(), 10),
+		"partition":     claim.Partition(),
+		"initialOffset": claim.InitialOffset(),
 	}
 
 	logger.Info().Fields(fields).Msg("Started ConsumeClaim")
