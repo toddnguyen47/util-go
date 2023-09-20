@@ -8,6 +8,7 @@ import (
 	"github.com/IBM/sarama"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"github.com/toddnguyen47/util-go/pkg/pointerutils"
 )
 
 // ############################################################################
@@ -19,13 +20,14 @@ import (
 // returns the current testing context
 type ConsumerGroupTestSuite struct {
 	suite.Suite
-	ctxBg             context.Context
-	mockConsumerGroup *mockConsumerGroup
-	metricCount       int
-	errorList         []error
-	topics            []string
-	mockProcessor     *mockProcessor
-	config            ConsumerGroupConfig
+	ctxBg              context.Context
+	mockConsumerGroup  *mockConsumerGroup
+	metricCount        int
+	errorList          []error
+	topics             []string
+	mockProcessor      *mockProcessor
+	mockBatchProcessor *mockBatchProcessor
+	config             ConsumerGroupConfig
 }
 
 func (s *ConsumerGroupTestSuite) SetupTest() {
@@ -35,6 +37,7 @@ func (s *ConsumerGroupTestSuite) SetupTest() {
 	s.errorList = make([]error, 0)
 	s.topics = []string{"topic1", "topic2"}
 	s.mockProcessor = newMockProcessor()
+	s.mockBatchProcessor = newMockBatchProcessor()
 	s.metricCount = 0
 	pubKey, privateKey := getCerts(s.T())
 	s.config = ConsumerGroupConfig{
@@ -77,6 +80,34 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOk_ThenReturnProperO
 		s.metricCount += 1
 	})
 	sutConsumerWrapper.Start()
+	// Starting twice on purpose for testing
+	sutConsumerWrapper.Start()
+	s.mockConsumerGroup.errorChan <- errForTests
+	time.Sleep(500 * time.Millisecond)
+	assert.False(s.T(), sutConsumerWrapper.HasStopped())
+	defer func() {
+		sutConsumerWrapper.Stop()
+		sutConsumerWrapper.Stop()
+		time.Sleep(sleepTime)
+		assert.True(s.T(), sutConsumerWrapper.HasStopped())
+	}()
+	time.Sleep(sleepTime)
+	// -- ASSERT --
+	assert.NotNil(s.T(), sutConsumerWrapper)
+	assert.Equal(s.T(), 1, sutConsumerWrapper.GetErrorCount())
+}
+
+func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupBatchInitOk_ThenReturnNil() {
+	// -- ARRANGE --
+	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
+		return s.mockConsumerGroup, nil
+	}
+	sleepTime := 100 * time.Millisecond
+	// -- ACT --
+	s.config.BatchSize = 5
+	s.config.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
+	s.config.DurationToResetCounter = pointerutils.PtrDuration(30 * time.Minute)
+	sutConsumerWrapper := NewConsumerWrapperBatchAutoStart(s.config, s.mockBatchProcessor)
 	// Starting twice on purpose for testing
 	sutConsumerWrapper.Start()
 	s.mockConsumerGroup.errorChan <- errForTests
@@ -241,6 +272,35 @@ func (s *ConsumerGroupTestSuite) Test_GivenCountersReset_ThenCounterIs0() {
 	// -- ASSERT --
 	assert.NotNil(s.T(), sutConsumerWrapper)
 	assert.Equal(s.T(), 0, sutConsumerWrapper.GetErrorCount())
+}
+
+func (s *ConsumerGroupTestSuite) Test_GivenBatchConfigErrorNoTopics_ThenPanic() {
+	// -- ARRANGE --
+	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
+		return s.mockConsumerGroup, nil
+	}
+	// -- ACT --
+	// -- ASSERT --
+	s.config.BatchSize = 5
+	s.config.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
+	s.config.Topics = make([]string, 0)
+	assert.Panics(s.T(), func() {
+		NewConsumerWrapperBatchAutoStart(s.config, s.mockBatchProcessor)
+	})
+}
+
+func (s *ConsumerGroupTestSuite) Test_GivenBatchSizeIsZero_ThenPanic() {
+	// -- ARRANGE --
+	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
+		return s.mockConsumerGroup, nil
+	}
+	// -- ACT --
+	// -- ASSERT --
+	s.config.BatchSize = 0
+	s.config.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
+	assert.Panics(s.T(), func() {
+		NewConsumerWrapperBatchAutoStart(s.config, s.mockBatchProcessor)
+	})
 }
 
 // ############################################################################

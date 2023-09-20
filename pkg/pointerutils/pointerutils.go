@@ -1,5 +1,7 @@
 package pointerutils
 
+import "time"
+
 func PtrString(input string) *string {
 	return &input
 }
@@ -18,4 +20,8 @@ func PtrInt64(input int64) *int64 {
 
 func PtrBool(input bool) *bool {
 	return &input
+}
+
+func PtrDuration(duration time.Duration) *time.Duration {
+	return &duration
 }

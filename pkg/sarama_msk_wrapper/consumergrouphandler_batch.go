@@ -15,8 +15,11 @@ type ConsumedBatchOfMessagesProcessor interface {
 }
 
 const (
-	msgErrorProcessingBatch = "error processing batched consumed messages"
-	strBatchImpl            = "myConsumerGroupHandlerBatchImpl"
+	_msgErrorProcessingBatch = "error processing batched consumed messages"
+
+	_strBatchImpl    = "myConsumerGroupHandlerBatchImpl"
+	_strBatchSize    = "batchSize"
+	_strBatchTimeout = "batchTimeout"
 )
 
 // /##########################################################\
@@ -26,7 +29,8 @@ const (
 // myConsumerGroupHandlerBatchImpl - Ref: https://pkg.go.dev/github.com/Shopify/sarama#example-ConsumerGroup
 type myConsumerGroupHandlerBatchImpl struct {
 	batchProcessor ConsumedBatchOfMessagesProcessor
-	batchSize      int
+	batchSize      uint
+	batchTimeout   time.Duration
 	ticker         *time.Ticker
 	mutex          sync.Mutex
 	batch          []sarama.ConsumerMessage
@@ -34,15 +38,16 @@ type myConsumerGroupHandlerBatchImpl struct {
 
 func newConsumerGroupHandlerBatch( // NOSONAR - need lots of parameters
 	batchProcessor ConsumedBatchOfMessagesProcessor,
-	batchTimeout time.Duration,
-	batchSize int) sarama.ConsumerGroupHandler {
+	batchSize uint,
+	batchTimeout time.Duration) sarama.ConsumerGroupHandler {
 
 	ticker := time.NewTicker(batchTimeout)
 
 	m := myConsumerGroupHandlerBatchImpl{
 		batchProcessor: batchProcessor,
-		ticker:         ticker,
 		batchSize:      batchSize,
+		batchTimeout:   batchTimeout,
+		ticker:         ticker,
 		mutex:          sync.Mutex{},
 		batch:          make([]sarama.ConsumerMessage, 0),
 	}
@@ -51,9 +56,11 @@ func newConsumerGroupHandlerBatch( // NOSONAR - need lots of parameters
 
 func (i1 *myConsumerGroupHandlerBatchImpl) Setup(sess sarama.ConsumerGroupSession) error {
 
-	logger := getLoggerWithName(strBatchImpl + ":Setup()")
+	logger := getLoggerWithName(_strBatchImpl + ":Setup()")
 	logger.Info().Str("memberId", sess.MemberID()).
 		Int32("generationId", sess.GenerationID()).
+		Uint(_strBatchSize, i1.batchSize).
+		Str(_strBatchTimeout, i1.batchTimeout.String()).
 		Msg("In SetUp() for the following fields")
 
 	return nil
@@ -61,9 +68,11 @@ func (i1 *myConsumerGroupHandlerBatchImpl) Setup(sess sarama.ConsumerGroupSessio
 
 func (i1 *myConsumerGroupHandlerBatchImpl) Cleanup(sess sarama.ConsumerGroupSession) error {
 
-	logger := getLoggerWithName(strBatchImpl + ":Cleanup()")
+	logger := getLoggerWithName(_strBatchImpl + ":Cleanup()")
 	logger.Info().Str("memberId", sess.MemberID()).
 		Int32("generationId", sess.GenerationID()).
+		Uint(_strBatchSize, i1.batchSize).
+		Str(_strBatchTimeout, i1.batchTimeout.String()).
 		Msg("In Cleanup() for the following fields")
 	return nil
 }
@@ -77,13 +86,15 @@ func (i1 *myConsumerGroupHandlerBatchImpl) Cleanup(sess sarama.ConsumerGroupSess
 func (i1 *myConsumerGroupHandlerBatchImpl) ConsumeClaim(sess sarama.ConsumerGroupSession,
 	claim sarama.ConsumerGroupClaim) error {
 
-	logger := getLoggerWithName(strBatchImpl + ":ConsumeClaim()")
+	logger := getLoggerWithName(_strBatchImpl + ":ConsumeClaim()")
 	fields := map[string]interface{}{
-		"memberId":      sess.MemberID(),
-		"generationId":  string(sess.GenerationID()),
-		"topic":         claim.Topic(),
-		"partition":     string(claim.Partition()),
-		"initialOffset": strconv.FormatInt(claim.InitialOffset(), 10),
+		"memberId":       sess.MemberID(),
+		"generationId":   string(sess.GenerationID()),
+		"topic":          claim.Topic(),
+		"partition":      string(claim.Partition()),
+		"initialOffset":  strconv.FormatInt(claim.InitialOffset(), 10),
+		_strBatchSize:    i1.batchSize,
+		_strBatchTimeout: i1.batchTimeout.String(),
 	}
 
 	logger.Info().Fields(fields).Msg("Started ConsumeClaim")
@@ -97,7 +108,7 @@ func (i1 *myConsumerGroupHandlerBatchImpl) ConsumeClaim(sess sarama.ConsumerGrou
 				return nil
 			}
 			i1.addToBatch(msg)
-			if len(i1.batch) >= i1.batchSize {
+			if len(i1.batch) >= int(i1.batchSize) {
 				// Only process if batch size is reached
 				i1.processBatch(sess)
 			}
@@ -128,18 +139,20 @@ func (i1 *myConsumerGroupHandlerBatchImpl) processBatch(sess sarama.ConsumerGrou
 	if lenBatch > 0 {
 		i1.mutex.Lock()
 		defer i1.mutex.Unlock()
-		logger := getLoggerWithName(strBatchImpl + ":processBatch()")
+		logger := getLoggerWithName(_strBatchImpl + ":processBatch()")
 		fields := map[string]interface{}{
 			"memberId":         sess.MemberID(),
 			"generationId":     string(sess.GenerationID()),
 			"currentBatchSize": lenBatch,
+			_strBatchSize:      i1.batchSize,
+			_strBatchTimeout:   i1.batchTimeout.String(),
 		}
 		logger.Info().Fields(fields).Msg("INIT processing batch of consumer messages")
 		successfullyConsumedMessages, err := i1.batchProcessor.ProcessConsumedBatchOfMessages(i1.batch)
 		fields["lenSuccessfullyConsumedMessages"] = len(successfullyConsumedMessages)
 		logger.Info().Fields(fields).Msg("END processing batch of consumer messages")
 		if err != nil {
-			logger.Error().Err(err).Fields(fields).Msg(msgErrorProcessingBatch)
+			logger.Error().Err(err).Fields(fields).Msg(_msgErrorProcessingBatch)
 		}
 		// Only mark messages as completed after batch processes successfully
 		for _, msg := range successfullyConsumedMessages {

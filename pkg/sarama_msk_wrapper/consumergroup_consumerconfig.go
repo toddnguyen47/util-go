@@ -20,6 +20,10 @@ type ConsumerGroupConfig struct {
 	ConsumerGroupId string
 	// Topics - REQUIRED.
 	Topics []string
+	// BatchSize - REQUIRED only for batch
+	BatchSize uint
+	// BatchTimeout - REQUIRED only for batch
+	BatchTimeout *time.Duration
 
 	// Optionals
 
@@ -37,6 +41,17 @@ func (c *ConsumerGroupConfig) validate() error {
 	)
 }
 
+func (c *ConsumerGroupConfig) validateBatch() error {
+	err := c.validate()
+	if err != nil {
+		return err
+	}
+	return validation.ValidateStruct(c,
+		validation.Field(&c.BatchSize, validation.Required, validation.Min(uint(0))),
+		validation.Field(&c.BatchTimeout, validation.Required),
+	)
+}
+
 func (c *ConsumerGroupConfig) string() string {
 	var sb strings.Builder
 	sb.WriteString("brokers -> ")
@@ -47,6 +62,7 @@ func (c *ConsumerGroupConfig) string() string {
 		sb.WriteString(elem)
 	}
 	sb.WriteString("; consumerGroupId -> " + c.ConsumerGroupId)
+	appendTopics(&sb, c.Topics)
 	return sb.String()
 }
 
@@ -95,12 +111,16 @@ func (c *ConsumerGroupConfigSasl) string() string {
 	}
 	sb.WriteString("; principal -> " + c.Principal)
 	sb.WriteString("; consumerGroupId -> " + c.ConsumerGroupId)
+	appendTopics(&sb, c.Topics)
+	return sb.String()
+}
+
+func appendTopics(sb *strings.Builder, topics []string) {
 	sb.WriteString("; topics -> ")
-	for i, elem := range c.Topics {
+	for i, elem := range topics {
 		if i > 0 {
 			sb.WriteString(", ")
 		}
 		sb.WriteString(elem)
 	}
-	return sb.String()
 }

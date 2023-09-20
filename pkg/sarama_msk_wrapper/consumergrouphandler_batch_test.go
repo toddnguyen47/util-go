@@ -41,7 +41,7 @@ func (s *ConsumerGroupHandlerBatchTestSuite) SetupTest() {
 	s.mockSess = newMockConsumerGroupSession()
 
 	// Set up sut (situation under test) now
-	s.sutImpl = newConsumerGroupHandlerBatch(s.mockBatchProcessor, s.timeout, s.batchSize)
+	s.sutImpl = newConsumerGroupHandlerBatch(s.mockBatchProcessor, uint(s.batchSize), s.timeout)
 	err := s.sutImpl.Setup(s.mockSess)
 	assert.Nil(s.T(), err)
 }

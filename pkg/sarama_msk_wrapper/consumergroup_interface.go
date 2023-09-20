@@ -120,6 +120,53 @@ func NewConsumerWrapperWithConsumerGroupHandler(
 	return &impl
 }
 
+// NewConsumerWrapperBatch - Create a ConsumerWrapper that batches consumed messages.
+func NewConsumerWrapperBatch( // NOSONAR - need lots of parameters
+	config ConsumerGroupConfig,
+	batchProcessor ConsumedBatchOfMessagesProcessor) ConsumerWrapper {
+
+	logger := getLoggerWithName(_packageNameConsumerGroup + ":NewConsumerWrapper()")
+	err := config.validateBatch()
+	if err != nil {
+		wrappedErr := fmt.Errorf("not all required fields are passed into NewConsumerWrapperBatch | err: %w", err)
+		logger.Error().Err(wrappedErr).Send()
+		panic(wrappedErr)
+	}
+
+	consumerGroup := newConsumerGroupWithKeys(config)
+	handlerWrapper := newConsumerGroupHandlerBatch(batchProcessor, config.BatchSize, *config.BatchTimeout)
+
+	impl := consumerWrapperImpl{
+		config:                      &config,
+		consumerGroup:               consumerGroup,
+		funcMetricErrorConsuming:    noopFunc,
+		funcErrorHandling:           noopFuncError,
+		consumerGroupHandlerWrapper: handlerWrapper,
+		hasStarted:                  atomic.Bool{},
+		hasStopped:                  atomic.Bool{},
+		stopChan:                    make(chan struct{}, 1),
+		errorCount:                  atomic.Uint32{},
+		topics:                      config.Topics,
+		durationToResetCounter:      DefaultTimerResetTime,
+	}
+
+	if config.DurationToResetCounter != nil {
+		impl.durationToResetCounter = *config.DurationToResetCounter
+	}
+	impl.hasStopped.Store(false)
+	return &impl
+}
+
+// NewConsumerWrapperBatchAutoStart - Create a ConsumerWrapper that batches consumed messages, then start consuming.
+func NewConsumerWrapperBatchAutoStart(
+	config ConsumerGroupConfig,
+	batchProcessor ConsumedBatchOfMessagesProcessor) ConsumerWrapper {
+
+	impl := NewConsumerWrapperBatch(config, batchProcessor)
+	impl.Start()
+	return impl
+}
+
 func NewDisabledConsumerWrapper() ConsumerWrapper {
 	logger := getLoggerWithName(_packageNameConsumerGroupDisabled + ":NewConsumerWrapper()")
 	logger.Warn().Msg("WARNING! Creating a new disabled ConsumerWrapper")
@@ -134,8 +181,7 @@ func NewDisabledConsumerWrapper() ConsumerWrapper {
 //
 // Please follow the example at https://pkg.go.dev/github.com/Shopify/sarama#example-ConsumerGroup.
 // Particularly, you MUST read the `Errors()` channel, otherwise there will be a deadlock.
-func newConsumerGroupWithKeys( // NOSONAR - need lots of parameters
-	config ConsumerGroupConfig) sarama.ConsumerGroup {
+func newConsumerGroupWithKeys(config ConsumerGroupConfig) sarama.ConsumerGroup {
 
 	logger := getLoggerWithName(_packageNameConsumerGroup + ":newConsumerGroupWithKeys()")
 	saramaConfig := saramaconfig.GetSaramaConfigSsl(config.PubKey, config.PrivateKey)
