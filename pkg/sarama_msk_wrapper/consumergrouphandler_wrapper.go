@@ -74,12 +74,13 @@ func (i1 *myConsumerGroupHandlerImpl) ConsumeClaim(sess sarama.ConsumerGroupSess
 				logger.Info().Msg("message channel was closed")
 				return nil
 			}
-			sess.MarkMessage(msg, _markedMetadata)
 			err := i1.processor.ProcessConsumedMessage(msg)
 			if err != nil {
 				logger.Error().Err(err).Fields(fields).Msg("error processing consumed message")
 				continue
 			}
+			// Only mark consumed message if it processes successfully
+			sess.MarkMessage(msg, _markedMetadata)
 		// Should return when `session.Context()` is done.
 		// If not, will raise `ErrRebalanceInProgress` or `read tcp <ip>:<port>: i/o timeout` when kafka rebalance. see:
 		// https://github.com/IBM/sarama/issues/1192

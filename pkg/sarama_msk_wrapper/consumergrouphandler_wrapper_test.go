@@ -2,6 +2,7 @@ package sarama_msk_wrapper
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -21,16 +22,28 @@ type SampleConsumerGroupTestSuite struct {
 	suite.Suite
 	ctxBg         context.Context
 	mockProcessor *mockProcessor
+	mockSess      *mockConsumerGroupSession
+	mockClaim     *mockConsumerGroupClaimStruct
+
+	// situation under test
+	sutConsumerGroupHandlerWrapper sarama.ConsumerGroupHandler
 }
 
 func (s *SampleConsumerGroupTestSuite) SetupTest() {
 	s.resetMonkeyPatching()
 	s.ctxBg = context.Background()
 	s.mockProcessor = newMockProcessor()
+	s.mockSess = newMockConsumerGroupSession()
+	s.mockClaim = newMockConsumerGroupClaimStruct()
+	s.sutConsumerGroupHandlerWrapper = newConsumerGroupHandlerWrapper(s.mockProcessor)
+	err := s.sutConsumerGroupHandlerWrapper.Setup(s.mockSess)
+	assert.Nil(s.T(), err)
 }
 
 func (s *SampleConsumerGroupTestSuite) TearDownTest() {
 	s.resetMonkeyPatching()
+	err := s.sutConsumerGroupHandlerWrapper.Cleanup(s.mockSess)
+	assert.Nil(s.T(), err)
 }
 
 // In order for 'go test' to run this suite, we need to create
@@ -45,33 +58,57 @@ func TestSampleConsumerGroupTestSuite(t *testing.T) {
 // #region TESTS ARE BELOW
 // ############################################################################
 
-func (s *SampleConsumerGroupTestSuite) Test_GivenSetup_ThenMakeSureReadyChanIsReady() {
+func (s *SampleConsumerGroupTestSuite) Test_GivenOk_ThenConsumeClaimProperly() {
 	// -- ARRANGE --
-	sutConsumerGroupHandlerWrapper := newConsumerGroupHandlerWrapper(s.mockProcessor)
 	s.mockProcessor.mpfProcess.SetCode("F")
-	mockSess := newMockConsumerGroupSession()
-	// -- ACT --
-	// -- ASSERT --
-	err := sutConsumerGroupHandlerWrapper.Setup(mockSess)
-	assert.Nil(s.T(), err)
-	time.Sleep(50 * time.Millisecond)
-	err = sutConsumerGroupHandlerWrapper.Cleanup(mockSess)
-	assert.Nil(s.T(), err)
-	mockClaim := newMockConsumerGroupClaimStruct()
 	go func() {
 		msg := sarama.ConsumerMessage{
 			Key:   []byte("key"),
 			Value: []byte("value"),
 		}
-		mockClaim.chanConsumerMessage <- &msg
-		mockClaim.chanConsumerMessage <- &msg
-		mockClaim.chanConsumerMessage <- &msg
+		s.mockClaim.chanConsumerMessage <- &msg
+		s.mockClaim.chanConsumerMessage <- &msg
+		s.mockClaim.chanConsumerMessage <- &msg
 		time.Sleep(250 * time.Millisecond)
 		// close messages channel now
-		close(mockClaim.chanConsumerMessage)
+		close(s.mockClaim.chanConsumerMessage)
 	}()
-	err = sutConsumerGroupHandlerWrapper.ConsumeClaim(mockSess, mockClaim)
+	// -- ACT --
+	// -- ASSERT --
+	err := s.sutConsumerGroupHandlerWrapper.ConsumeClaim(s.mockSess, s.mockClaim)
 	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 3, s.mockProcessor.mpfProcess.GetCount())
+	assert.Equal(s.T(), 2, s.mockSess.mpfMarkMessage.GetCount())
+}
+
+func (s *SampleConsumerGroupTestSuite) Test_GivenContextCancelled_ThenConsumeClaimProperly() {
+	// -- ARRANGE --
+	s.mockProcessor.mpfProcess.SetCode("F")
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		msg := sarama.ConsumerMessage{
+			Key:   []byte("key"),
+			Value: []byte("value"),
+		}
+		s.mockClaim.chanConsumerMessage <- &msg
+		s.mockClaim.chanConsumerMessage <- &msg
+		s.mockClaim.chanConsumerMessage <- &msg
+		time.Sleep(250 * time.Millisecond)
+		wg.Done()
+	}()
+	go func() {
+		time.Sleep(250 * time.Millisecond)
+		s.mockSess.cancel()
+	}()
+	// -- ACT --
+	// -- ASSERT --
+	err := s.sutConsumerGroupHandlerWrapper.ConsumeClaim(s.mockSess, s.mockClaim)
+	wg.Wait()
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 3, s.mockProcessor.mpfProcess.GetCount())
+	assert.Equal(s.T(), 2, s.mockSess.mpfMarkMessage.GetCount())
+	close(s.mockClaim.chanConsumerMessage)
 }
 
 // ############################################################################
