@@ -25,8 +25,9 @@ var errForTests = errors.New("errForTests")
 // returns the current testing context
 type SaramaConfigTestSuite struct {
 	suite.Suite
-	ctxBg    context.Context
-	certPool *x509.CertPool
+	ctxBg     context.Context
+	certPool  *x509.CertPool
+	principal string
 }
 
 func (s *SaramaConfigTestSuite) SetupTest() {
@@ -36,18 +37,19 @@ func (s *SaramaConfigTestSuite) SetupTest() {
 	_getCertsFrom = func(certsLocation string) (*x509.CertPool, error) {
 		return s.certPool, nil
 	}
+	s.principal = "username@realm"
 }
 
 func (s *SaramaConfigTestSuite) TearDownTest() {
 	s.resetMonkeyPatching()
 
-	tmpCertFolder := saramainject.TmpCertFolder()
+	// Remove tmpCertFolder
+	tmpCertFolder := saramainject.TmpCertFolder(s.principal)
 	files, err := filepath.Glob(tmpCertFolder + "/*")
 	assert.Nil(s.T(), err)
 	for _, file := range files {
 		_ = osutils.RemoveIfExists(file)
 	}
-
 	_ = osutils.RemoveIfExists(tmpCertFolder)
 }
 
@@ -84,8 +86,7 @@ func (s *SaramaConfigTestSuite) Test_GivenTlsError_ThenPanics() {
 func (s *SaramaConfigTestSuite) Test_GivenProperSASLSSLCerts_ThenGetConfigProperly() {
 	// -- ARRANGE --
 	// -- ACT --
-	config := GetSaramaConfigSasl("username@realm.com", []byte("kerbKeyTab"), []byte("kerbConf"),
-		[]byte("sslCert"))
+	config := GetSaramaConfigSasl(s.principal, []byte("kerbKeyTab"), []byte("kerbConf"), []byte("sslCert"))
 	// -- ASSERT --
 	assert.NotNil(s.T(), config)
 }
@@ -98,8 +99,7 @@ func (s *SaramaConfigTestSuite) Test_GivenNonProperSASLSSLCerts_ThenPanic() {
 	// -- ACT --
 	// -- ASSERT --
 	assert.Panics(s.T(), func() {
-		GetSaramaConfigSasl("username@realm.com", []byte("kerbKeyTab"), []byte("kerbConf"),
-			[]byte("sslCert"))
+		GetSaramaConfigSasl(s.principal, []byte("kerbKeyTab"), []byte("kerbConf"), []byte("sslCert"))
 	})
 }
 

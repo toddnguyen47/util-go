@@ -40,6 +40,7 @@ type consumerWrapperImpl struct {
 	stopChan                    chan struct{}
 	errorCount                  atomic.Uint32
 	topics                      []string
+	principal                   string
 	durationToResetCounter      time.Duration
 }
 

@@ -47,7 +47,7 @@ func GetSaramaConfigSasl(principal string, kerbKeytab []byte, kerbConf []byte, s
 
 	saramaConfig := sarama.NewConfig()
 
-	injectPaths := saramainject.Inject(kerbKeytab, kerbConf, sslCert)
+	injectPaths := saramainject.Inject(principal, kerbKeytab, kerbConf, sslCert)
 	principalList := strings.Split(principal, "@")
 
 	saramaConfig.Net.SASL.Enable = true

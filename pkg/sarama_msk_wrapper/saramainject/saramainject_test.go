@@ -25,24 +25,26 @@ var mpfWriteDir testhelpers.MockPassFail
 // returns the current testing context
 type SaramaInjectTestSuite struct {
 	suite.Suite
-	ctxBg context.Context
+	ctxBg     context.Context
+	principal string
 }
 
 func (s *SaramaInjectTestSuite) SetupTest() {
 	s.resetMonkeyPatching()
 	s.ctxBg = context.Background()
+	s.principal = "username@realm"
 }
 
 func (s *SaramaInjectTestSuite) TearDownTest() {
 	s.resetMonkeyPatching()
 
-	tmpCertFolder := TmpCertFolder()
+	// Remove tmpCertFolder
+	tmpCertFolder := TmpCertFolder(s.principal)
 	files, err := filepath.Glob(tmpCertFolder + "/*")
 	assert.Nil(s.T(), err)
 	for _, file := range files {
 		_ = osutils.RemoveIfExists(file)
 	}
-
 	_ = osutils.RemoveIfExists(tmpCertFolder)
 }
 
@@ -61,7 +63,7 @@ func TestSaramaInjectTestSuite(t *testing.T) {
 func (s *SaramaInjectTestSuite) Test_GivenProperSASLSSLCerts_WhenInject_ThenGetConfigProperly() {
 	// -- ARRANGE --
 	// -- ACT --
-	path := Inject([]byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
+	path := Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	certs, err := GetCertsFrom(path.SslCert)
 	// -- ASSERT --
 	assert.NotEqual(s.T(), "", path.KerbKeytab)
@@ -77,7 +79,7 @@ func (s *SaramaInjectTestSuite) Test_GivenProperSASLSSLCerts_WhenInject_ThenGetC
 func (s *SaramaInjectTestSuite) Test_GivenNotProperSslCert_ThenReturnError() {
 	// -- ARRANGE --
 	// -- ACT --
-	path := Inject([]byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
+	path := Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	certs, err := GetCertsFrom(path.SslCert)
 	// -- ASSERT --
 	assert.NotEqual(s.T(), "", path.KerbKeytab)
@@ -95,7 +97,7 @@ func (s *SaramaInjectTestSuite) Test_GivenOsMkdirAllError_ThenPanic() {
 	// -- ACT --
 	// -- ASSERT --
 	assert.Panics(s.T(), func() {
-		Inject([]byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
+		Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	})
 }
 
@@ -106,7 +108,7 @@ func (s *SaramaInjectTestSuite) Test_GivenInjectKerbKeytabError_ThenPanic() {
 	// -- ACT --
 	// -- ASSERT --
 	assert.Panics(s.T(), func() {
-		Inject([]byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
+		Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	})
 }
 
@@ -117,7 +119,7 @@ func (s *SaramaInjectTestSuite) Test_GivenInjectKerbConfError_ThenPanic() {
 	// -- ACT --
 	// -- ASSERT --
 	assert.Panics(s.T(), func() {
-		Inject([]byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
+		Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	})
 }
 
@@ -128,7 +130,7 @@ func (s *SaramaInjectTestSuite) Test_GivenInjectSslCertError_ThenPanic() {
 	// -- ACT --
 	// -- ASSERT --
 	assert.Panics(s.T(), func() {
-		Inject([]byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
+		Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	})
 }
 

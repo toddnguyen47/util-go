@@ -61,8 +61,11 @@ func (a1 *asyncProducerImpl) Stop() {
 	a1.hasStopped.Store(true)
 	close(a1.stopChan)
 	_ = _wr.Close()
+	if a1.principal != "" {
+		deleteTmpCerts(a1.principal)
+	}
+
 	time.Sleep(_terminationDelay)
-	deleteTmpCerts()
 	logger.Info().Fields(fields).Msg("Finished termination delay")
 }
 

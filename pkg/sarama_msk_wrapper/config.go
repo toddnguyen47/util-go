@@ -90,11 +90,11 @@ type configInterface interface {
 	string() string
 }
 
-func deleteTmpCerts() {
+func deleteTmpCerts(principal string) {
 
 	logger := getLoggerWithName("sarama_msk_wrapper:deleteTmpCerts()")
 	filesList := make([]string, 0)
-	tmpCertFolder := saramainject.TmpCertFolder()
+	tmpCertFolder := saramainject.TmpCertFolder(principal)
 	for _, extension := range _certExtensions {
 		files, err := _filepathGlob(tmpCertFolder + "/*" + extension)
 		if err != nil {

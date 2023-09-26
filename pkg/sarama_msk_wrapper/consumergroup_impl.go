@@ -109,9 +109,11 @@ func (c1 *consumerWrapperImpl) Stop() {
 	close(c1.stopChan)
 
 	_ = _wr.Close()
+	if c1.principal != "" {
+		deleteTmpCerts(c1.principal)
+	}
 
 	time.Sleep(_terminationDelay)
-	deleteTmpCerts()
 	logger.Info().Fields(fields).Msg("Finished termination delay")
 }
 

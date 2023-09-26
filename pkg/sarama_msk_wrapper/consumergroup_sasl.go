@@ -42,6 +42,7 @@ func NewConsumerWrapperSaslSsl(config ConsumerGroupConfigSasl, processor Consume
 		stopChan:                    make(chan struct{}, 1),
 		errorCount:                  atomic.Uint32{},
 		topics:                      config.Topics,
+		principal:                   config.Principal,
 		durationToResetCounter:      DefaultTimerResetTime,
 	}
 

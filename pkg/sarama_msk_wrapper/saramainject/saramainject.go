@@ -2,16 +2,14 @@ package saramainject
 
 import (
 	"crypto/x509"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/diode"
-	"github.com/toddnguyen47/util-go/pkg/timeisoparser"
 )
-
-var InputTime = timeisoparser.NowUTC()
 
 const (
 	defaultBasePath           = "/tmp"
@@ -39,20 +37,20 @@ type InjectPath struct {
 	SslCert    string
 }
 
-func TmpCertFolder() string {
-	nowStr := InputTime.Format(timeisoparser.ISO8601FileName)
-	s1 := fmt.Sprintf("%s/a-%s", defaultBasePath, nowStr)
+func TmpCertFolder(principal string) string {
+	base64Principal := base64.StdEncoding.EncodeToString([]byte(principal))
+	s1 := fmt.Sprintf("%s/base64_%s", defaultBasePath, base64Principal)
 	return s1
 }
 
-// Inject - inject KerbKeytab, KerbConf, and SslCerts. Return the path in order as well.
-func Inject(KerbKeytab []byte, KerbConf []byte, SslCerts []byte) InjectPath {
+// Inject - inject kerbKeytab, kerbConf, and sslCerts. Return the path in order as well.
+func Inject(principal string, kerbKeytab []byte, kerbConf []byte, sslCerts []byte) InjectPath {
 	logger := _packageLogger.With().Str("functionName", _packageName+":inject()").Logger()
-	logger.Info().Msg("INJECTING!")
+	tmpCertFolder := TmpCertFolder(principal)
+	logger.Info().Str("tmpCertFolder", tmpCertFolder).Msg("INJECTING!")
 	const permission = 0666
 	const formatStr = "%s/%s"
 
-	tmpCertFolder := TmpCertFolder()
 	err := _osMkdirAll(tmpCertFolder, 0750)
 	if err != nil {
 		logger.Error().Err(err).Msg("error making directory")
@@ -61,7 +59,7 @@ func Inject(KerbKeytab []byte, KerbConf []byte, SslCerts []byte) InjectPath {
 
 	// inject KERB_KEYTAB
 	keyTabLocation := fmt.Sprintf(formatStr, tmpCertFolder, defaultFileNameKerbKeytab)
-	err = _osWriteFile(keyTabLocation, KerbKeytab, permission)
+	err = _osWriteFile(keyTabLocation, kerbKeytab, 0666)
 	if err != nil {
 		newErr := fmt.Errorf("error wring KERB_KEYTAB; err: %w", err)
 		logger.Error().Err(newErr).Send()
@@ -70,9 +68,9 @@ func Inject(KerbKeytab []byte, KerbConf []byte, SslCerts []byte) InjectPath {
 
 	// inject KERB_CONF
 	var KerbConfLocation string
-	if KerbConf != nil {
+	if kerbConf != nil {
 		KerbConfLocation = fmt.Sprintf(formatStr, tmpCertFolder, defaultFileNameKerbConf)
-		err = _osWriteFile(KerbConfLocation, KerbConf, permission)
+		err = _osWriteFile(KerbConfLocation, kerbConf, permission)
 		if err != nil {
 			newErr := fmt.Errorf("error writing KERB_CONF; err: %w", err)
 			logger.Error().Err(newErr).Send()
@@ -82,9 +80,9 @@ func Inject(KerbKeytab []byte, KerbConf []byte, SslCerts []byte) InjectPath {
 
 	// inject SSL_CERT
 	var SslCertLocation string
-	if SslCerts != nil {
+	if sslCerts != nil {
 		SslCertLocation = fmt.Sprintf(formatStr, tmpCertFolder, defaultFileNameSslCert)
-		err = _osWriteFile(SslCertLocation, SslCerts, permission)
+		err = _osWriteFile(SslCertLocation, sslCerts, permission)
 		if err != nil {
 			newErr := fmt.Errorf("error writing SSL_CERT; err: %w", err)
 			logger.Error().Err(newErr).Send()

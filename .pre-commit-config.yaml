@@ -34,6 +34,11 @@ repos:
         name: run 'go mod tidy'
         entry: scripts/run_go_mod_tidy.sh
         language: script
+      - id: go-lines
+        name: run 'golines'
+        entry: scripts/run_golines.sh
+        language: script
+        types: [go]
       - id: go-static
         name: run static analysis checker on Go code
         entry: scripts/filewatcher_staticcheck.sh ./...

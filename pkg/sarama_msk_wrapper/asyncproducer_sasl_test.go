@@ -10,6 +10,8 @@ import (
 	"github.com/IBM/sarama"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"github.com/toddnguyen47/util-go/pkg/osutils"
+	"github.com/toddnguyen47/util-go/pkg/sarama_msk_wrapper/saramainject"
 )
 
 // ############################################################################
@@ -32,7 +34,7 @@ func (s *AsyncProducerSaslTestSuite) SetupTest() {
 	s.ctxBg = context.Background()
 	duration := 50 * time.Millisecond
 	s.config = AsyncProducerConfigSasl{
-		Principal:              "username@realm.net",
+		Principal:              "username@realm",
 		Brokers:                []string{"broker1:9094", "broker2:9094"},
 		KerbKeytab:             []byte("kerbKeytab"),
 		DurationToResetCounter: &duration,
@@ -51,6 +53,15 @@ func (s *AsyncProducerSaslTestSuite) SetupTest() {
 func (s *AsyncProducerSaslTestSuite) TearDownTest() {
 	s.resetMonkeyPatching()
 	s.mockAsyncProducer1.stop()
+
+	// Remove tmpCertFolder
+	tmpCertFolder := saramainject.TmpCertFolder(s.config.Principal)
+	files, err := filepath.Glob(tmpCertFolder + "/*")
+	assert.Nil(s.T(), err)
+	for _, file := range files {
+		_ = osutils.RemoveIfExists(file)
+	}
+	_ = osutils.RemoveIfExists(tmpCertFolder)
 }
 
 // In order for 'go test' to run this suite, we need to create

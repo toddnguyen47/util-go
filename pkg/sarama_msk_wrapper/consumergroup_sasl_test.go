@@ -2,12 +2,15 @@ package sarama_msk_wrapper
 
 import (
 	"context"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/IBM/sarama"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"github.com/toddnguyen47/util-go/pkg/osutils"
+	"github.com/toddnguyen47/util-go/pkg/sarama_msk_wrapper/saramainject"
 )
 
 // ############################################################################
@@ -31,7 +34,7 @@ func (s *ConsumerGroupSaslTestSuite) SetupTest() {
 	s.mockConsumerGroup = newMockConsumerGroup()
 	duration := 50 * time.Millisecond
 	s.config = ConsumerGroupConfigSasl{
-		Principal:              "username@realm.net",
+		Principal:              "username@realm",
 		Brokers:                []string{"broker1:9094", "broker2:9094"},
 		KerbKeytab:             []byte("kerbKeytab"),
 		ConsumerGroupId:        "consumerGroupId",
@@ -47,6 +50,15 @@ func (s *ConsumerGroupSaslTestSuite) SetupTest() {
 func (s *ConsumerGroupSaslTestSuite) TearDownTest() {
 	s.resetMonkeyPatching()
 	s.mockConsumerGroup.stop()
+
+	// Remove tmpCertFolder
+	tmpCertFolder := saramainject.TmpCertFolder(s.config.Principal)
+	files, err := filepath.Glob(tmpCertFolder + "/*")
+	assert.Nil(s.T(), err)
+	for _, file := range files {
+		_ = osutils.RemoveIfExists(file)
+	}
+	_ = osutils.RemoveIfExists(tmpCertFolder)
 }
 
 // In order for 'go test' to run this suite, we need to create

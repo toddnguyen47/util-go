@@ -59,6 +59,7 @@ type AsyncProducerWrapper interface {
 
 type asyncProducerImpl struct {
 	config                   configInterface
+	principal                string
 	asyncProducer            sarama.AsyncProducer
 	funcMetricErrorProducing func()
 	funcErrorHandling        func(err error)
