@@ -2,8 +2,8 @@ package saramainject
 
 import (
 	"crypto/x509"
-	"encoding/base64"
 	"fmt"
+	"net/url"
 	"os"
 	"time"
 
@@ -38,8 +38,8 @@ type InjectPath struct {
 }
 
 func TmpCertFolder(principal string) string {
-	base64Principal := base64.StdEncoding.EncodeToString([]byte(principal))
-	s1 := fmt.Sprintf("%s/base64_%s", defaultBasePath, base64Principal)
+	escapedPrincipal := url.QueryEscape(principal)
+	s1 := fmt.Sprintf("%s/esc_%s", defaultBasePath, escapedPrincipal)
 	return s1
 }
 
