@@ -13,11 +13,13 @@ type MockPassFail interface {
 
 	// SetCode - pass in a code consisting of "F" and "P". "F" for FAIL, "P" for pass.
 	// example code: "FFP", meaning fail twice, and then pass the third time.
+	// By default, if the string code is empty then it will PASS the test.
 	SetCode(code string)
 
 	// WillPassIncrementCount - return if the function should pass or not. Will also increment the count.
 	WillPassIncrementCount() error
 
+	// GetCount - Get how many times this MockPassFail interface was called.
 	GetCount() int
 }
 
