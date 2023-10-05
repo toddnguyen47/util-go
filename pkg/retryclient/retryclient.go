@@ -2,10 +2,12 @@ package retryclient
 
 import (
 	"bytes"
-	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/toddnguyen47/util-go/pkg/retryjitter"
 )
 
 type clientInterface interface {
@@ -19,9 +21,12 @@ type RetryConfig struct {
 	Request    *http.Request
 }
 
-var (
-	ErrRetryFailure = errors.New("retry failure")
-)
+func (r *RetryConfig) validate() error {
+	if r.RetryTimes == 0 {
+		return fmt.Errorf("retry times need to be greater than zero")
+	}
+	return nil
+}
 
 /*
 Retry
@@ -38,12 +43,14 @@ Example usage:
 		})
 */
 func Retry(retryConfig RetryConfig) (*http.Response, error) {
-	retries := uint(0)
-	keepRetrying := true
 
 	resp := &http.Response{
 		StatusCode: http.StatusInternalServerError,
 		Body:       io.NopCloser(bytes.NewReader([]byte("{}"))),
+	}
+	retryErr := retryConfig.validate()
+	if retryErr != nil {
+		return resp, retryErr
 	}
 
 	// Reuse body if there is one
@@ -56,29 +63,23 @@ func Retry(retryConfig RetryConfig) (*http.Response, error) {
 		}
 	}
 
-	var err error
-
-	for keepRetrying && retries < retryConfig.RetryTimes {
-		if retries > 0 {
-			sleepTime := (1 << retries) * retryConfig.SleepTime
-			time.Sleep(sleepTime)
-		}
+	retryErr = retryjitter.Retry(int(retryConfig.RetryTimes), func() error {
+		var innerErr error
 		req := retryConfig.Request
 		if postPayload != nil {
 			req.Body = io.NopCloser(bytes.NewReader(postPayload))
 		}
-		resp, err = retryConfig.Client.Do(req)
-		if err == nil && resp.StatusCode >= http.StatusOK && resp.StatusCode <= 299 {
-			// Success! We do not need to retry anymore
-			keepRetrying = false
+		resp, innerErr = retryConfig.Client.Do(req)
+		if innerErr != nil {
+			return innerErr
 		}
+		statusCode := resp.StatusCode
+		if statusCode < http.StatusOK || resp.StatusCode > 299 {
+			newErr := fmt.Errorf("status code is NOT OK; status code: %d", statusCode)
+			return newErr
+		}
+		return nil
+	})
 
-		retries += 1
-	}
-
-	if err == nil && keepRetrying && retries >= retryConfig.RetryTimes {
-		err = ErrRetryFailure
-	}
-
-	return resp, err
+	return resp, retryErr
 }

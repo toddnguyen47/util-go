@@ -99,7 +99,7 @@ func (s *RetryClientTestSuite) Test_GivenRetryUnsuccessful_ThenErrIsNotNil() {
 		Request:    req,
 	})
 	// -- ASSERT --
-	assert.True(s.T(), errors.Is(err, ErrRetryFailure), "Error should be ErrRetryFailure")
+	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), http.StatusBadRequest, resp.StatusCode)
 }
 
@@ -133,7 +133,7 @@ func (s *RetryClientTestSuite) Test_GivenRetryLessThanZero_ThenErrIsNotNil() {
 		Request:    req,
 	})
 	// -- ASSERT --
-	assert.True(s.T(), errors.Is(err, ErrRetryFailure), "Error should be ErrRetryFailure")
+	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), http.StatusInternalServerError, resp.StatusCode)
 }
 
