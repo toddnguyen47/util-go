@@ -7,17 +7,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/toddnguyen47/util-go/pkg/clientinterface"
 	"github.com/toddnguyen47/util-go/pkg/retryjitter"
 )
-
-type clientInterface interface {
-	Do(req *http.Request) (*http.Response, error)
-}
 
 type RetryConfig struct {
 	RetryTimes uint
 	SleepTime  time.Duration
-	Client     clientInterface
+	Client     clientinterface.Client
 	Request    *http.Request
 }
 
@@ -28,20 +25,18 @@ func (r *RetryConfig) validate() error {
 	return nil
 }
 
-/*
-Retry
-
-Retry a client call with exponential backoff. Ref: https://docs.aws.amazon.com/general/latest/gr/api-retries.html
-
-Example usage:
-
-	resp, err := Retry(RetryConfig{
-			RetryTimes: 3,
-			SleepTime:  100 * time.Millisecond,
-			Client:     client,
-			Request:    req,
-		})
-*/
+// Retry
+//
+// Retry a client call with exponential backoff. Ref: https://docs.aws.amazon.com/general/latest/gr/api-retries.html
+//
+// Example usage:
+//
+//	resp, err := Retry(RetryConfig{
+//		RetryTimes: 3,
+//		SleepTime:  100 * time.Millisecond,
+//		Client:     client,
+//		Request:    req,
+//	})
 func Retry(retryConfig RetryConfig) (*http.Response, error) {
 
 	resp := &http.Response{
