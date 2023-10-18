@@ -27,6 +27,16 @@ func Test_GivenInt64_ThenReturnPointerInt(t *testing.T) {
 	assert.Equal(t, &input, PtrInt64(input))
 }
 
+func Test_GivenFloat32_ThenReturnPointerInt(t *testing.T) {
+	input := float32(2.42)
+	assert.Equal(t, &input, PtrFloat32(input))
+}
+
+func Test_GivenFloat64_ThenReturnPointerInt(t *testing.T) {
+	input := float64(2.42)
+	assert.Equal(t, &input, PtrFloat64(input))
+}
+
 func Test_GivenBool_ThenReturnPointerBool(t *testing.T) {
 	input := false
 	assert.Equal(t, &input, PtrBool(input))

@@ -18,6 +18,14 @@ func PtrInt64(input int64) *int64 {
 	return &input
 }
 
+func PtrFloat32(input float32) *float32 {
+	return &input
+}
+
+func PtrFloat64(input float64) *float64 {
+	return &input
+}
+
 func PtrBool(input bool) *bool {
 	return &input
 }
