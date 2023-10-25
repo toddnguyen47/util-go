@@ -88,39 +88,6 @@ func NewConsumerWrapperAutoStart(config ConsumerGroupConfig, processor ConsumedM
 	return impl
 }
 
-func NewConsumerWrapperWithConsumerGroupHandler(
-	config ConsumerGroupConfig,
-	handler sarama.ConsumerGroupHandler) ConsumerWrapper {
-
-	err := config.validate()
-	if err != nil {
-		err2 := fmt.Errorf("not all required fields are passed into NewConsumerWrapper | err: %w", err)
-		panic(err2)
-	}
-
-	consumerGroup := newConsumerGroupWithKeys(config)
-
-	impl := consumerWrapperImpl{
-		config:                      &config,
-		consumerGroup:               consumerGroup,
-		funcMetricErrorConsuming:    noopFunc,
-		funcErrorHandling:           noopFuncError,
-		consumerGroupHandlerWrapper: handler,
-		hasStarted:                  atomic.Bool{},
-		hasStopped:                  atomic.Bool{},
-		stopChan:                    make(chan struct{}),
-		errorCount:                  atomic.Uint32{},
-		topics:                      config.Common.Topics,
-		durationToResetCounter:      DefaultTimerResetTime,
-	}
-
-	if config.Common.DurationToResetCounter != nil {
-		impl.durationToResetCounter = *config.Common.DurationToResetCounter
-	}
-	impl.hasStopped.Store(false)
-	return &impl
-}
-
 // NewConsumerWrapperBatch - Create a ConsumerWrapper that batches consumed messages.
 func NewConsumerWrapperBatch( // NOSONAR - need lots of parameters
 	config ConsumerGroupConfig,

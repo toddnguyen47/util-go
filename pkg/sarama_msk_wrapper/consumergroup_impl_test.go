@@ -130,38 +130,6 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupBatchInitOk_ThenReturnNi
 	assert.Equal(s.T(), 1, sutConsumerWrapper.GetErrorCount())
 }
 
-func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOkWithConsumerGroupHandler_ThenReturnProperObject() {
-	// -- ARRANGE --
-	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
-		return s.mockConsumerGroup, nil
-	}
-	wrapper := newConsumerGroupHandlerWrapper(s.mockProcessor)
-	sleepTime := 100 * time.Millisecond
-	dur := 5 * time.Minute
-	s.config.Common.DurationToResetCounter = &dur
-	// -- ACT --
-	sutConsumerWrapper := NewConsumerWrapperWithConsumerGroupHandler(s.config, wrapper)
-	sutConsumerWrapper.SetErrorHandlingFunction(func(err error) {
-		s.errorList = append(s.errorList, err)
-	})
-	sutConsumerWrapper.SetMetricFunctionErrorConsuming(func() {
-		s.metricCount += 1
-	})
-	sutConsumerWrapper.Start()
-	s.mockConsumerGroup.errorChan <- errForTests
-	time.Sleep(500 * time.Millisecond)
-	assert.False(s.T(), sutConsumerWrapper.HasStopped())
-	defer func() {
-		sutConsumerWrapper.Stop()
-		time.Sleep(sleepTime)
-		assert.True(s.T(), sutConsumerWrapper.HasStopped())
-	}()
-	time.Sleep(sleepTime)
-	// -- ASSERT --
-	assert.NotNil(s.T(), sutConsumerWrapper)
-	assert.Equal(s.T(), 1, sutConsumerWrapper.GetErrorCount())
-}
-
 func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOkContextCancelled_ThenReturnProperObject() {
 	// -- ARRANGE --
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
@@ -240,20 +208,6 @@ func (s *ConsumerGroupTestSuite) Test_GivenNewConsumerWrapperConfigValidationErr
 	assert.Panics(s.T(), func() {
 		config := ConsumerGroupConfig{}
 		NewConsumerWrapper(config, s.mockProcessor)
-	})
-}
-
-func (s *ConsumerGroupTestSuite) Test_GivenNewConsumerWrapperWithHandlerConfigValidationError_ThenPanic() {
-	// -- ARRANGE --
-	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
-		return s.mockConsumerGroup, nil
-	}
-	handler := newConsumerGroupHandlerWrapper(s.mockProcessor)
-	// -- ACT --
-	// -- ASSERT --
-	assert.Panics(s.T(), func() {
-		config := ConsumerGroupConfig{}
-		NewConsumerWrapperWithConsumerGroupHandler(config, handler)
 	})
 }
 
