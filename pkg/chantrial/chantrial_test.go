@@ -89,7 +89,7 @@ func subscriber(chanString <-chan string, publisherDone <-chan struct{}, subscri
 func doWork(elems []string, totalCount *uint64) {
 	lenElems := len(elems)
 	fmt.Printf("There are currently %d items in the list. \n", lenElems)
-	msg := strings.Join(elems, " @@@ ")
+	msg := strings.Join(elems, " --@ ")
 	fmt.Println("msg: " + msg)
 	atomic.AddUint64(totalCount, uint64(lenElems))
 }

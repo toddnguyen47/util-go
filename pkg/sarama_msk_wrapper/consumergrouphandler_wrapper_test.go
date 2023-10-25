@@ -26,7 +26,7 @@ type SampleConsumerGroupTestSuite struct {
 	mockClaim     *mockConsumerGroupClaimStruct
 
 	// situation under test
-	sutConsumerGroupHandlerWrapper sarama.ConsumerGroupHandler
+	sutConsumerGroupHandlerWrapper consumerGroupHandlerWithChan
 }
 
 func (s *SampleConsumerGroupTestSuite) SetupTest() {
@@ -74,6 +74,7 @@ func (s *SampleConsumerGroupTestSuite) Test_GivenOk_ThenConsumeClaimProperly() {
 		close(s.mockClaim.chanConsumerMessage)
 	}()
 	// -- ACT --
+	s.sutConsumerGroupHandlerWrapper.MarkNotReady()
 	// -- ASSERT --
 	err := s.sutConsumerGroupHandlerWrapper.ConsumeClaim(s.mockSess, s.mockClaim)
 	assert.Nil(s.T(), err)

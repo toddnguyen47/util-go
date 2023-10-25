@@ -12,9 +12,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// /@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\
+// /--------------------------------------------------------------------------\
 // #region SETUP
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ----------------------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -23,7 +23,7 @@ type ConsumerGroupHandlerBatchTestSuite struct {
 	suite.Suite
 	ctxBg                  context.Context
 	mockBatchProcessor     *mockBatchProcessor
-	sutImpl                sarama.ConsumerGroupHandler
+	sutImpl                consumerGroupHandlerWithChan
 	timeout                time.Duration
 	batchSize              int
 	mockConsumerGroupClaim *mockConsumerGroupClaimStruct
@@ -58,13 +58,13 @@ func TestConsumerGroupHandlerBatchTestSuite(t *testing.T) {
 	suite.Run(t, new(ConsumerGroupHandlerBatchTestSuite))
 }
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ----------------------------------------------------------------------------
 // #endregion SETUP
-// \@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@/
+// \--------------------------------------------------------------------------/
 
-// /@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\
+// /--------------------------------------------------------------------------\
 // #region TESTS ARE BELOW
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ----------------------------------------------------------------------------
 
 func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenSuccessfulBatchProcessor_ThenReturnNil() {
 	// -- ARRANGE --
@@ -73,6 +73,7 @@ func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenSuccessfulBatchProcessor_
 	wg.Add(numMessages)
 	go s.mockSendingMessagesToGroupClaim(&wg, numMessages, true, 0*time.Millisecond)
 	// -- ACT --
+	s.sutImpl.MarkNotReady()
 	err := s.sutImpl.ConsumeClaim(s.mockSess, s.mockConsumerGroupClaim)
 	wg.Wait()
 	// -- ASSERT --
@@ -137,13 +138,13 @@ func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenTwoFailedMessages_ThenDoN
 	assert.Equal(s.T(), numMessages-2, s.mockSess.mpfMarkMessage.GetCount())
 }
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ----------------------------------------------------------------------------
 // #endregion TESTS
-// \@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@/
+// \--------------------------------------------------------------------------/
 
-// /@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\
+// /--------------------------------------------------------------------------\
 // #region TEST HELPERS
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ----------------------------------------------------------------------------
 
 func (s *ConsumerGroupHandlerBatchTestSuite) resetMonkeyPatching() {
 }
@@ -165,6 +166,6 @@ func (s *ConsumerGroupHandlerBatchTestSuite) mockSendingMessagesToGroupClaim(
 	}
 }
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ----------------------------------------------------------------------------
 // #region TEST HELPERS
-// \@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@/
+// \--------------------------------------------------------------------------/
