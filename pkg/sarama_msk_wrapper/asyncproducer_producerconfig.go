@@ -47,10 +47,11 @@ type AsyncProducerConfigSasl struct {
 
 	// Required
 
-	// Principal - REQUIRED. In the form of username@realm
-	Principal string
 	// Brokers - REQUIRED.
 	Brokers []string
+
+	// Principal - REQUIRED. In the form of username@realm
+	Principal string
 	// KerbKeytab - REQUIRED. Base64 decoded byte.
 	KerbKeytab []byte
 
