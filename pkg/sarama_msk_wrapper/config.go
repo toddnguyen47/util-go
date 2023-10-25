@@ -27,7 +27,7 @@ const DefaultTimerResetTime = 30 * time.Minute
 // \@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@/
 
 var (
-	_logLevel      = zerolog.ErrorLevel
+	_logLevel      = zerolog.WarnLevel
 	_packageUuid   = uuid.New()
 	_wr            = diode.NewWriter(os.Stderr, 1000, 10*time.Millisecond, saramainject.MissedLogger)
 	_packageLogger = zerolog.New(_wr).With().Timestamp().
