@@ -32,6 +32,7 @@ type ConsumerGroupTestSuite struct {
 
 func (s *ConsumerGroupTestSuite) SetupTest() {
 	s.resetMonkeyPatching()
+	SetLogLevel("WARN")
 	s.ctxBg = context.Background()
 	s.mockConsumerGroup = newMockConsumerGroup()
 	s.errorList = make([]error, 0)
@@ -41,11 +42,15 @@ func (s *ConsumerGroupTestSuite) SetupTest() {
 	s.metricCount = 0
 	pubKey, privateKey := getCerts(s.T())
 	s.config = ConsumerGroupConfig{
-		Brokers:         []string{"my-kafka-server:9094", "mykafka-server-2:9094"},
-		PubKey:          pubKey,
-		PrivateKey:      privateKey,
-		ConsumerGroupId: "ConsumerGroupId",
-		Topics:          s.topics,
+		Common: ConsumerGroupConfigCommon{
+			Brokers:         []string{"my-kafka-server:9094", "mykafka-server-2:9094"},
+			ConsumerGroupId: "ConsumerGroupId",
+			Topics:          s.topics,
+			BatchSize:       5,
+			BatchTimeout:    pointerutils.PtrDuration(100 * time.Millisecond),
+		},
+		PubKey:     pubKey,
+		PrivateKey: privateKey,
 	}
 }
 
@@ -104,9 +109,9 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupBatchInitOk_ThenReturnNi
 	}
 	sleepTime := 100 * time.Millisecond
 	// -- ACT --
-	s.config.BatchSize = 5
-	s.config.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
-	s.config.DurationToResetCounter = pointerutils.PtrDuration(30 * time.Minute)
+	s.config.Common.BatchSize = 5
+	s.config.Common.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
+	s.config.Common.DurationToResetCounter = pointerutils.PtrDuration(30 * time.Minute)
 	sutConsumerWrapper := NewConsumerWrapperBatchAutoStart(s.config, s.mockBatchProcessor)
 	// Starting twice on purpose for testing
 	sutConsumerWrapper.Start()
@@ -133,7 +138,7 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOkWithConsumerGroupH
 	wrapper := newConsumerGroupHandlerWrapper(s.mockProcessor)
 	sleepTime := 100 * time.Millisecond
 	dur := 5 * time.Minute
-	s.config.DurationToResetCounter = &dur
+	s.config.Common.DurationToResetCounter = &dur
 	// -- ACT --
 	sutConsumerWrapper := NewConsumerWrapperWithConsumerGroupHandler(s.config, wrapper)
 	sutConsumerWrapper.SetErrorHandlingFunction(func(err error) {
@@ -191,10 +196,12 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupError_ThenPanic() {
 	// -- ASSERT --
 	assert.Panics(s.T(), func() {
 		config := ConsumerGroupConfig{
-			PubKey:          pubKey,
-			PrivateKey:      privateKey,
-			ConsumerGroupId: sutConsumerWrapperId,
-			Topics:          s.topics,
+			Common: ConsumerGroupConfigCommon{
+				ConsumerGroupId: sutConsumerWrapperId,
+				Topics:          s.topics,
+			},
+			PubKey:     pubKey,
+			PrivateKey: privateKey,
 		}
 		newConsumerGroupWithKeys(config)
 	})
@@ -207,7 +214,7 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupReturnsErr_ThenReturnEar
 	}
 	s.mockConsumerGroup.mpfConsume.SetCode("FFP")
 	sleepTime := 100 * time.Millisecond
-	s.config.DurationToResetCounter = &sleepTime
+	s.config.Common.DurationToResetCounter = &sleepTime
 	// -- ACT --
 	sutConsumerWrapper := NewConsumerWrapperAutoStart(s.config, s.mockProcessor)
 	sutConsumerWrapper.Start()
@@ -256,7 +263,7 @@ func (s *ConsumerGroupTestSuite) Test_GivenCountersReset_ThenCounterIs0() {
 		return s.mockConsumerGroup, nil
 	}
 	sleepTime := 100 * time.Millisecond
-	s.config.DurationToResetCounter = &sleepTime
+	s.config.Common.DurationToResetCounter = &sleepTime
 	// -- ACT --
 	sutConsumerWrapper := NewConsumerWrapper(s.config, s.mockProcessor)
 	sutConsumerWrapper.Start()
@@ -281,9 +288,9 @@ func (s *ConsumerGroupTestSuite) Test_GivenBatchConfigErrorNoTopics_ThenPanic() 
 	}
 	// -- ACT --
 	// -- ASSERT --
-	s.config.BatchSize = 5
-	s.config.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
-	s.config.Topics = make([]string, 0)
+	s.config.Common.BatchSize = 5
+	s.config.Common.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
+	s.config.Common.Topics = make([]string, 0)
 	assert.Panics(s.T(), func() {
 		NewConsumerWrapperBatchAutoStart(s.config, s.mockBatchProcessor)
 	})
@@ -296,11 +303,29 @@ func (s *ConsumerGroupTestSuite) Test_GivenBatchSizeIsZero_ThenPanic() {
 	}
 	// -- ACT --
 	// -- ASSERT --
-	s.config.BatchSize = 0
-	s.config.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
+	s.config.Common.BatchSize = 0
+	s.config.Common.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
 	assert.Panics(s.T(), func() {
 		NewConsumerWrapperBatchAutoStart(s.config, s.mockBatchProcessor)
 	})
+}
+
+func (s *ConsumerGroupTestSuite) Test_GivenConsumeFailsMoreThan5Times_ThenStop() {
+	// -- ARRANGE --
+	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
+		return s.mockConsumerGroup, nil
+	}
+	s.mockConsumerGroup.consumeWaitForStop = false
+	SetLogLevel("INFO")
+	_terminationDelay = 5 * time.Millisecond
+	// -- ACT --
+	sutConsumerWrapper := NewConsumerWrapperAutoStart(s.config, s.mockProcessor)
+	s.mockConsumerGroup.errorChan <- errForTests
+	time.Sleep(100 * time.Millisecond)
+	sutConsumerWrapper.Stop()
+	// -- ASSERT --
+	assert.True(s.T(), sutConsumerWrapper.HasStopped())
+	assert.NotNil(s.T(), sutConsumerWrapper)
 }
 
 // ############################################################################

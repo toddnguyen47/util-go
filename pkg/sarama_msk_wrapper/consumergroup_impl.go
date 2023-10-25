@@ -2,6 +2,7 @@ package sarama_msk_wrapper
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -29,14 +30,6 @@ func (c1 *consumerWrapperImpl) startSync() {
 
 	ctx := context.Background()
 	newCtx, cancel := context.WithCancel(ctx)
-	// We need to close the consumer group in a defer call
-	defer func() {
-		logger.Info().Fields(fields).Msg("Cancelling context")
-		cancel()
-
-		logger.Info().Fields(fields).Msg("Closing consumer group")
-		_ = c1.consumerGroup.Close()
-	}()
 
 	// Track errors
 	go func() {
@@ -66,11 +59,15 @@ func (c1 *consumerWrapperImpl) startSync() {
 		}
 	}()
 
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+
 	// MAIN: Start the consumer!
 	// Iterate over consumer sessions in an infinite loop, as suggested by Sarama.
 	// Ref: https://pkg.go.dev/github.com/Shopify/sarama#ConsumerGroup
 	// Ref: https://github.com/Shopify/sarama/blob/main/examples/consumergroup/main.go#L102
 	go func() {
+		defer wg.Done()
 	ConsumeLoop:
 		for {
 			err := c1.consumerGroup.Consume(newCtx, c1.topics, c1.consumerGroupHandlerWrapper)
@@ -83,11 +80,25 @@ func (c1 *consumerWrapperImpl) startSync() {
 			if newCtx.Err() != nil {
 				break ConsumeLoop
 			}
+			// Sleep for a few seconds before trying again
+			logger.Info().
+				Str("sleepFor", _terminationDelay.String()).
+				Msg("sleeping before trying to consume again")
+			time.Sleep(_terminationDelay)
 		}
 	}()
 
 	// Await until stopped
 	<-c1.stopChan
+
+	// Close the consumerGroup
+	logger.Info().Fields(fields).Msg("Cancelling context")
+	cancel()
+	// Wait for `cancel()` to break ConsumeLoop
+	wg.Wait()
+
+	logger.Info().Fields(fields).Msg("Closing consumer group")
+	_ = c1.consumerGroup.Close()
 }
 
 func (c1 *consumerWrapperImpl) Stop() {

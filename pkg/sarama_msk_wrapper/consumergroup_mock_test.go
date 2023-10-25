@@ -17,16 +17,18 @@ import (
 type mockConsumerGroup struct {
 	sarama.ConsumerGroup
 
-	mpfConsume testhelpers.MockPassFail
-	stopChan   chan struct{}
-	errorChan  chan error
+	mpfConsume         testhelpers.MockPassFail
+	consumeWaitForStop bool
+	stopChan           chan struct{}
+	errorChan          chan error
 }
 
 func newMockConsumerGroup() *mockConsumerGroup {
 	return &mockConsumerGroup{
-		stopChan:   make(chan struct{}, 1),
-		errorChan:  make(chan error, 1),
-		mpfConsume: testhelpers.NewMockPassFail(),
+		stopChan:           make(chan struct{}, 1),
+		errorChan:          make(chan error, 1),
+		mpfConsume:         testhelpers.NewMockPassFail(),
+		consumeWaitForStop: true,
 	}
 }
 
@@ -50,7 +52,9 @@ func (m *mockConsumerGroup) Consume(_ context.Context, _ []string,
 		return err
 	}
 	// Wait before returning
-	<-m.stopChan
+	if m.consumeWaitForStop {
+		<-m.stopChan
+	}
 	return nil
 }
 

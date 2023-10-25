@@ -34,12 +34,14 @@ func (s *ConsumerGroupSaslTestSuite) SetupTest() {
 	s.mockConsumerGroup = newMockConsumerGroup()
 	duration := 50 * time.Millisecond
 	s.config = ConsumerGroupConfigSasl{
-		Principal:              "username@realm",
-		Brokers:                []string{"broker1:9094", "broker2:9094"},
-		KerbKeytab:             []byte("kerbKeytab"),
-		ConsumerGroupId:        "consumerGroupId",
-		Topics:                 []string{"topic1", "topic2"},
-		DurationToResetCounter: &duration,
+		Common: ConsumerGroupConfigCommon{
+			Brokers:                []string{"broker1:9094", "broker2:9094"},
+			ConsumerGroupId:        "consumerGroupId",
+			Topics:                 []string{"topic1", "topic2"},
+			DurationToResetCounter: &duration,
+		},
+		Principal:  "username@realm",
+		KerbKeytab: []byte("kerbKeytab"),
 	}
 	s.mockProcessor = newMockProcessor()
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
@@ -86,7 +88,7 @@ func (s *ConsumerGroupSaslTestSuite) Test_GivenProperConsumer_ThenConsumeOk() {
 
 func (s *ConsumerGroupSaslTestSuite) Test_GivenConfigValidationError_ThenPanic() {
 	// -- ARRANGE --
-	s.config.Brokers = nil
+	s.config.Common.Brokers = nil
 	assert.Panics(s.T(), func() {
 		NewConsumerWrapperSaslSslAutoStart(s.config, s.mockProcessor)
 	})

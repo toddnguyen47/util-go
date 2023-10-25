@@ -69,14 +69,14 @@ func NewConsumerWrapper( // NOSONAR - need lots of parameters
 		consumerGroupHandlerWrapper: handlerWrapper,
 		hasStarted:                  atomic.Bool{},
 		hasStopped:                  atomic.Bool{},
-		stopChan:                    make(chan struct{}, 1),
+		stopChan:                    make(chan struct{}),
 		errorCount:                  atomic.Uint32{},
-		topics:                      config.Topics,
+		topics:                      config.Common.Topics,
 		durationToResetCounter:      DefaultTimerResetTime,
 	}
 
-	if config.DurationToResetCounter != nil {
-		impl.durationToResetCounter = *config.DurationToResetCounter
+	if config.Common.DurationToResetCounter != nil {
+		impl.durationToResetCounter = *config.Common.DurationToResetCounter
 	}
 	impl.hasStopped.Store(false)
 	return &impl
@@ -108,14 +108,14 @@ func NewConsumerWrapperWithConsumerGroupHandler(
 		consumerGroupHandlerWrapper: handler,
 		hasStarted:                  atomic.Bool{},
 		hasStopped:                  atomic.Bool{},
-		stopChan:                    make(chan struct{}, 1),
+		stopChan:                    make(chan struct{}),
 		errorCount:                  atomic.Uint32{},
-		topics:                      config.Topics,
+		topics:                      config.Common.Topics,
 		durationToResetCounter:      DefaultTimerResetTime,
 	}
 
-	if config.DurationToResetCounter != nil {
-		impl.durationToResetCounter = *config.DurationToResetCounter
+	if config.Common.DurationToResetCounter != nil {
+		impl.durationToResetCounter = *config.Common.DurationToResetCounter
 	}
 	impl.hasStopped.Store(false)
 	return &impl
@@ -135,7 +135,7 @@ func NewConsumerWrapperBatch( // NOSONAR - need lots of parameters
 	}
 
 	consumerGroup := newConsumerGroupWithKeys(config)
-	handlerWrapper := newConsumerGroupHandlerBatch(batchProcessor, config.BatchSize, *config.BatchTimeout)
+	handlerWrapper := newConsumerGroupHandlerBatch(batchProcessor, config.Common.BatchSize, *config.Common.BatchTimeout)
 
 	impl := consumerWrapperImpl{
 		config:                      &config,
@@ -145,14 +145,14 @@ func NewConsumerWrapperBatch( // NOSONAR - need lots of parameters
 		consumerGroupHandlerWrapper: handlerWrapper,
 		hasStarted:                  atomic.Bool{},
 		hasStopped:                  atomic.Bool{},
-		stopChan:                    make(chan struct{}, 1),
+		stopChan:                    make(chan struct{}),
 		errorCount:                  atomic.Uint32{},
-		topics:                      config.Topics,
+		topics:                      config.Common.Topics,
 		durationToResetCounter:      DefaultTimerResetTime,
 	}
 
-	if config.DurationToResetCounter != nil {
-		impl.durationToResetCounter = *config.DurationToResetCounter
+	if config.Common.DurationToResetCounter != nil {
+		impl.durationToResetCounter = *config.Common.DurationToResetCounter
 	}
 	impl.hasStopped.Store(false)
 	return &impl
@@ -189,7 +189,7 @@ func newConsumerGroupWithKeys(config ConsumerGroupConfig) sarama.ConsumerGroup {
 	saramaConfig.Consumer.Return.Errors = true
 
 	// Start a new consumerGroup
-	consumerGroup, err := _saramaNewConsumerGroup(config.Brokers, config.ConsumerGroupId, saramaConfig)
+	consumerGroup, err := _saramaNewConsumerGroup(config.Common.Brokers, config.Common.ConsumerGroupId, saramaConfig)
 	if err != nil {
 		wrappedErr := fmt.Errorf("error creating a new ConsumerGroup | err = %w", err)
 		logger.Error().Err(wrappedErr).Send()
