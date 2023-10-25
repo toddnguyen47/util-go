@@ -10,6 +10,12 @@ type ConsumedMessageProcessor interface {
 	ProcessConsumedMessage(consumedMessage *sarama.ConsumerMessage) error
 }
 
+type consumerGroupHandlerWithChan interface {
+	sarama.ConsumerGroupHandler
+	ReadyChan() <-chan struct{}
+	MarkNotReady()
+}
+
 // /##########################################################\
 // #region myConsumerGroupHandlerImpl
 // ############################################################
@@ -17,13 +23,23 @@ type ConsumedMessageProcessor interface {
 // myConsumerGroupHandlerImpl - Ref: https://pkg.go.dev/github.com/Shopify/sarama#example-ConsumerGroup
 type myConsumerGroupHandlerImpl struct {
 	processor ConsumedMessageProcessor
+	readyChan chan struct{}
 }
 
-func newConsumerGroupHandlerWrapper(processor ConsumedMessageProcessor) sarama.ConsumerGroupHandler {
+func newConsumerGroupHandlerWrapper(processor ConsumedMessageProcessor) consumerGroupHandlerWithChan {
 	m := myConsumerGroupHandlerImpl{
 		processor: processor,
+		readyChan: make(chan struct{}),
 	}
 	return &m
+}
+
+func (i1 *myConsumerGroupHandlerImpl) ReadyChan() <-chan struct{} {
+	return i1.readyChan
+}
+
+func (i1 *myConsumerGroupHandlerImpl) MarkNotReady() {
+	i1.readyChan = make(chan struct{})
 }
 
 func (i1 *myConsumerGroupHandlerImpl) Setup(sess sarama.ConsumerGroupSession) error {
@@ -32,6 +48,8 @@ func (i1 *myConsumerGroupHandlerImpl) Setup(sess sarama.ConsumerGroupSession) er
 	logger.Info().Str("memberId", sess.MemberID()).
 		Int32("generationId", sess.GenerationID()).
 		Msg("In SetUp() for the following fields")
+	// Mark as ready
+	close(i1.readyChan)
 
 	return nil
 }

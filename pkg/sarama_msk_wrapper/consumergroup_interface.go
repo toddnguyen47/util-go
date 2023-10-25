@@ -10,7 +10,7 @@ import (
 	"github.com/toddnguyen47/util-go/pkg/startstopper"
 )
 
-// ConsumerWrapper - Make a consumerWrapper, call Start() when you're ready to consume, then call Stop()
+// ConsumerWrapper - Make a consumerWrapper, call Start() when you're readyChan to consume, then call Stop()
 // to close the consumer group.
 // Ref: https://pkg.go.dev/github.com/Shopify/sarama#ConsumerGroup
 // Ref: https://github.com/Shopify/sarama/blob/main/examples/consumergroup/main.go#L102
@@ -34,7 +34,7 @@ type consumerWrapperImpl struct {
 	consumerGroup               sarama.ConsumerGroup
 	funcMetricErrorConsuming    func()
 	funcErrorHandling           func(err error)
-	consumerGroupHandlerWrapper sarama.ConsumerGroupHandler
+	consumerGroupHandlerWrapper consumerGroupHandlerWithChan
 	hasStarted                  atomic.Bool
 	hasStopped                  atomic.Bool
 	stopChan                    chan struct{}

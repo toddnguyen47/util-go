@@ -33,12 +33,13 @@ type myConsumerGroupHandlerBatchImpl struct {
 	ticker         *time.Ticker
 	mutex          sync.Mutex
 	batch          []sarama.ConsumerMessage
+	readyChan      chan struct{}
 }
 
 func newConsumerGroupHandlerBatch( // NOSONAR - need lots of parameters
 	batchProcessor ConsumedBatchOfMessagesProcessor,
 	batchSize uint,
-	batchTimeout time.Duration) sarama.ConsumerGroupHandler {
+	batchTimeout time.Duration) consumerGroupHandlerWithChan {
 
 	ticker := time.NewTicker(batchTimeout)
 
@@ -49,8 +50,17 @@ func newConsumerGroupHandlerBatch( // NOSONAR - need lots of parameters
 		ticker:         ticker,
 		mutex:          sync.Mutex{},
 		batch:          make([]sarama.ConsumerMessage, 0),
+		readyChan:      make(chan struct{}),
 	}
 	return &m
+}
+
+func (i1 *myConsumerGroupHandlerBatchImpl) ReadyChan() <-chan struct{} {
+	return i1.readyChan
+}
+
+func (i1 *myConsumerGroupHandlerBatchImpl) MarkNotReady() {
+	i1.readyChan = make(chan struct{})
 }
 
 func (i1 *myConsumerGroupHandlerBatchImpl) Setup(sess sarama.ConsumerGroupSession) error {
@@ -61,6 +71,8 @@ func (i1 *myConsumerGroupHandlerBatchImpl) Setup(sess sarama.ConsumerGroupSessio
 		Uint(_strBatchSize, i1.batchSize).
 		Str(_strBatchTimeout, i1.batchTimeout.String()).
 		Msg("In SetUp() for the following fields")
+	// Mark as ready
+	close(i1.readyChan)
 
 	return nil
 }

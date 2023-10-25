@@ -72,6 +72,7 @@ func TestConsumerGroupTestSuite(t *testing.T) {
 
 func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOk_ThenReturnProperObject() {
 	// -- ARRANGE --
+	SetLogLevel("INFO")
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return s.mockConsumerGroup, nil
 	}
@@ -88,7 +89,7 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOk_ThenReturnProperO
 	// Starting twice on purpose for testing
 	sutConsumerWrapper.Start()
 	s.mockConsumerGroup.errorChan <- errForTests
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(sleepTime * 5)
 	assert.False(s.T(), sutConsumerWrapper.HasStopped())
 	defer func() {
 		sutConsumerWrapper.Stop()

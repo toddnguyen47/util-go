@@ -85,8 +85,14 @@ func (c1 *consumerWrapperImpl) startSync() {
 				Str("sleepFor", _terminationDelay.String()).
 				Msg("sleeping before trying to consume again")
 			time.Sleep(_terminationDelay)
+
+			c1.consumerGroupHandlerWrapper.MarkNotReady()
 		}
 	}()
+
+	// Await until the consumer has been set up
+	<-c1.consumerGroupHandlerWrapper.ReadyChan()
+	logger.Info().Fields(fields).Msg("Sarama consumer up and running!")
 
 	// Await until stopped
 	<-c1.stopChan
