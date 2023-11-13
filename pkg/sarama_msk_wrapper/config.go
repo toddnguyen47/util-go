@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/diode"
+	"github.com/toddnguyen47/util-go/pkg/loggerwrapper"
 	"github.com/toddnguyen47/util-go/pkg/sarama_msk_wrapper/saramainject"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -29,7 +30,7 @@ const DefaultTimerResetTime = 30 * time.Minute
 var (
 	_logLevel      = zerolog.WarnLevel
 	_packageUuid   = uuid.New()
-	_wr            = diode.NewWriter(os.Stderr, 1000, 10*time.Millisecond, saramainject.MissedLogger)
+	_wr            = diode.NewWriter(os.Stderr, 1000, 10*time.Millisecond, loggerwrapper.MissedLogger)
 	_packageLogger = zerolog.New(_wr).With().Timestamp().
 			Str("packageUuid", _packageUuid.String()).Logger().Level(_logLevel)
 	_terminationDelay = 5 * time.Second

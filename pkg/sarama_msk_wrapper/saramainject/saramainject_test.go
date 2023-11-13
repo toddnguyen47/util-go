@@ -72,8 +72,6 @@ func (s *SaramaInjectTestSuite) Test_GivenProperSASLSSLCerts_WhenInject_ThenGetC
 	// Cert pool failure
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), certs)
-	// just to test MissedLogger
-	MissedLogger(5)
 }
 
 func (s *SaramaInjectTestSuite) Test_GivenNotProperSslCert_ThenReturnError() {

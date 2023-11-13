@@ -1,10 +1,15 @@
 package loggerwrapper
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/rs/zerolog"
 )
+
+func MissedLogger(missed int) {
+	fmt.Printf("Logger dropped %d messages\n", missed)
+}
 
 func (i1 *impl) GetLoggerWithName(functionName string) zerolog.Logger {
 	return i1.packageLogger.With().Str("functionName", functionName).Logger()

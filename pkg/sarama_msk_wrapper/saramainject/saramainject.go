@@ -9,6 +9,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/diode"
+	"github.com/toddnguyen47/util-go/pkg/loggerwrapper"
 )
 
 const (
@@ -27,7 +28,7 @@ var (
 )
 
 var (
-	_wr            = diode.NewWriter(os.Stderr, 1000, 10*time.Millisecond, MissedLogger)
+	_wr            = diode.NewWriter(os.Stderr, 1000, 10*time.Millisecond, loggerwrapper.MissedLogger)
 	_packageLogger = zerolog.New(_wr).With().Timestamp().Logger().Level(zerolog.DebugLevel)
 )
 
@@ -108,8 +109,4 @@ func GetCertsFrom(certsLocation string) (*x509.CertPool, error) {
 		return nil, newErr
 	}
 	return certPool, nil
-}
-
-func MissedLogger(missed int) {
-	fmt.Printf("Logger dropped %d messages\n", missed)
 }

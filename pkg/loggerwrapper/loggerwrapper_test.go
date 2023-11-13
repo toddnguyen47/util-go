@@ -51,6 +51,8 @@ func (s *LoggerWrapperTestSuite) Test_GivenLevel_ThenGetLogLevelProperly() {
 	logger := loggerWrapper.GetLoggerWithName("helloWorld")
 	// -- ASSERT --
 	assert.NotNil(s.T(), logger)
+	// just to test MissedLogger
+	MissedLogger(5)
 	// -- ASSERT ALL LOG LEVELS --
 	levels := []string{"debug", "info", "warn", "error", "fatal", "panic", "nolevel", "disabled", "trace"}
 	for i := 0; i < len(levels); i++ {
