@@ -18,34 +18,37 @@ func (i1 *impl) GetLoggerWithName(functionName string) zerolog.Logger {
 // SetLogLevel - Set LogLevel. Valid values can be found in zerolog.Level
 // Reference: https://github.com/rs/zerolog
 func (i1 *impl) SetLogLevel(level string) {
-	//zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-
-	lowercaseLevel := strings.ToLower(level)
-	switch lowercaseLevel {
-	case "debug":
-		i1.logLevel = zerolog.DebugLevel
-	case "info":
-		i1.logLevel = zerolog.InfoLevel
-	case "warn":
-		i1.logLevel = zerolog.WarnLevel
-	case "error":
-		i1.logLevel = zerolog.ErrorLevel
-	case "fatal":
-		i1.logLevel = zerolog.FatalLevel
-	case "panic":
-		i1.logLevel = zerolog.PanicLevel
-	case "nolevel":
-		i1.logLevel = zerolog.NoLevel
-	case "disabled":
-		i1.logLevel = zerolog.Disabled
-	case "trace":
-		i1.logLevel = zerolog.TraceLevel
-	}
-
+	i1.logLevel = GetLogLevelFromString(level)
 	i1.packageLogger = i1.packageLogger.Level(i1.logLevel)
 }
 
 func (i1 *impl) GetLogLevel() string {
 	s1 := i1.logLevel.String()
 	return strings.ToLower(s1)
+}
+
+func GetLogLevelFromString(level string) zerolog.Level {
+	lowercaseLevel := strings.ToLower(level)
+	logLevel := zerolog.WarnLevel
+	switch lowercaseLevel {
+	case "debug":
+		logLevel = zerolog.DebugLevel
+	case "info":
+		logLevel = zerolog.InfoLevel
+	case "warn":
+		logLevel = zerolog.WarnLevel
+	case "error":
+		logLevel = zerolog.ErrorLevel
+	case "fatal":
+		logLevel = zerolog.FatalLevel
+	case "panic":
+		logLevel = zerolog.PanicLevel
+	case "nolevel":
+		logLevel = zerolog.NoLevel
+	case "disabled":
+		logLevel = zerolog.Disabled
+	case "trace":
+		logLevel = zerolog.TraceLevel
+	}
+	return logLevel
 }

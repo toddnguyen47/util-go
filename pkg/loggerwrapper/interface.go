@@ -34,3 +34,17 @@ func NewLoggerWrapper() Interface {
 	}
 	return &i1
 }
+
+func NewLoggerWrapperLogLevel(level string) Interface {
+	packageUuid := uuid.New()
+	wr := diode.NewWriter(os.Stderr, 1000, 10*time.Millisecond, MissedLogger)
+	logLevel := GetLogLevelFromString(level)
+	packageLogger := zerolog.New(wr).With().Timestamp().
+		Str("packageUuid", packageUuid.String()).Logger().Level(logLevel)
+
+	i1 := impl{
+		logLevel:      logLevel,
+		packageLogger: packageLogger,
+	}
+	return &i1
+}
