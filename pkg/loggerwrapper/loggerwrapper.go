@@ -7,10 +7,6 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func MissedLogger(missed int) {
-	fmt.Printf("Logger dropped %d messages\n", missed)
-}
-
 func (i1 *impl) GetLoggerWithName(functionName string) zerolog.Logger {
 	return i1.packageLogger.With().Str("functionName", functionName).Logger()
 }
@@ -25,6 +21,17 @@ func (i1 *impl) SetLogLevel(level string) {
 func (i1 *impl) GetLogLevel() string {
 	s1 := i1.logLevel.String()
 	return strings.ToLower(s1)
+}
+
+func (i1 *impl) Close() {
+	err := _wr.Close()
+	if err != nil {
+		fmt.Printf("error while closing. err: %s\n", err.Error())
+	}
+}
+
+func MissedLogger(missed int) {
+	fmt.Printf("Logger dropped %d messages\n", missed)
 }
 
 func GetLogLevelFromString(level string) zerolog.Level {

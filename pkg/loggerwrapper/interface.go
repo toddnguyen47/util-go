@@ -9,11 +9,17 @@ import (
 	"github.com/rs/zerolog/diode"
 )
 
+var (
+	_wr = diode.NewWriter(os.Stderr, 1000, 10*time.Millisecond, MissedLogger)
+)
+
 type Interface interface {
 	GetLoggerWithName(functionName string) zerolog.Logger
 
 	GetLogLevel() string
 	SetLogLevel(level string)
+
+	Close()
 }
 
 type impl struct {
@@ -24,8 +30,7 @@ type impl struct {
 func NewLoggerWrapper() Interface {
 	logLevel := zerolog.WarnLevel
 	packageUuid := uuid.New()
-	wr := diode.NewWriter(os.Stderr, 1000, 10*time.Millisecond, MissedLogger)
-	packageLogger := zerolog.New(wr).With().Timestamp().
+	packageLogger := zerolog.New(_wr).With().Timestamp().
 		Str("packageUuid", packageUuid.String()).Logger().Level(logLevel)
 
 	i1 := impl{
