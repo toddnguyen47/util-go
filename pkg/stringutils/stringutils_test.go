@@ -39,3 +39,12 @@ func Test_GivenStr_WhenMakingPtr_ThenReturnStringPtr(t *testing.T) {
 	a := "Bob"
 	assert.Equal(t, &a, MakePtr(a))
 }
+
+func Test_GivenElems2Empties_WhenJoinExcludeEmpty_ThenReturnProperString(t *testing.T) {
+	// -- ARRANGE --
+	strings := []string{"", "hello", "    ", "   world  ", "       "}
+	// -- ACT --
+	str1 := JoinExcludeEmpty(strings, ";")
+	// -- ASSERT --
+	assert.Equal(t, "hello;   world  ", str1)
+}

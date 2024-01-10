@@ -1,6 +1,9 @@
 package stringutils
 
-import "unicode"
+import (
+	"strings"
+	"unicode"
+)
 
 // IsBlank - Check if string is empty / consists of only whitespace
 // Inspired by Apache's Java StringUtils.IsBlank:
@@ -31,4 +34,20 @@ func IsNotBlank(strInput *string) bool {
 
 func MakePtr(strInput string) *string {
 	return &strInput
+}
+
+func JoinExcludeEmpty(elems []string, sep string) string {
+	sb := strings.Builder{}
+	count := 0
+	for _, elem := range elems {
+		elemTrimmed := strings.TrimSpace(elem)
+		if IsNotBlank(&elemTrimmed) {
+			if count > 0 {
+				sb.WriteString(sep)
+			}
+			sb.WriteString(elem)
+			count += 1
+		}
+	}
+	return sb.String()
 }
