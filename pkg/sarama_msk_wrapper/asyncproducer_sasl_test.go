@@ -34,8 +34,10 @@ func (s *AsyncProducerSaslTestSuite) SetupTest() {
 	s.ctxBg = context.Background()
 	duration := 50 * time.Millisecond
 	s.config = AsyncProducerConfigSasl{
+		Common: AsyncProducerConfigCommon{
+			Brokers: []string{"broker1:9094", "broker2:9094"},
+		},
 		Principal:              "username@realm",
-		Brokers:                []string{"broker1:9094", "broker2:9094"},
 		KerbKeytab:             []byte("kerbKeytab"),
 		DurationToResetCounter: &duration,
 	}
@@ -91,6 +93,17 @@ func (s *AsyncProducerSaslTestSuite) Test_GivenEverythingOk_ThenReturnAsyncProdu
 func (s *AsyncProducerSaslTestSuite) Test_GivenConfigValidationError_ThenPanic() {
 	// -- ARRANGE --
 	s.config.KerbKeytab = nil
+	// -- ACT --
+	// -- ASSERT --
+	assert.Panics(s.T(), func() {
+		sutAsyncProducer := NewAsyncProducerSasSslAutoStart(s.config)
+		defer sutAsyncProducer.Stop()
+	})
+}
+
+func (s *AsyncProducerSaslTestSuite) Test_GivenConfigCommonValidationError_ThenPanic() {
+	// -- ARRANGE --
+	s.config.Common.Brokers = []string{}
 	// -- ACT --
 	// -- ASSERT --
 	assert.Panics(s.T(), func() {

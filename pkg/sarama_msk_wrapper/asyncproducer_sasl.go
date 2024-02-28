@@ -19,7 +19,7 @@ func NewAsyncProducerSaslSsl(config AsyncProducerConfigSasl) AsyncProducerWrappe
 
 	saramaConfig := saramaconfig.GetSaramaConfigSasl(config.Principal,
 		config.KerbKeytab, config.KerbConf, config.SslCert)
-	asyncProducer, err := _saramaNewAsyncProducer(config.Brokers, saramaConfig)
+	asyncProducer, err := _saramaNewAsyncProducer(config.Common.Brokers, saramaConfig)
 	if err != nil {
 		wrappedErr := fmt.Errorf("error creating a new AsyncProducer | err: %w", err)
 		logger.Error().Err(wrappedErr).Send()

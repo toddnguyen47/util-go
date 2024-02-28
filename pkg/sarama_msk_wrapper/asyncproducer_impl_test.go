@@ -39,7 +39,9 @@ func (s *AsyncProducerTestSuite) SetupTest() {
 	pub, pri := getCerts(s.T())
 	duration := 5 * time.Second
 	s.config = AsyncProducerConfig{
-		Brokers:                []string{"my-kafka-server:9094", "mykafka-server-2:9094"},
+		Common: AsyncProducerConfigCommon{
+			Brokers: []string{"my-kafka-server:9094", "mykafka-server-2:9094"},
+		},
 		PubKey:                 pub,
 		PrivateKey:             pri,
 		DurationToResetCounter: &duration,

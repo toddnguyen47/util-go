@@ -10,8 +10,8 @@ import (
 type AsyncProducerConfig struct {
 	// Required
 
-	// Brokers - REQUIRED.
-	Brokers []string
+	// Common - REQUIRED. Common configs for all async producer configs
+	Common AsyncProducerConfigCommon
 	// PubKey - REQUIRED.
 	PubKey []byte
 	// PrivateKey - REQUIRED.
@@ -24,8 +24,11 @@ type AsyncProducerConfig struct {
 }
 
 func (c *AsyncProducerConfig) validate() error {
+	err := c.Common.validate()
+	if err != nil {
+		return err
+	}
 	return validation.ValidateStruct(c,
-		validation.Field(&c.Brokers, validation.Required),
 		validation.Field(&c.PubKey, validation.Required),
 		validation.Field(&c.PrivateKey, validation.Required),
 	)
@@ -34,7 +37,7 @@ func (c *AsyncProducerConfig) validate() error {
 func (c *AsyncProducerConfig) string() string {
 	var sb strings.Builder
 	sb.WriteString("brokers -> ")
-	for i, elem := range c.Brokers {
+	for i, elem := range c.Common.Brokers {
 		if i > 0 {
 			sb.WriteString(", ")
 		}
@@ -47,9 +50,8 @@ type AsyncProducerConfigSasl struct {
 
 	// Required
 
-	// Brokers - REQUIRED.
-	Brokers []string
-
+	// Common - REQUIRED. Common configs for all async producer configs
+	Common AsyncProducerConfigCommon
 	// Principal - REQUIRED. In the form of username@realm
 	Principal string
 	// KerbKeytab - REQUIRED. Base64 decoded byte.
@@ -66,9 +68,12 @@ type AsyncProducerConfigSasl struct {
 }
 
 func (c *AsyncProducerConfigSasl) validate() error {
+	err := c.Common.validate()
+	if err != nil {
+		return err
+	}
 	return validation.ValidateStruct(c,
 		validation.Field(&c.Principal, validation.Required),
-		validation.Field(&c.Brokers, validation.Required),
 		validation.Field(&c.KerbKeytab, validation.Required),
 	)
 }
@@ -76,7 +81,7 @@ func (c *AsyncProducerConfigSasl) validate() error {
 func (c *AsyncProducerConfigSasl) string() string {
 	var sb strings.Builder
 	sb.WriteString("brokers -> ")
-	for i, elem := range c.Brokers {
+	for i, elem := range c.Common.Brokers {
 		if i > 0 {
 			sb.WriteString(", ")
 		}
@@ -84,4 +89,15 @@ func (c *AsyncProducerConfigSasl) string() string {
 	}
 	sb.WriteString("; principal -> " + c.Principal)
 	return sb.String()
+}
+
+type AsyncProducerConfigCommon struct {
+	// Brokers - REQUIRED.
+	Brokers []string
+}
+
+func (c *AsyncProducerConfigCommon) validate() error {
+	return validation.ValidateStruct(c,
+		validation.Field(&c.Brokers, validation.Required),
+	)
 }

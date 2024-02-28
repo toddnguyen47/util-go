@@ -132,6 +132,6 @@ func newAsyncProducer(config AsyncProducerConfig) (sarama.AsyncProducer, error) 
 	saramaConfig.Producer.Return.Successes = true
 	saramaConfig.Producer.Return.Errors = true
 
-	asyncProducer, err := _saramaNewAsyncProducer(config.Brokers, saramaConfig)
+	asyncProducer, err := _saramaNewAsyncProducer(config.Common.Brokers, saramaConfig)
 	return asyncProducer, err
 }
