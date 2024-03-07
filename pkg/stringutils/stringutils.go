@@ -51,3 +51,20 @@ func JoinExcludeEmpty(elems []string, sep string) string {
 	}
 	return sb.String()
 }
+
+// GetSubstring - safely get substring starting from zero index.
+// The substring is [0, strIndex) where strIndex is excluded.
+func GetSubstring(strInput string, strIndex int) string {
+	if strIndex < 0 {
+		return strInput
+	}
+	maxInt := len(strInput)
+	if strIndex < maxInt {
+		maxInt = strIndex
+	}
+	var sb strings.Builder
+	for i := 0; i < maxInt; i++ {
+		sb.WriteByte(strInput[i])
+	}
+	return sb.String()
+}

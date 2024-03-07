@@ -41,10 +41,46 @@ func Test_GivenStr_WhenMakingPtr_ThenReturnStringPtr(t *testing.T) {
 }
 
 func Test_GivenElems2Empties_WhenJoinExcludeEmpty_ThenReturnProperString(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	strings := []string{"", "hello", "    ", "   world  ", "       "}
-	// -- ACT --
+	// -- WHEN --
 	str1 := JoinExcludeEmpty(strings, ";")
-	// -- ASSERT --
+	// -- THEN --
 	assert.Equal(t, "hello;   world  ", str1)
+}
+
+func Test_GivenStrGreaterThanIndex_WhenGetSubstring_ThenReturnProperSubstr(t *testing.T) {
+	// -- GIVEN --
+	strInput := "Doloremque eligendi est aut aut sint animi vitae voluptates"
+	// -- WHEN --
+	substr := GetSubstring(strInput, len(strInput)+500)
+	// -- THEN --
+	assert.Equal(t, strInput, substr)
+}
+
+func Test_GivenStrEqualToIndex_WhenGetSubstring_ThenReturnProperSubstr(t *testing.T) {
+	// -- GIVEN --
+	strInput := "Doloremque eligendi est aut aut sint animi vitae voluptates"
+	// -- WHEN --
+	substr := GetSubstring(strInput, len(strInput))
+	// -- THEN --
+	assert.Equal(t, strInput, substr)
+}
+
+func Test_GivenStrSmallerThanToIndex_WhenGetSubstring_ThenReturnProperSubstr(t *testing.T) {
+	// -- GIVEN --
+	strInput := "Doloremque eligendi est aut aut sint animi vitae voluptates"
+	// -- WHEN --
+	substr := GetSubstring(strInput, 11)
+	// -- THEN --
+	assert.Equal(t, "Doloremque ", substr)
+}
+
+func Test_GiveIndexIsNegative_WhenGetSubstring_ThenReturnProperSubstr(t *testing.T) {
+	// -- GIVEN --
+	strInput := "Doloremque eligendi est aut aut sint animi vitae voluptates"
+	// -- WHEN --
+	substr := GetSubstring(strInput, -1)
+	// -- THEN --
+	assert.Equal(t, strInput, substr)
 }
