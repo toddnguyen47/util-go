@@ -1,6 +1,7 @@
 package stringutils
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -83,4 +84,27 @@ func Test_GiveIndexIsNegative_WhenGetSubstring_ThenReturnProperSubstr(t *testing
 	substr := GetSubstring(strInput, -1)
 	// -- THEN --
 	assert.Equal(t, strInput, substr)
+}
+
+func Test_GivenFirstWrite_WhenWriteToSbWithSep_ThenDoNotWriteSep(t *testing.T) {
+	// -- GIVEN --
+	sep := ","
+	strInput := "hello"
+	var sb strings.Builder
+	// -- WHEN --
+	WriteToSbWithSep(&sb, strInput, sep)
+	// -- THEN --
+	assert.False(t, strings.Contains(sb.String(), sep))
+}
+
+func Test_GivenSecondWrite_WhenWriteToSbWithSep_ThenDoWriteSep(t *testing.T) {
+	// -- GIVEN --
+	sep := ","
+	strInput := "hello"
+	var sb strings.Builder
+	// -- WHEN --
+	WriteToSbWithSep(&sb, strInput, sep)
+	WriteToSbWithSep(&sb, strInput, sep)
+	// -- THEN --
+	assert.True(t, strings.Contains(sb.String(), sep))
 }
