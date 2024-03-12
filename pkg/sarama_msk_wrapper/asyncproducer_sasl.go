@@ -27,13 +27,13 @@ func NewAsyncProducerSaslSsl(config AsyncProducerConfigSasl) AsyncProducerWrappe
 	}
 
 	impl := asyncProducerImpl{
-		config:                   &config,
-		asyncProducer:            asyncProducer,
-		stopChan:                 make(chan struct{}, 1),
-		hasStopped:               atomic.Bool{},
-		funcMetricErrorProducing: noopFunc,
-		principal:                config.Principal,
-		durationToResetCounter:   DefaultTimerResetTime,
+		config:                 &config,
+		asyncProducer:          asyncProducer,
+		stopChan:               make(chan struct{}, 1),
+		hasStopped:             atomic.Bool{},
+		funcErrorHandling:      noopFuncError,
+		principal:              config.Principal,
+		durationToResetCounter: DefaultTimerResetTime,
 	}
 	impl.hasStopped.Store(false)
 	if config.DurationToResetCounter != nil {

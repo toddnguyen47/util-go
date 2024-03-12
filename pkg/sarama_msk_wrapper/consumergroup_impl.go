@@ -46,7 +46,6 @@ func (c1 *consumerWrapperImpl) startSync() {
 			case consumerError := <-c1.consumerGroup.Errors():
 				logger.Error().Fields(fields).Err(consumerError).Msg("error consuming message")
 				c1.errorCount.Add(1)
-				c1.funcMetricErrorConsuming()
 				c1.funcErrorHandling(consumerError)
 			case <-ticker.C:
 				errorCountStr := _printer.Sprintf(_formatDigit, c1.errorCount.Load())

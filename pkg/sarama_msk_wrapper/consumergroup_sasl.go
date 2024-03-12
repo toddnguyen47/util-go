@@ -34,7 +34,6 @@ func NewConsumerWrapperSaslSsl(config ConsumerGroupConfigSasl, processor Consume
 	impl := consumerWrapperImpl{
 		config:                      &config,
 		consumerGroup:               consumerGroup,
-		funcMetricErrorConsuming:    func() {},
 		funcErrorHandling:           func(err error) {},
 		consumerGroupHandlerWrapper: handlerWrapper,
 		hasStarted:                  atomic.Bool{},

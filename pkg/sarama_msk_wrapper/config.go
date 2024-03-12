@@ -127,5 +127,4 @@ func getLoggerWithName(functionName string) zerolog.Logger {
 	return _packageLogger.With().Str(_strFunctionName, functionName).Logger()
 }
 
-func noopFunc()           {}
 func noopFuncError(error) {}

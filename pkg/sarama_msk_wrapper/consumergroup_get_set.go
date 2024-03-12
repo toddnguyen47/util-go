@@ -8,10 +8,6 @@ func (c1 *consumerWrapperImpl) HasStopped() bool {
 	return c1.hasStopped.Load()
 }
 
-func (c1 *consumerWrapperImpl) SetMetricFunctionErrorConsuming(metricFunc func()) {
-	c1.funcMetricErrorConsuming = metricFunc
-}
-
 func (c1 *consumerWrapperImpl) GetErrorCount() int {
 	num := c1.errorCount.Load()
 	return int(num)

@@ -23,7 +23,6 @@ type ConsumerWrapper interface {
 	HasStopped() bool
 	GetConsumerGroup() sarama.ConsumerGroup
 	GetErrorCount() int
-	SetMetricFunctionErrorConsuming(myFunc func())
 
 	// SetErrorHandlingFunction - If you want to do more error handling, set your error handling function here
 	SetErrorHandlingFunction(myFunc func(err error))
@@ -32,7 +31,6 @@ type ConsumerWrapper interface {
 type consumerWrapperImpl struct {
 	config                      configInterface
 	consumerGroup               sarama.ConsumerGroup
-	funcMetricErrorConsuming    func()
 	funcErrorHandling           func(err error)
 	consumerGroupHandlerWrapper consumerGroupHandlerWithChan
 	hasStarted                  atomic.Bool
@@ -64,7 +62,6 @@ func NewConsumerWrapper( // NOSONAR - need lots of parameters
 	impl := consumerWrapperImpl{
 		config:                      &config,
 		consumerGroup:               consumerGroup,
-		funcMetricErrorConsuming:    noopFunc,
 		funcErrorHandling:           noopFuncError,
 		consumerGroupHandlerWrapper: handlerWrapper,
 		hasStarted:                  atomic.Bool{},
@@ -107,7 +104,6 @@ func NewConsumerWrapperBatch( // NOSONAR - need lots of parameters
 	impl := consumerWrapperImpl{
 		config:                      &config,
 		consumerGroup:               consumerGroup,
-		funcMetricErrorConsuming:    noopFunc,
 		funcErrorHandling:           noopFuncError,
 		consumerGroupHandlerWrapper: handlerWrapper,
 		hasStarted:                  atomic.Bool{},

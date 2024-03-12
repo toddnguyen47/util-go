@@ -22,7 +22,6 @@ type ConsumerGroupTestSuite struct {
 	suite.Suite
 	ctxBg              context.Context
 	mockConsumerGroup  *mockConsumerGroup
-	metricCount        int
 	errorList          []error
 	topics             []string
 	mockProcessor      *mockProcessor
@@ -39,7 +38,6 @@ func (s *ConsumerGroupTestSuite) SetupTest() {
 	s.topics = []string{"topic1", "topic2"}
 	s.mockProcessor = newMockProcessor()
 	s.mockBatchProcessor = newMockBatchProcessor()
-	s.metricCount = 0
 	pubKey, privateKey := getCerts(s.T())
 	s.config = ConsumerGroupConfig{
 		Common: ConsumerGroupConfigCommon{
@@ -81,9 +79,6 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOk_ThenReturnProperO
 	sutConsumerWrapper := NewConsumerWrapper(s.config, s.mockProcessor)
 	sutConsumerWrapper.SetErrorHandlingFunction(func(err error) {
 		s.errorList = append(s.errorList, err)
-	})
-	sutConsumerWrapper.SetMetricFunctionErrorConsuming(func() {
-		s.metricCount += 1
 	})
 	sutConsumerWrapper.Start()
 	// Starting twice on purpose for testing

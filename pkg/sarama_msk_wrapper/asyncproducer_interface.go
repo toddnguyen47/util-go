@@ -44,10 +44,7 @@ type AsyncProducerWrapper interface {
 	// SendMessage - alias for PublishMessage
 	SendMessage(message sarama.ProducerMessage) error
 
-	SetMetricFunctionErrorProducing(metricFunction func())
-
 	HasClosed() bool
-
 	GetAsyncProducer() sarama.AsyncProducer
 	GetEnqueuedCount() int
 	GetSuccessCount() int
@@ -58,11 +55,10 @@ type AsyncProducerWrapper interface {
 }
 
 type asyncProducerImpl struct {
-	config                   configInterface
-	principal                string
-	asyncProducer            sarama.AsyncProducer
-	funcMetricErrorProducing func()
-	funcErrorHandling        func(err error)
+	config            configInterface
+	principal         string
+	asyncProducer     sarama.AsyncProducer
+	funcErrorHandling func(err error)
 
 	stopChan               chan struct{}
 	hasStopped             atomic.Bool
@@ -96,12 +92,12 @@ func NewAsyncProducerWrapper( // NOSONAR - need lots of parameters
 	}
 
 	impl := asyncProducerImpl{
-		config:                   &config,
-		asyncProducer:            asyncProducer,
-		stopChan:                 make(chan struct{}, 1),
-		hasStopped:               atomic.Bool{},
-		funcMetricErrorProducing: func() {},
-		durationToResetCounter:   DefaultTimerResetTime,
+		config:                 &config,
+		asyncProducer:          asyncProducer,
+		stopChan:               make(chan struct{}, 1),
+		funcErrorHandling:      noopFuncError,
+		hasStopped:             atomic.Bool{},
+		durationToResetCounter: DefaultTimerResetTime,
 	}
 	impl.hasStopped.Store(false)
 	if config.DurationToResetCounter != nil {

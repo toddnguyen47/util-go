@@ -48,7 +48,6 @@ func (s *ConsumerGroupDisabledTestSuite) Test_GivenDisabledConsumerWrapper_ThenD
 	assert.False(s.T(), sutDisabled.HasStopped())
 	// -- ACT --
 	sutDisabled.SetErrorHandlingFunction(func(err error) {})
-	sutDisabled.SetMetricFunctionErrorConsuming(func() {})
 	// -- ASSERT --
 	assert.NotNil(s.T(), sutDisabled.GetConsumerGroup())
 	assert.Equal(s.T(), 0, sutDisabled.GetErrorCount())

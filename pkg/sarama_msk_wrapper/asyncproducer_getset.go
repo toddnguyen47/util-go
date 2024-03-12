@@ -23,10 +23,6 @@ func (a1 *asyncProducerImpl) GetErrorCount() int {
 	return int(num)
 }
 
-func (a1 *asyncProducerImpl) SetMetricFunctionErrorProducing(metricFunc func()) {
-	a1.funcMetricErrorProducing = metricFunc
-}
-
 func (a1 *asyncProducerImpl) SetErrorHandlingFunction(myFunc func(err error)) {
 	a1.funcErrorHandling = myFunc
 }

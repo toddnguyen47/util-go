@@ -27,6 +27,7 @@ require (
 	github.com/onsi/gomega v1.24.1
 	github.com/rs/zerolog v1.29.1
 	github.com/stretchr/testify v1.8.4
+	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.19.0
 	golang.org/x/text v0.14.0
 )

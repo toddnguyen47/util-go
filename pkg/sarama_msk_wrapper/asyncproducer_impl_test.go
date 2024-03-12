@@ -3,6 +3,7 @@ package sarama_msk_wrapper
 import (
 	"context"
 	"errors"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -25,16 +26,15 @@ type AsyncProducerTestSuite struct {
 	suite.Suite
 	ctxBg              context.Context
 	mockAsyncProducer1 *mockAsyncProducer
-	metricCount        int
 	errorList          []error
 	config             AsyncProducerConfig
+	errorCount         atomic.Uint32
 }
 
 func (s *AsyncProducerTestSuite) SetupTest() {
 	s.resetMonkeyPatching()
 	s.ctxBg = context.Background()
 	s.mockAsyncProducer1 = newMockAsyncProducer()
-	s.metricCount = 0
 	s.errorList = make([]error, 0)
 	pub, pri := getCerts(s.T())
 	duration := 5 * time.Second
@@ -80,9 +80,6 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOk_ThenSentOk() {
 	sutAsyncProducer.Start()
 	// Start twice on purpose to check
 	sutAsyncProducer.Start()
-	sutAsyncProducer.SetMetricFunctionErrorProducing(func() {
-		s.metricCount += 1
-	})
 	sutAsyncProducer.SetErrorHandlingFunction(func(err error) {
 		s.errorList = append(s.errorList, err)
 	})
@@ -102,7 +99,6 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOk_ThenSentOk() {
 	assert.Equal(s.T(), 0, sutAsyncProducer.GetEnqueuedCount())
 	assert.Equal(s.T(), 0, sutAsyncProducer.GetSuccessCount())
 	assert.Equal(s.T(), 0, sutAsyncProducer.GetErrorCount())
-	assert.Equal(s.T(), 0, s.metricCount)
 }
 
 func (s *AsyncProducerTestSuite) Test_GivenImproperConfig_ThenPanic() {
@@ -139,6 +135,9 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOneErrorOneOk_ThenSentOk
 	}
 	sutAsyncProducer := NewAsyncProducerWrapper(s.config)
 	sutAsyncProducer.Start()
+	sutAsyncProducer.SetErrorHandlingFunction(func(err error) {
+		s.errorCount.Add(1)
+	})
 	s.mockAsyncProducer1.inputErrorCode = "FP"
 	msg := s.setUpProducerMessage()
 	// -- ACT --
@@ -158,6 +157,7 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOneErrorOneOk_ThenSentOk
 	assert.Equal(s.T(), 2, sutAsyncProducer.GetEnqueuedCount())
 	assert.Equal(s.T(), 1, sutAsyncProducer.GetSuccessCount())
 	assert.Equal(s.T(), 1, sutAsyncProducer.GetErrorCount())
+	assert.Equal(s.T(), 1, int(s.errorCount.Load()))
 }
 
 func (s *AsyncProducerTestSuite) Test_GivenGettingCertsError_ThenPanic() {

@@ -27,7 +27,6 @@ func TestToCoverConfigFile(t *testing.T) {
 	assert.Equal(t, zerolog.Disabled, _logLevel)
 	SetLogLevel("trace")
 	assert.Equal(t, zerolog.TraceLevel, _logLevel)
-	noopFunc()
 	noopFuncError(errForTests)
 }
 

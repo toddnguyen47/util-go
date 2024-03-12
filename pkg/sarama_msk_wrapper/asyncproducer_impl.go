@@ -105,7 +105,7 @@ func (a1 *asyncProducerImpl) Start() {
 			case <-a1.asyncProducer.Successes():
 				a1.successCount.Add(1)
 			case err := <-a1.asyncProducer.Errors():
-				a1.funcMetricErrorProducing()
+				a1.funcErrorHandling(err)
 				logger.Error().Fields(fields).Err(err).Msg("ERROR producing message")
 				a1.errorCount.Add(1)
 			case <-ticker.C:
