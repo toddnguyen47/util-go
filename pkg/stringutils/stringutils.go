@@ -69,7 +69,7 @@ func GetSubstring(strInput string, strIndex int) string {
 	return sb.String()
 }
 
-// WriteToSbWithSep - write to strings.Buildr with a separator.
+// WriteToSbWithSep - write to strings.Builder with a separator.
 func WriteToSbWithSep(sb *strings.Builder, str string, sep string) {
 	if sb.Len() > 0 {
 		sb.WriteString(sep)
