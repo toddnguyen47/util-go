@@ -108,3 +108,13 @@ func Test_GivenSecondWrite_WhenWriteToSbWithSep_ThenDoWriteSep(t *testing.T) {
 	// -- THEN --
 	assert.True(t, strings.Contains(sb.String(), sep))
 }
+
+func Test_GivenList_WhenGettingUnique_ThenReturnUniqueList(t *testing.T) {
+	a := []string{"Bob", "bob", "Billy", "Bob", "mArY", "Susan", "Mary"}
+
+	b := GetUniqueListCaseSensitive(a)
+
+	expectedList := []string{"Bob", "bob", "Billy", "mArY", "Susan", "Mary"}
+	assert.Equal(t, len(b), len(expectedList))
+	assert.Equal(t, b, expectedList)
+}

@@ -76,3 +76,18 @@ func WriteToSbWithSep(sb *strings.Builder, str string, sep string) {
 	}
 	sb.WriteString(str)
 }
+
+// GetUniqueListCaseSensitive - get unique list by comparing strings in a case-sensitive manner
+func GetUniqueListCaseSensitive(inputList []string) []string {
+	set1 := make(map[string]struct{})
+	newList := make([]string, 0)
+
+	for _, elem := range inputList {
+		if _, ok := set1[elem]; !ok {
+			set1[elem] = struct{}{}
+			newList = append(newList, elem)
+		}
+	}
+
+	return newList
+}
