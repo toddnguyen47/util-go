@@ -1,56 +1,119 @@
 package timeisoparser
 
 import (
-	"fmt"
+	"strings"
 	"time"
 )
 
 // TimeLayouts - We have to use a specific time, as defined here:
 // https://pkg.go.dev/time#Layout
 const (
-	ISO8601         = "2006-01-02T15:04:05Z"
-	ISO8601Millis   = "2006-01-02T15:04:05.000Z"
-	ISO8601DateOnly = "2006-01-02"
-
-	ISO8601FileName         = "2006-01-02T15-04-05Z"
-	ISO8601FileNameDateOnly = "2006-01-02"
+	ISO8601                 string = "2006-01-02T15:04:05Z"
+	ISO8601Millis           string = "2006-01-02T15:04:05.000Z"
+	ISO8601DateOnly         string = "2006-01-02"
+	ISO8601FileName         string = "2006-01-02T15-04-05Z"
+	ISO8601FileNameDateOnly string = "2006-01-02"
 
 	GoUnixEpoch = int64(1136239445)
 )
 
 var timeLayoutList = []string{ISO8601, ISO8601Millis}
 
-// MyIsoTime - Ref: https://stackoverflow.com/a/39180230/6323360
-// Ignore any error about pointer value and receiver, as stdlib also uses mixed receivers
-// exclusively for JSON marshal:
-// https://pkg.go.dev/encoding/json@go1.19#RawMessage.MarshalJSON
-//
-// This type is used to marshal / unmarshal JSON. To convert from `time.Time`,
-// cast it with MyIsoTime(value).
-//
-// To convert back to `time.Time`, use MyIsoTime.Time()
-type MyIsoTime time.Time
+func NowUTC() time.Time {
+	return time.Now().UTC()
+}
 
-// UnmarshalJSON - Implementing `Unmarshaler` interface
-func (m *MyIsoTime) UnmarshalJSON(bytes1 []byte) error {
-	str1 := string(bytes1)
-
-	// Remove beginning and end quotes
-	str1 = str1[1 : len(str1)-1]
-
-	time1, err := Parse(str1)
-	if err != nil {
-		return err
+// Parse through all possible formats
+func Parse(timeInput string) (time.Time, error) {
+	var err error
+	var timeOutput time.Time
+	for _, timeLayout := range timeLayoutList {
+		timeOutput, err = time.Parse(timeLayout, timeInput)
+		if err == nil {
+			break
+		}
 	}
-	*m = MyIsoTime(time1)
-	return nil
+	return timeOutput, err
 }
 
-func (m MyIsoTime) MarshalJSON() ([]byte, error) {
-	stamp := fmt.Sprintf("\"%s\"", m.Time().Format(ISO8601Millis))
-	return []byte(stamp), nil
+// GetEpoch - function to consistently convert time.Time to int64
+func GetEpoch(timeInput time.Time) int64 {
+	return timeInput.UnixMilli()
 }
 
-func (m MyIsoTime) Time() time.Time {
-	return time.Time(m)
+// GetTimeToLive - Amazon AWS DynamoDB TTL seems to only accept unix seconds, not unix milliseconds
+func GetTimeToLive(timeInput time.Time) int64 {
+	return timeInput.Unix()
+}
+
+func GetFormattedISO8601MillisString(epochMilli int64) string {
+	return time.UnixMilli(epochMilli).In(time.UTC).Format(ISO8601Millis)
+}
+
+// ParseAndGetEpoch - Parse a time string and return its epoch
+func ParseAndGetEpoch(timeInput string) (int64, error) {
+	time1, err := Parse(timeInput)
+	if err != nil {
+		var results int64
+		return results, err
+	}
+	return GetEpoch(time1), nil
+}
+
+// IsWithinRangeInclusive - Find if `timeInput` is within range, e.g. start <= timeInput <= end
+func IsWithinRangeInclusive(timeInput, start, end string) bool {
+	timeInputEpoch, err := ParseAndGetEpoch(timeInput)
+	if err != nil {
+		return false
+	}
+
+	startEpoch, err := ParseAndGetEpoch(start)
+	// Defaults from start to false
+	isGeqStart := false
+	if err == nil {
+		isGeqStart = startEpoch <= timeInputEpoch
+	}
+
+	isLeqEnd := false
+	if strings.TrimSpace(end) == "" {
+		isLeqEnd = true
+	} else {
+		endEpoch, err2 := ParseAndGetEpoch(end)
+		if err2 == nil {
+			isLeqEnd = timeInputEpoch <= endEpoch
+		}
+	}
+
+	return isGeqStart && isLeqEnd
+}
+
+// GetDatesInRangeStr - https://stackoverflow.com/a/58480030/6323360
+func GetDatesInRangeStr(rangeStart, rangeEnd string) []string {
+	rangeStartTime, err := Parse(rangeStart)
+	if err != nil {
+		return []string{}
+	}
+	rangeEndTime, err := Parse(rangeEnd)
+	if err != nil {
+		return []string{}
+	}
+
+	return GetDatesInRange(rangeStartTime, rangeEndTime)
+}
+
+// GetDatesInRange - https://stackoverflow.com/a/58480030/6323360
+func GetDatesInRange(rangeStart, rangeEnd time.Time) []string {
+	times := make([]string, 0)
+	if !rangeStart.Before(rangeEnd) {
+		return times
+	}
+
+	start := time.Date(rangeStart.Year(), rangeStart.Month(), rangeStart.Day(), 0, 0, 0, 0,
+		rangeStart.Location())
+	for ; !start.After(rangeEnd); start = start.AddDate(0, 0, 1) {
+		s1 := start.Format(ISO8601DateOnly)
+		times = append(times, s1)
+	}
+
+	return times
 }
