@@ -7,6 +7,11 @@ import (
 
 // TimeLayouts - We have to use a specific time, as defined here:
 // https://pkg.go.dev/time#Layout
+//
+// The reason we use `.000` is because want to include milliseconds always.
+//
+// The documentation states:
+// A comma or decimal point followed by one or more zeros represents a fractional second, printed to the given number of decimal places. A comma or decimal point followed by one or more nines represents a fractional second, printed to the given number of decimal places, with trailing zeros removed.
 const (
 	ISO8601                 string = "2006-01-02T15:04:05Z"
 	ISO8601Millis           string = "2006-01-02T15:04:05.000Z"
