@@ -1,6 +1,7 @@
 package jsonutils
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -34,6 +35,21 @@ func Test_GivenEncodingImproperly_ThenErrIsNotNil(t *testing.T) {
 	// -- ASSERT --
 	assert.NotNil(t, err)
 	assert.Equal(t, []byte{}, b1)
+}
+
+func Test_GivenSimpleJsonData_ThenIterateProperly(t *testing.T) {
+	// -- GIVEN --
+	data := []byte(`{"key": [1,2,3]}`)
+	var inputData map[string]any
+	err := json.Unmarshal(data, &inputData)
+	assert.NoError(t, err)
+	map1 := make(map[string]any)
+	// -- WHEN --
+	IterateJson(inputData, []string{}, map1)
+	// -- THEN --
+	assert.Equal(t, map1["key.0"], float64(1))
+	assert.Equal(t, map1["key.1"], float64(2))
+	assert.Equal(t, map1["key.2"], float64(3))
 }
 
 func makePtr(_ *testing.T, str string) *string {
