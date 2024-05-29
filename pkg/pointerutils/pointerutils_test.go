@@ -46,3 +46,18 @@ func Test_GivenDuration_ThenReturnPointerDuration(t *testing.T) {
 	input := 5 * time.Millisecond
 	assert.Equal(t, &input, PtrDuration(input))
 }
+
+func Test_GivenUint_ThenReturnPointerInt(t *testing.T) {
+	input := uint(2)
+	assert.Equal(t, &input, PtrUint(input))
+}
+
+func Test_GivenUint32_ThenReturnPointerInt(t *testing.T) {
+	input := uint32(2)
+	assert.Equal(t, &input, PtrUint32(input))
+}
+
+func Test_GivenUint64_ThenReturnPointerInt(t *testing.T) {
+	input := uint64(2)
+	assert.Equal(t, &input, PtrUint64(input))
+}

@@ -33,3 +33,15 @@ func PtrBool(input bool) *bool {
 func PtrDuration(duration time.Duration) *time.Duration {
 	return &duration
 }
+
+func PtrUint(input uint) *uint {
+	return &input
+}
+
+func PtrUint32(input uint32) *uint32 {
+	return &input
+}
+
+func PtrUint64(input uint64) *uint64 {
+	return &input
+}
