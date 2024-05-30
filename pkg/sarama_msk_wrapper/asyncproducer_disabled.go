@@ -44,8 +44,6 @@ func (da *disabledAsyncProducerWrapper) SendMessage(message sarama.ProducerMessa
 	return da.PublishMessage(message)
 }
 
-func (da *disabledAsyncProducerWrapper) SetMetricFunctionErrorProducing(_ func()) {}
-
 func (da *disabledAsyncProducerWrapper) HasClosed() bool { return da.hasClosed.Load() }
 
 func (da *disabledAsyncProducerWrapper) GetAsyncProducer() sarama.AsyncProducer {

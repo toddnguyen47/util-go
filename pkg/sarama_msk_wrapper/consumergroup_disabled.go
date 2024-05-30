@@ -29,6 +29,4 @@ func (dc *disabledConsumerWrapper) GetConsumerGroup() sarama.ConsumerGroup { ret
 
 func (dc *disabledConsumerWrapper) GetErrorCount() int { return 0 }
 
-func (dc *disabledConsumerWrapper) SetMetricFunctionErrorConsuming(_ func()) {}
-
 func (dc *disabledConsumerWrapper) SetErrorHandlingFunction(_ func(err error)) {}

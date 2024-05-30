@@ -107,6 +107,9 @@ type ConsumerGroupConfigCommon struct {
 
 	// DurationToResetCounter - OPTIONAL. Default to 30 minutes
 	DurationToResetCounter *time.Duration
+	// MaxRestarts - OPTIONAL. Maximum number of times to restart for consumers when they rebalance.
+	// Will default to 10 if nothing is passed in.
+	MaxRestarts *uint32
 }
 
 func (c *ConsumerGroupConfigCommon) validate() error {

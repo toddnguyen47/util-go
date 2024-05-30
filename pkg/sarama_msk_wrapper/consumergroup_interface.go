@@ -40,6 +40,7 @@ type consumerWrapperImpl struct {
 	topics                      []string
 	principal                   string
 	durationToResetCounter      time.Duration
+	maxRestarts                 atomic.Uint32
 }
 
 // NewConsumerWrapper - Create a ConsumerWrapper. Note that you need to call `Start()` for the consumer to start
@@ -70,11 +71,13 @@ func NewConsumerWrapper( // NOSONAR - need lots of parameters
 		errorCount:                  atomic.Uint32{},
 		topics:                      config.Common.Topics,
 		durationToResetCounter:      DefaultTimerResetTime,
+		maxRestarts:                 atomic.Uint32{},
 	}
 
 	if config.Common.DurationToResetCounter != nil {
 		impl.durationToResetCounter = *config.Common.DurationToResetCounter
 	}
+	impl.setMaxRestarts(config.Common)
 	impl.hasStopped.Store(false)
 	return &impl
 }
@@ -112,11 +115,13 @@ func NewConsumerWrapperBatch( // NOSONAR - need lots of parameters
 		errorCount:                  atomic.Uint32{},
 		topics:                      config.Common.Topics,
 		durationToResetCounter:      DefaultTimerResetTime,
+		maxRestarts:                 atomic.Uint32{},
 	}
 
 	if config.Common.DurationToResetCounter != nil {
 		impl.durationToResetCounter = *config.Common.DurationToResetCounter
 	}
+	impl.setMaxRestarts(config.Common)
 	impl.hasStopped.Store(false)
 	return &impl
 }
@@ -160,4 +165,12 @@ func newConsumerGroupWithKeys(config ConsumerGroupConfig) sarama.ConsumerGroup {
 	}
 
 	return consumerGroup
+}
+
+func (i1 *consumerWrapperImpl) setMaxRestarts(commonConfig ConsumerGroupConfigCommon) {
+	maxRestartsTemp := _defaultMaxRebalanceCount
+	if commonConfig.MaxRestarts != nil {
+		maxRestartsTemp = *commonConfig.MaxRestarts
+	}
+	i1.maxRestarts.Store(maxRestartsTemp)
 }

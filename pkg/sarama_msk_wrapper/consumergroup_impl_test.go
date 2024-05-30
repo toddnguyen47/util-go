@@ -75,6 +75,7 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOk_ThenReturnProperO
 		return s.mockConsumerGroup, nil
 	}
 	sleepTime := 100 * time.Millisecond
+	s.config.Common.MaxRestarts = pointerutils.PtrUint32(10)
 	// -- ACT --
 	sutConsumerWrapper := NewConsumerWrapper(s.config, s.mockProcessor)
 	sutConsumerWrapper.SetErrorHandlingFunction(func(err error) {

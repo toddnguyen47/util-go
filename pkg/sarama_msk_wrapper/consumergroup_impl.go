@@ -2,9 +2,12 @@ package sarama_msk_wrapper
 
 import (
 	"context"
+	"errors"
 	"sync"
+	"sync/atomic"
 	"time"
 
+	"github.com/IBM/sarama"
 	"github.com/rs/zerolog"
 )
 
@@ -67,17 +70,25 @@ func (c1 *consumerWrapperImpl) startSync() {
 	// Ref: https://github.com/Shopify/sarama/blob/main/examples/consumergroup/main.go#L102
 	go func() {
 		defer wg.Done()
-	ConsumeLoop:
+		var trialCount atomic.Uint32
+		trialCount.Store(0)
 		for {
 			err := c1.consumerGroup.Consume(newCtx, c1.topics, c1.consumerGroupHandlerWrapper)
-			if err != nil {
+			if err == nil {
+				trialCount.Store(0)
+			} else {
+				trialCount.Add(1)
+				fields["trialCount"] = trialCount.Load()
 				logger.Error().Fields(fields).Err(err).
 					Msg("error encountered when ConsumerGroup tried to consume")
-				break ConsumeLoop
+				if errors.Is(err, sarama.ErrClosedConsumerGroup) || trialCount.Load() >= c1.maxRestarts.Load() {
+					// Only return if the ConsumerGroup is closed. Otherwise, try to rebalance.
+					return
+				}
 			}
 			// Check if context was cancelled, signaling that the consumer should stop
 			if newCtx.Err() != nil {
-				break ConsumeLoop
+				return
 			}
 			// Sleep for a few seconds before trying again
 			logger.Info().

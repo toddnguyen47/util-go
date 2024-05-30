@@ -43,11 +43,13 @@ func NewConsumerWrapperSaslSsl(config ConsumerGroupConfigSasl, processor Consume
 		topics:                      config.Common.Topics,
 		principal:                   config.Principal,
 		durationToResetCounter:      DefaultTimerResetTime,
+		maxRestarts:                 atomic.Uint32{},
 	}
 
 	if config.Common.DurationToResetCounter != nil {
 		impl.durationToResetCounter = *config.Common.DurationToResetCounter
 	}
+	impl.setMaxRestarts(config.Common)
 	impl.hasStopped.Store(false)
 	return &impl
 }

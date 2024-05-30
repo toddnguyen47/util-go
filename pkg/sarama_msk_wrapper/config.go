@@ -52,8 +52,9 @@ const (
 	_packageNameConsumerGroup         = "sarama_msk_wrapper_consumergroup"
 	_packageNameConsumerGroupDisabled = "sarama_msk_wrapper_consumergroup_disabled"
 
-	_formatDigit     = "%d"
-	_strFunctionName = "functionName"
+	_formatDigit              = "%d"
+	_strFunctionName          = "functionName"
+	_defaultMaxRebalanceCount = uint32(10)
 )
 
 // SetLogLevel - Set LogLevel. Valid values can be found in zerolog.Level
