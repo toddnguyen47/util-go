@@ -13,8 +13,6 @@ retract (
 
 require (
 	github.com/IBM/sarama v1.41.0
-	github.com/aws/aws-lambda-go v1.41.0
-	github.com/aws/aws-sdk-go v1.44.302
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.31
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression v1.4.58
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.20.1
