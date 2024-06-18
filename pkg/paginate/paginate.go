@@ -43,13 +43,8 @@ func EvenPaginate[T interface{}](listInput []T, paginationSize int) [][]T {
 	if paginationSize < 1 {
 		paginationSize = 1
 	}
-	numberOfBucketsNeeded := lenListInput / paginationSize
-	if lenListInput%paginationSize != 0 {
-		numberOfBucketsNeeded += 1
-	}
-
-	minItems := lenListInput / numberOfBucketsNeeded
-	maxItems := minItems + 1
+	numberOfBucketsNeeded, minItems, maxItems := GetNumBucketsNeededMinMaxItemsForEvenPagination(
+		lenListInput, paginationSize)
 	bucketsWithMaxItems := lenListInput % numberOfBucketsNeeded
 	getBucketSize := func(index int) int {
 		if index < bucketsWithMaxItems {
@@ -73,4 +68,21 @@ func EvenPaginate[T interface{}](listInput []T, paginationSize int) [][]T {
 	}
 
 	return results
+}
+
+func GetNumBucketsNeededMinMaxItemsForEvenPagination(lenListInput, paginationSize int) (
+	numberOfBucketsNeeded int, minItems int, maxItems int) {
+	// Need to get number of buckets first
+	numberOfBucketsNeeded = lenListInput / paginationSize
+	remainderExists := lenListInput%paginationSize != 0
+	if remainderExists {
+		numberOfBucketsNeeded += 1
+	}
+	// and THEN get min / max items. This has to be done sequentially!
+	minItems = lenListInput / numberOfBucketsNeeded
+	maxItems = minItems
+	if remainderExists {
+		maxItems += 1
+	}
+	return numberOfBucketsNeeded, minItems, maxItems
 }
