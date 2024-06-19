@@ -3,6 +3,7 @@ package sarama_msk_wrapper
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -43,13 +44,12 @@ func (c1 *consumerWrapperImpl) startSync() {
 			ticker.Stop()
 		}()
 
-	ErrorLoop:
+		ErrorLoop:
 		for {
 			select {
 			case consumerError := <-c1.consumerGroup.Errors():
 				logger.Error().Fields(fields).Err(consumerError).Msg("error consuming message")
 				c1.errorCount.Add(1)
-				c1.funcErrorHandling(consumerError)
 			case <-ticker.C:
 				errorCountStr := _printer.Sprintf(_formatDigit, c1.errorCount.Load())
 				logger.Info().Fields(fields).Stringer("durationToReset", c1.durationToResetCounter).
@@ -66,8 +66,8 @@ func (c1 *consumerWrapperImpl) startSync() {
 
 	// MAIN: Start the consumer!
 	// Iterate over consumer sessions in an infinite loop, as suggested by Sarama.
-	// Ref: https://pkg.go.dev/github.com/Shopify/sarama#ConsumerGroup
-	// Ref: https://github.com/Shopify/sarama/blob/main/examples/consumergroup/main.go#L102
+	// Ref: https://pkg.go.dev/github.com/IBM/sarama#ConsumerGroup
+	// Ref: https://github.com/IBM/sarama/blob/main/examples/consumergroup/main.go#L102
 	go func() {
 		defer wg.Done()
 		var trialCount atomic.Uint32
@@ -78,11 +78,17 @@ func (c1 *consumerWrapperImpl) startSync() {
 				trialCount.Store(0)
 			} else {
 				trialCount.Add(1)
-				fields["trialCount"] = trialCount.Load()
+				fields["trialCount"] = _printer.Sprintf("%d/%d", trialCount.Load(), c1.maxRestarts.Load())
 				logger.Error().Fields(fields).Err(err).
 					Msg("error encountered when ConsumerGroup tried to consume")
-				if errors.Is(err, sarama.ErrClosedConsumerGroup) || trialCount.Load() >= c1.maxRestarts.Load() {
+				if errors.Is(err, sarama.ErrClosedConsumerGroup) {
+					c1.funcErrorHandling(err)
 					// Only return if the ConsumerGroup is closed. Otherwise, try to rebalance.
+					return
+				} else if trialCount.Load() >= c1.maxRestarts.Load() {
+					newErr := fmt.Errorf("ConsumerGroup tried to consume %d/%d times, but failed. Stopping ConsumerGroup. "+
+						"Previous error: %w", trialCount.Load(), c1.maxRestarts.Load(), err)
+					c1.funcErrorHandling(newErr)
 					return
 				}
 			}
