@@ -43,14 +43,13 @@ func EvenPaginate[T interface{}](listInput []T, paginationSize int) [][]T {
 	if paginationSize < 1 {
 		paginationSize = 1
 	}
-	numberOfBucketsNeeded, minItems, maxItems := GetNumBucketsNeededMinMaxItemsForEvenPagination(
-		lenListInput, paginationSize)
-	bucketsWithMaxItems := lenListInput % numberOfBucketsNeeded
+	config := GetConfigNeededForEvenPagination(lenListInput, paginationSize)
+	bucketsWithMaxItems := lenListInput % config.NumberOfBucketsNeeded
 	getBucketSize := func(index int) int {
 		if index < bucketsWithMaxItems {
-			return maxItems
+			return config.MaxItems
 		}
-		return minItems
+		return config.MinItems
 	}
 	curResult := make([]T, 0)
 	currentBucket := 0
@@ -70,19 +69,25 @@ func EvenPaginate[T interface{}](listInput []T, paginationSize int) [][]T {
 	return results
 }
 
-func GetNumBucketsNeededMinMaxItemsForEvenPagination(lenListInput, paginationSize int) (
-	numberOfBucketsNeeded int, minItems int, maxItems int) {
+type ConfigEvenPagination struct {
+	NumberOfBucketsNeeded int
+	MinItems              int
+	MaxItems              int
+}
+
+func GetConfigNeededForEvenPagination(lenListInput, paginationSize int) ConfigEvenPagination {
+	config := ConfigEvenPagination{}
 	// Need to get number of buckets first
-	numberOfBucketsNeeded = lenListInput / paginationSize
+	config.NumberOfBucketsNeeded = lenListInput / paginationSize
 	remainderExists := lenListInput%paginationSize != 0
 	if remainderExists {
-		numberOfBucketsNeeded += 1
+		config.NumberOfBucketsNeeded += 1
 	}
 	// and THEN get min / max items. This has to be done sequentially!
-	minItems = lenListInput / numberOfBucketsNeeded
-	maxItems = minItems
+	config.MinItems = lenListInput / config.NumberOfBucketsNeeded
+	config.MaxItems = config.MinItems
 	if remainderExists {
-		maxItems += 1
+		config.MaxItems += 1
 	}
-	return numberOfBucketsNeeded, minItems, maxItems
+	return config
 }
