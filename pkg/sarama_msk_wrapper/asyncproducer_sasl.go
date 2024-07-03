@@ -31,7 +31,7 @@ func NewAsyncProducerSaslSsl(config AsyncProducerConfigSasl) AsyncProducerWrappe
 		asyncProducer:          asyncProducer,
 		stopChan:               make(chan struct{}, 1),
 		hasStopped:             atomic.Bool{},
-		funcErrorHandling:      noopFuncError,
+		funcErrorHandling:      noopProducerError,
 		principal:              config.Principal,
 		durationToResetCounter: DefaultTimerResetTime,
 	}

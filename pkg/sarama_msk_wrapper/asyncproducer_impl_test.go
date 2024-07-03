@@ -80,7 +80,7 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOk_ThenSentOk() {
 	sutAsyncProducer.Start()
 	// Start twice on purpose to check
 	sutAsyncProducer.Start()
-	sutAsyncProducer.SetErrorHandlingFunction(func(err error) {
+	sutAsyncProducer.SetErrorHandlingFunction(func(err *sarama.ProducerError) {
 		s.errorList = append(s.errorList, err)
 	})
 	msg := s.setUpProducerMessage()
@@ -135,7 +135,7 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOneErrorOneOk_ThenSentOk
 	}
 	sutAsyncProducer := NewAsyncProducerWrapper(s.config)
 	sutAsyncProducer.Start()
-	sutAsyncProducer.SetErrorHandlingFunction(func(err error) {
+	sutAsyncProducer.SetErrorHandlingFunction(func(err *sarama.ProducerError) {
 		s.errorCount.Add(1)
 	})
 	s.mockAsyncProducer1.inputErrorCode = "FP"

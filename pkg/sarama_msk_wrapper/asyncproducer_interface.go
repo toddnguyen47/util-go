@@ -51,14 +51,14 @@ type AsyncProducerWrapper interface {
 	GetErrorCount() int
 
 	// SetErrorHandlingFunction - If you want to do more error handling, set your error handling function here
-	SetErrorHandlingFunction(myFunc func(err error))
+	SetErrorHandlingFunction(myFunc func(err *sarama.ProducerError))
 }
 
 type asyncProducerImpl struct {
 	config            configInterface
 	principal         string
 	asyncProducer     sarama.AsyncProducer
-	funcErrorHandling func(err error)
+	funcErrorHandling func(err *sarama.ProducerError)
 
 	stopChan               chan struct{}
 	hasStopped             atomic.Bool
@@ -95,7 +95,7 @@ func NewAsyncProducerWrapper( // NOSONAR - need lots of parameters
 		config:                 &config,
 		asyncProducer:          asyncProducer,
 		stopChan:               make(chan struct{}, 1),
-		funcErrorHandling:      noopFuncError,
+		funcErrorHandling:      noopProducerError,
 		hasStopped:             atomic.Bool{},
 		durationToResetCounter: DefaultTimerResetTime,
 	}

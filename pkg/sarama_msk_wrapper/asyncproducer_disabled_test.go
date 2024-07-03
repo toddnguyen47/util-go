@@ -53,7 +53,7 @@ func (s *AsyncProducerDisabledTestSuite) Test_GivenDisabledAsyncProducer_ThenPub
 	sutDisabledAsyncProducer := NewDisabledAsyncProducer()
 	sutDisabledAsyncProducer.Start()
 	assert.False(s.T(), sutDisabledAsyncProducer.HasClosed())
-	sutDisabledAsyncProducer.SetErrorHandlingFunction(func(err error) {})
+	sutDisabledAsyncProducer.SetErrorHandlingFunction(func(err *sarama.ProducerError) {})
 	// -- WHEN --
 	err := sutDisabledAsyncProducer.PublishMessage(s.message)
 	// -- THEN --

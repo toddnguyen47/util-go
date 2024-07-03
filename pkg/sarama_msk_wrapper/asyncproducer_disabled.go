@@ -50,7 +50,10 @@ func (da *disabledAsyncProducerWrapper) GetAsyncProducer() sarama.AsyncProducer 
 	return da.asyncProducer
 }
 
-func (da *disabledAsyncProducerWrapper) GetEnqueuedCount() int                      { return 0 }
-func (da *disabledAsyncProducerWrapper) GetSuccessCount() int                       { return 0 }
-func (da *disabledAsyncProducerWrapper) GetErrorCount() int                         { return 0 }
-func (da *disabledAsyncProducerWrapper) SetErrorHandlingFunction(_ func(err error)) {}
+func (da *disabledAsyncProducerWrapper) GetEnqueuedCount() int { return 0 }
+
+func (da *disabledAsyncProducerWrapper) GetSuccessCount() int { return 0 }
+
+func (da *disabledAsyncProducerWrapper) GetErrorCount() int { return 0 }
+
+func (da *disabledAsyncProducerWrapper) SetErrorHandlingFunction(_ func(err *sarama.ProducerError)) {}
