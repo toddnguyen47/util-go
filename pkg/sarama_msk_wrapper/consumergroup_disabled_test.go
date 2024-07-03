@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -37,18 +37,18 @@ func TestConsumerGroupDisabledTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *ConsumerGroupDisabledTestSuite) Test_GivenDisabledConsumerWrapper_ThenDoNotConsume() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	sutDisabled := NewDisabledConsumerWrapper()
 	sutDisabled.Start()
 	assert.False(s.T(), sutDisabled.HasStopped())
-	// -- ACT --
+	// -- WHEN --
 	sutDisabled.SetErrorHandlingFunction(func(err error) {})
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), sutDisabled.GetConsumerGroup())
 	assert.Equal(s.T(), 0, sutDisabled.GetErrorCount())
 	sutDisabled.Stop()
@@ -57,9 +57,9 @@ func (s *ConsumerGroupDisabledTestSuite) Test_GivenDisabledConsumerWrapper_ThenD
 	assert.True(s.T(), sutDisabled.HasStopped())
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *ConsumerGroupDisabledTestSuite) resetMonkeyPatching() {
 }

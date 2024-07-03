@@ -7,11 +7,11 @@ import (
 )
 
 func Test_GivenErrReadCloser_ThenReturnErr(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	closerErr := ErrReadCloser(1)
-	// -- ACT --
+	// -- WHEN --
 	n, err := closerErr.Read([]byte(""))
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(t, err)
 	assert.Equal(t, 0, n)
 	err = closerErr.Close()

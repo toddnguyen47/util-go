@@ -45,10 +45,10 @@ func TestLoggerWrapperTestSuite(t *testing.T) {
 // ----------------------------------------------------------------------------
 
 func (s *LoggerWrapperTestSuite) Test_GivenLevel_ThenGetLogLevelProperly() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	loggerWrapper := NewLoggerWrapper()
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	logger := loggerWrapper.GetLoggerWithName("helloWorld")
 	assert.NotNil(s.T(), logger)
 	loggerWrapper2 := NewLoggerWrapperLogLevel("warn")

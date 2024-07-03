@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -54,12 +54,12 @@ func TestSampleConsumerGroupTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *SampleConsumerGroupTestSuite) Test_GivenOk_ThenConsumeClaimProperly() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.mockProcessor.mpfProcess.SetCode("F")
 	go func() {
 		msg := sarama.ConsumerMessage{
@@ -73,9 +73,9 @@ func (s *SampleConsumerGroupTestSuite) Test_GivenOk_ThenConsumeClaimProperly() {
 		// close messages channel now
 		close(s.mockClaim.chanConsumerMessage)
 	}()
-	// -- ACT --
+	// -- WHEN --
 	s.sutConsumerGroupHandlerWrapper.MarkNotReady()
-	// -- ASSERT --
+	// -- THEN --
 	err := s.sutConsumerGroupHandlerWrapper.ConsumeClaim(s.mockSess, s.mockClaim)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 3, s.mockProcessor.mpfProcess.GetCount())
@@ -83,7 +83,7 @@ func (s *SampleConsumerGroupTestSuite) Test_GivenOk_ThenConsumeClaimProperly() {
 }
 
 func (s *SampleConsumerGroupTestSuite) Test_GivenContextCancelled_ThenConsumeClaimProperly() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.mockProcessor.mpfProcess.SetCode("F")
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -102,8 +102,8 @@ func (s *SampleConsumerGroupTestSuite) Test_GivenContextCancelled_ThenConsumeCla
 		time.Sleep(250 * time.Millisecond)
 		s.mockSess.cancel()
 	}()
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	err := s.sutConsumerGroupHandlerWrapper.ConsumeClaim(s.mockSess, s.mockClaim)
 	wg.Wait()
 	assert.Nil(s.T(), err)
@@ -112,9 +112,9 @@ func (s *SampleConsumerGroupTestSuite) Test_GivenContextCancelled_ThenConsumeCla
 	close(s.mockClaim.chanConsumerMessage)
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *SampleConsumerGroupTestSuite) resetMonkeyPatching() {
 }

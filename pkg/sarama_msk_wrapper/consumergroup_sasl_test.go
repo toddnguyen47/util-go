@@ -13,9 +13,9 @@ import (
 	"github.com/toddnguyen47/util-go/pkg/sarama_msk_wrapper/saramainject"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -71,44 +71,44 @@ func TestConsumerGroupSaslTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *ConsumerGroupSaslTestSuite) Test_GivenProperConsumer_ThenConsumeOk() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	sutConsumer := NewConsumerWrapperSaslSslAutoStart(s.config, s.mockProcessor)
 	defer sutConsumer.Stop()
-	// -- ACT --
+	// -- WHEN --
 	s.mockConsumerGroup.errorChan <- errForTests
 	time.Sleep(100 * time.Millisecond)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Equal(s.T(), 1, s.mockConsumerGroup.mpfConsume.GetCount())
 }
 
 func (s *ConsumerGroupSaslTestSuite) Test_GivenConfigValidationError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.config.Common.Brokers = nil
 	assert.Panics(s.T(), func() {
 		NewConsumerWrapperSaslSslAutoStart(s.config, s.mockProcessor)
 	})
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 }
 
 func (s *ConsumerGroupSaslTestSuite) Test_GivenNewConsumerGroupError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_saramaNewConsumerGroup = sarama.NewConsumerGroup
 	assert.Panics(s.T(), func() {
 		NewConsumerWrapperSaslSslAutoStart(s.config, s.mockProcessor)
 	})
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *ConsumerGroupSaslTestSuite) resetMonkeyPatching() {
 }

@@ -15,9 +15,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -47,115 +47,115 @@ func TestRetryClientTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *RetryClientTestSuite) Test_GivenRetrySuccessfulWith1Retry_ThenErrIsNil() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url",
 		io.NopCloser(bytes.NewReader([]byte("{}"))))
 	assert.Nil(s.T(), err)
-	// -- ACT --
+	// -- WHEN --
 	resp, err := Retry(RetryConfig{
 		RetryTimes: 1,
 		SleepTime:  1 * time.Millisecond,
 		Client:     s.mockClient,
 		Request:    req,
 	})
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), http.StatusOK, resp.StatusCode)
 }
 
 func (s *RetryClientTestSuite) Test_GivenRetrySuccessfulWith3Retries_ThenErrIsNil() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url",
 		io.NopCloser(bytes.NewReader([]byte("{}"))))
 	assert.Nil(s.T(), err)
-	// -- ACT --
+	// -- WHEN --
 	resp, err := Retry(RetryConfig{
 		RetryTimes: 3,
 		SleepTime:  1 * time.Millisecond,
 		Client:     s.mockClient,
 		Request:    req,
 	})
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), http.StatusOK, resp.StatusCode)
 }
 
 func (s *RetryClientTestSuite) Test_GivenRetryUnsuccessful_ThenErrIsNotNil() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url", nil)
 	assert.Nil(s.T(), err)
 	retryTimes := uint(3)
 	s.mockClient.statusCode = http.StatusBadRequest
-	// -- ACT --
+	// -- WHEN --
 	resp, err := Retry(RetryConfig{
 		RetryTimes: retryTimes,
 		SleepTime:  1 * time.Millisecond,
 		Client:     s.mockClient,
 		Request:    req,
 	})
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), http.StatusBadRequest, resp.StatusCode)
 }
 
 func (s *RetryClientTestSuite) Test_GivenClientErr_ThenReturnClientErr() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url",
 		io.NopCloser(bytes.NewReader([]byte("{}"))))
 	assert.Nil(s.T(), err)
 	s.mockClient.numDoErrCount = 5
-	// -- ACT --
+	// -- WHEN --
 	resp, err := Retry(RetryConfig{
 		RetryTimes: 3,
 		SleepTime:  1 * time.Millisecond,
 		Client:     s.mockClient,
 		Request:    req,
 	})
-	// -- ASSERT --
+	// -- THEN --
 	assert.Equal(s.T(), err, errForTests)
 	assert.Equal(s.T(), http.StatusInternalServerError, resp.StatusCode)
 }
 
 func (s *RetryClientTestSuite) Test_GivenRetryLessThanZero_ThenErrIsNotNil() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url", nil)
 	assert.Nil(s.T(), err)
-	// -- ACT --
+	// -- WHEN --
 	resp, err := Retry(RetryConfig{
 		RetryTimes: 0,
 		SleepTime:  1 * time.Millisecond,
 		Client:     s.mockClient,
 		Request:    req,
 	})
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), http.StatusInternalServerError, resp.StatusCode)
 }
 
 func (s *RetryClientTestSuite) Test_GivenIoReadAllError_ThenErrIsNotNil() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url", errReadCloser(1))
 	assert.Nil(s.T(), err)
-	// -- ACT --
+	// -- WHEN --
 	resp, err := Retry(RetryConfig{
 		RetryTimes: 3,
 		SleepTime:  1 * time.Millisecond,
 		Client:     s.mockClient,
 		Request:    req,
 	})
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), http.StatusInternalServerError, resp.StatusCode)
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *RetryClientTestSuite) resetMonkeyPatching() {
 }

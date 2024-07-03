@@ -16,9 +16,9 @@ import (
 
 var errForTests = errors.New("errorForTests")
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -45,12 +45,12 @@ func TestUtilsTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *UtilsTestSuite) Test_GivenInput_ReturnProperString() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	// You must provide at least the partitionKey and partitionKeyValue
 	keyConditionBuilder := expression.KeyAnd(
 		expression.Key("pk").Equal(expression.Value("pkValue")),
@@ -70,14 +70,14 @@ func (s *UtilsTestSuite) Test_GivenInput_ReturnProperString() {
 		KeyConditionExpression:    expr.KeyCondition(),
 		FilterExpression:          expr.Filter(),
 	}
-	// -- ACT --
+	// -- WHEN --
 	str1 := GetStringFromMapStringAttributeValue(queryInput.ExpressionAttributeValues)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Greater(s.T(), len(str1), 0)
 }
 
 func (s *UtilsTestSuite) Test_GivenError_ThenReturnEmptyString() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	// You must provide at least the partitionKey and partitionKeyValue
 	keyConditionBuilder := expression.KeyAnd(
 		expression.Key("pk").Equal(expression.Value("pkValue")),
@@ -100,15 +100,15 @@ func (s *UtilsTestSuite) Test_GivenError_ThenReturnEmptyString() {
 	_attributevalueUnmarshalMap = func(m map[string]types.AttributeValue, out interface{}) error {
 		return errForTests
 	}
-	// -- ACT --
+	// -- WHEN --
 	str1 := GetStringFromMapStringAttributeValue(queryInput.ExpressionAttributeValues)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Equal(s.T(), len(str1), 0)
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *UtilsTestSuite) resetMonkeyPatching() {
 	_attributevalueUnmarshalMap = attributevalue.UnmarshalMap

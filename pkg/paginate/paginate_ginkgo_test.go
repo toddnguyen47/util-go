@@ -6,16 +6,16 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func Test_Given8ElemsPaginationSize4_WhenSimplePaginate_ThenReturn2Groups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60}
-	// -- ACT --
+	// -- WHEN --
 	newList := SimplePaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16, 60},
@@ -25,11 +25,11 @@ func Test_Given8ElemsPaginationSize4_WhenSimplePaginate_ThenReturn2Groups(t *tes
 }
 
 func Test_Given9ElemsPaginationSize4_When_ThenReturn3Groups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99}
-	// -- ACT --
+	// -- WHEN --
 	newList := SimplePaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16, 60},
@@ -40,11 +40,11 @@ func Test_Given9ElemsPaginationSize4_When_ThenReturn3Groups(t *testing.T) {
 }
 
 func Test_Given10ElemsPaginationSize4_WhenSimplePaginate_ThenReturn3Groups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74}
-	// -- ACT --
+	// -- WHEN --
 	newList := SimplePaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16, 60},
@@ -55,11 +55,11 @@ func Test_Given10ElemsPaginationSize4_WhenSimplePaginate_ThenReturn3Groups(t *te
 }
 
 func Test_Given11ElemsPaginationSize4_WhenSimplePaginate_ThenReturn3Groups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9}
-	// -- ACT --
+	// -- WHEN --
 	newList := SimplePaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16, 60},
@@ -70,11 +70,11 @@ func Test_Given11ElemsPaginationSize4_WhenSimplePaginate_ThenReturn3Groups(t *te
 }
 
 func Test_Given12ElemsPaginationSize4_WhenSimplePaginate_ThenReturn3Groups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9, 105}
-	// -- ACT --
+	// -- WHEN --
 	newList := SimplePaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16, 60},
@@ -85,11 +85,11 @@ func Test_Given12ElemsPaginationSize4_WhenSimplePaginate_ThenReturn3Groups(t *te
 }
 
 func Test_Given13ElemsPaginationSize4_WhenSimplePaginate_ThenReturn4Groups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9, 105, 44}
-	// -- ACT --
+	// -- WHEN --
 	newList := SimplePaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16, 60},
@@ -101,11 +101,11 @@ func Test_Given13ElemsPaginationSize4_WhenSimplePaginate_ThenReturn4Groups(t *te
 }
 
 func Test_Given3ElemsPaginationSizeNeg1_WhenSimplePaginate_ThenReturn4Groups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42}
-	// -- ACT --
+	// -- WHEN --
 	newList := SimplePaginate(list1, -1)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5}, {100}, {42},
 	}
@@ -114,11 +114,11 @@ func Test_Given3ElemsPaginationSizeNeg1_WhenSimplePaginate_ThenReturn4Groups(t *
 }
 
 func Test_Given9ElemsPaginationSizeNeg1_WhenEvenPaginate_ThenReturn1EvenGroups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11}
-	// -- ACT --
+	// -- WHEN --
 	newList := EvenPaginate(list1, -1)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5}, {100}, {42}, {11},
 	}
@@ -128,11 +128,11 @@ func Test_Given9ElemsPaginationSizeNeg1_WhenEvenPaginate_ThenReturn1EvenGroups(t
 }
 
 func Test_Given9ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3EvenGroups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99}
-	// -- ACT --
+	// -- WHEN --
 	newList := EvenPaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42},
 		{11, 4, -1},
@@ -143,11 +143,11 @@ func Test_Given9ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3EvenGroups(t *t
 }
 
 func Test_Given10ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3EvenGroups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74}
-	// -- ACT --
+	// -- WHEN --
 	newList := EvenPaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16},
@@ -158,11 +158,11 @@ func Test_Given10ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3EvenGroups(t *
 }
 
 func Test_Given11ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3EvenGroups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9}
-	// -- ACT --
+	// -- WHEN --
 	newList := EvenPaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16, 60},
@@ -173,11 +173,11 @@ func Test_Given11ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3EvenGroups(t *
 }
 
 func Test_Given12ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3Groups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9, 105}
-	// -- ACT --
+	// -- WHEN --
 	newList := SimplePaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16, 60},
@@ -188,11 +188,11 @@ func Test_Given12ElemsPaginationSize4_WhenEvenPaginate_ThenReturn3Groups(t *test
 }
 
 func Test_Given13ElemsPaginationSize4_WhenEvenPaginate_ThenReturn4Groups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9, 105, 44}
-	// -- ACT --
+	// -- WHEN --
 	newList := EvenPaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16},
@@ -204,11 +204,11 @@ func Test_Given13ElemsPaginationSize4_WhenEvenPaginate_ThenReturn4Groups(t *test
 }
 
 func Test_Given14ElemsPaginationSize4_WhenEvenPaginate_ThenReturn4Groups(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	list1 := []int{5, 100, 42, 11, 4, -1, 16, 60, 99, 74, -9, 105, 44, 22}
-	// -- ACT --
+	// -- WHEN --
 	newList := EvenPaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := [][]int{
 		{5, 100, 42, 11},
 		{4, -1, 16, 60},
@@ -220,22 +220,22 @@ func Test_Given14ElemsPaginationSize4_WhenEvenPaginate_ThenReturn4Groups(t *test
 }
 
 func Test_Given0Items_WhenEvenPaginate_ThenReturnOneList(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	var list1 []int
-	// -- ACT --
+	// -- WHEN --
 	newList := EvenPaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := make([][]int, 0)
 	g := NewWithT(t)
 	g.Expect(newList).To(Equal(expectedResults))
 }
 
 func Test_Given0Items_WhenSimplePaginate_ThenReturnOneList(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	var list1 []int
-	// -- ACT --
+	// -- WHEN --
 	newList := SimplePaginate(list1, 4)
-	// -- ASSERT --
+	// -- THEN --
 	expectedResults := make([][]int, 0)
 	g := NewWithT(t)
 	g.Expect(newList).To(Equal(expectedResults))

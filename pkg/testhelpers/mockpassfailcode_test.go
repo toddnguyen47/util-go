@@ -8,11 +8,11 @@ import (
 )
 
 func Test_GivenFFP_ThenFailsTwiceThenPass(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	sutMockPassFail := NewMockPassFail()
 	sutMockPassFail.SetCode("FFP")
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	err := sutMockPassFail.WillPassIncrementCount()
 	assert.True(t, errors.Is(err, ErrFunctionShouldFail), "err should be ErrFunctionShouldFail")
 	err = sutMockPassFail.WillPassIncrementCount()

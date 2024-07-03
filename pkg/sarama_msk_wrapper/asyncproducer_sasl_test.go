@@ -14,9 +14,9 @@ import (
 	"github.com/toddnguyen47/util-go/pkg/sarama_msk_wrapper/saramainject"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -74,27 +74,27 @@ func TestAsyncProducerSaslTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *AsyncProducerSaslTestSuite) Test_GivenEverythingOk_ThenReturnAsyncProducer() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	sutAsyncProducer := NewAsyncProducerSasSslAutoStart(s.config)
 	defer sutAsyncProducer.Stop()
-	// -- ACT --
+	// -- WHEN --
 	err := sutAsyncProducer.PublishMessage(s.producerMessage)
 	time.Sleep(50 * time.Millisecond)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 1, getIntFromAtomic(&s.mockAsyncProducer1.inputCount))
 }
 
 func (s *AsyncProducerSaslTestSuite) Test_GivenConfigValidationError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.config.KerbKeytab = nil
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		sutAsyncProducer := NewAsyncProducerSasSslAutoStart(s.config)
 		defer sutAsyncProducer.Stop()
@@ -102,10 +102,10 @@ func (s *AsyncProducerSaslTestSuite) Test_GivenConfigValidationError_ThenPanic()
 }
 
 func (s *AsyncProducerSaslTestSuite) Test_GivenConfigCommonValidationError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.config.Common.Brokers = []string{}
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		sutAsyncProducer := NewAsyncProducerSasSslAutoStart(s.config)
 		defer sutAsyncProducer.Stop()
@@ -113,10 +113,10 @@ func (s *AsyncProducerSaslTestSuite) Test_GivenConfigCommonValidationError_ThenP
 }
 
 func (s *AsyncProducerSaslTestSuite) Test_GivenCreatingNewAsyncProducerError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_saramaNewAsyncProducer = sarama.NewAsyncProducer
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		sutAsyncProducer := NewAsyncProducerSasSslAutoStart(s.config)
 		defer sutAsyncProducer.Stop()
@@ -124,12 +124,12 @@ func (s *AsyncProducerSaslTestSuite) Test_GivenCreatingNewAsyncProducerError_The
 }
 
 func (s *AsyncProducerSaslTestSuite) Test_GivenGlobAndRemoveError_ThenContinue() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	sutAsyncProducer := NewAsyncProducerSasSslAutoStart(s.config)
-	// -- ACT --
+	// -- WHEN --
 	err := sutAsyncProducer.PublishMessage(s.producerMessage)
 	time.Sleep(50 * time.Millisecond)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), 1, getIntFromAtomic(&s.mockAsyncProducer1.inputCount))
 	filePathFail := true
@@ -151,9 +151,9 @@ func (s *AsyncProducerSaslTestSuite) Test_GivenGlobAndRemoveError_ThenContinue()
 	sutAsyncProducer.Stop()
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *AsyncProducerSaslTestSuite) resetMonkeyPatching() {
 	_saramaNewAsyncProducer = sarama.NewAsyncProducer

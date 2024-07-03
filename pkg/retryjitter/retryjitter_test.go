@@ -26,62 +26,62 @@ func (m *mockRetry) myFunction() error {
 }
 
 func Test_GivenRetrySuccess_ThenReturnNil(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	resetMonkeyPatching(t)
 	mr := new(mockRetry)
 	mr.stringCode = "FFP"
 	retryTimes := 3
-	// -- ACT --
+	// -- WHEN --
 	err := Retry(retryTimes, mr.myFunction)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(t, err)
 }
 
 func Test_GivenRetrySuccessButTimeoutLessThanZero_ThenTimeoutDefaultsTo100ReturnErrorNil(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	resetMonkeyPatching(t)
 	mr := new(mockRetry)
 	mr.stringCode = "FFP"
 	retryTimes := 3
-	// -- ACT --
+	// -- WHEN --
 	err := RetryWithTimeout(retryTimes, -500, mr.myFunction)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(t, err)
 }
 
 func Test_GivenRetrySuccessButMinSleepTimeGreaterThanMaxSleepTime_ThenTimeoutDefaultsTo100ReturnErrorNil(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	resetMonkeyPatching(t)
 	mr := new(mockRetry)
 	mr.stringCode = "FFP"
 	retryTimes := 3
 	_minSleepTimeMillis = 50
-	// -- ACT --
+	// -- WHEN --
 	err := RetryWithTimeout(retryTimes, 1, mr.myFunction)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(t, err)
 }
 
 func Test_GivenGeneratingRandomIntErrorRetrySuccess_ThenReturnNil(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	mr := new(mockRetry)
 	mr.stringCode = "FFP"
 	retryTimes := 3
-	// -- ACT --
+	// -- WHEN --
 	err := Retry(retryTimes, mr.myFunction)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(t, err)
 }
 
 func Test_GivenRetryFailure_ThenReturnErr(t *testing.T) {
 	resetMonkeyPatching(t)
-	// -- ARRANGE --
+	// -- GIVEN --
 	mr := new(mockRetry)
 	mr.stringCode = "FFFFFF"
 	retryTimes := 5
-	// -- ACT --
+	// -- WHEN --
 	err := Retry(retryTimes, mr.myFunction)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(t, err)
 }
 

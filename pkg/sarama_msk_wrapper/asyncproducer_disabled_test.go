@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -44,19 +44,19 @@ func TestAsyncProducerDisabledTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *AsyncProducerDisabledTestSuite) Test_GivenDisabledAsyncProducer_ThenPublishNothing() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	sutDisabledAsyncProducer := NewDisabledAsyncProducer()
 	sutDisabledAsyncProducer.Start()
 	assert.False(s.T(), sutDisabledAsyncProducer.HasClosed())
 	sutDisabledAsyncProducer.SetErrorHandlingFunction(func(err error) {})
-	// -- ACT --
+	// -- WHEN --
 	err := sutDisabledAsyncProducer.PublishMessage(s.message)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	err = sutDisabledAsyncProducer.SendMessage(s.message)
 	assert.Nil(s.T(), err)
@@ -70,9 +70,9 @@ func (s *AsyncProducerDisabledTestSuite) Test_GivenDisabledAsyncProducer_ThenPub
 	assert.Equal(s.T(), 0, sutDisabledAsyncProducer.GetErrorCount())
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *AsyncProducerDisabledTestSuite) resetMonkeyPatching() {
 }

@@ -45,15 +45,15 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 	Describe("NewRequestWithContextRouteOffer tests", func() {
 		When("Valid call", func() {
 			It("returns no error", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				mockClientOk(http.StatusOK, "{}")
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url",
 					bytes.NewReader([]byte("{}")))
 				Expect(err).To(BeNil())
 				var output json.RawMessage
-				// -- ACT --
+				// -- WHEN --
 				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
-				// -- ASSERT --
+				// -- THEN --
 				Expect(err).To(BeNil())
 				Expect(output).To(Not(BeNil()))
 				Expect(statusCode).To(Equal(http.StatusOK))
@@ -62,15 +62,15 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 
 		When("Valid call returns 205", func() {
 			It("returns no error", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				mockClientOk(http.StatusPartialContent, "{}")
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url",
 					bytes.NewReader([]byte("{}")))
 				Expect(err).To(BeNil())
 				var output json.RawMessage
-				// -- ACT --
+				// -- WHEN --
 				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
-				// -- ASSERT --
+				// -- THEN --
 				Expect(err).To(BeNil())
 				Expect(output).To(Not(BeNil()))
 				Expect(statusCode).To(Equal(http.StatusPartialContent))
@@ -79,15 +79,15 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 
 		When("client returns a non 200", func() {
 			It("returns error", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				mockClientOk(http.StatusBadRequest, "{}")
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url",
 					bytes.NewReader([]byte("{}")))
 				Expect(err).To(BeNil())
 				var output json.RawMessage
-				// -- ACT --
+				// -- WHEN --
 				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
-				// -- ASSERT --
+				// -- THEN --
 				Expect(err).To(Not(BeNil()))
 				Expect(output).To(BeNil())
 				Expect(statusCode).To(Equal(http.StatusBadRequest))
@@ -96,15 +96,15 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 
 		When("Client Do error", func() {
 			It("returns error", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				mockClient.numDoCount = 2
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url",
 					bytes.NewReader([]byte("{}")))
 				Expect(err).To(BeNil())
 				var output json.RawMessage
-				// -- ACT --
+				// -- WHEN --
 				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
-				// -- ASSERT --
+				// -- THEN --
 				Expect(err).To(Not(BeNil()))
 				Expect(output).To(BeNil())
 				Expect(statusCode).To(Equal(http.StatusBadRequest))
@@ -113,7 +113,7 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 
 		When("IO Read All error on response", func() {
 			It("returns error", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				mockClient.On("Do", mock.Anything).
 					Return(
 						&http.Response{
@@ -126,9 +126,9 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 					bytes.NewReader([]byte("{}")))
 				Expect(err).To(BeNil())
 				var output json.RawMessage
-				// -- ACT --
+				// -- WHEN --
 				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
-				// -- ASSERT --
+				// -- THEN --
 				Expect(err).To(Not(BeNil()))
 				Expect(output).To(BeNil())
 				Expect(statusCode).To(Equal(http.StatusInternalServerError))
@@ -137,15 +137,15 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 
 		When("JSON Unmarshal error", func() {
 			It("returns error", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				mockClientOk(http.StatusOK, "{}")
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url",
 					bytes.NewReader([]byte("{}")))
 				Expect(err).To(BeNil())
 				var output chan string
-				// -- ACT --
+				// -- WHEN --
 				statusCode, err := SendRequestDecodeResponse(ctxBg, mockClient, req, &output)
-				// -- ASSERT --
+				// -- THEN --
 				Expect(err).To(Not(BeNil()))
 				Expect(output).To(BeNil())
 				Expect(statusCode).To(Equal(http.StatusInternalServerError))
@@ -156,52 +156,52 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 	Describe("DecodeRequestBody tests", func() {
 		When("valid", func() {
 			It("returns no error", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url", getHttpBody("{}"))
 				expectErrToBeNil(err)
 				var output json.RawMessage
-				// -- ACT --
+				// -- WHEN --
 				err = DecodeRequestBody(req, &output)
-				// -- ASSERT --
+				// -- THEN --
 				expectErrToBeNil(err)
 			})
 		})
 
 		When("body is nil", func() {
 			It("returns error", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url", nil)
 				expectErrToBeNil(err)
 				var output json.RawMessage
-				// -- ACT --
+				// -- WHEN --
 				err = DecodeRequestBody(req, &output)
-				// -- ASSERT --
+				// -- THEN --
 				expectErrToNotBeNil(err)
 			})
 		})
 
 		When("io.ReadAll error", func() {
 			It("returns error", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url", errReadCloser(1))
 				expectErrToBeNil(err)
 				var output json.RawMessage
-				// -- ACT --
+				// -- WHEN --
 				err = DecodeRequestBody(req, &output)
-				// -- ASSERT --
+				// -- THEN --
 				expectErrToNotBeNil(err)
 			})
 		})
 
 		When("json unmarshal error", func() {
 			It("returns error", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url", getHttpBody("{]"))
 				expectErrToBeNil(err)
 				var output json.RawMessage
-				// -- ACT --
+				// -- WHEN --
 				err = DecodeRequestBody(req, &output)
-				// -- ASSERT --
+				// -- THEN --
 				expectErrToNotBeNil(err)
 			})
 		})
@@ -210,13 +210,13 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 	Describe("SafelyCloseBody tests", func() {
 		When("body is not nil", func() {
 			It("successfully closed", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				body := getHttpBody("{}")
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url", body)
 				expectErrToBeNil(err)
-				// -- ACT --
+				// -- WHEN --
 				SafelyCloseBody(req.Body)
-				// -- ASSERT --
+				// -- THEN --
 				err = body.Close()
 				expectErrToBeNil(err)
 			})
@@ -224,12 +224,12 @@ var _ = Describe("UrlDecodeUtils Test Suite", func() {
 
 		When("body is nil", func() {
 			It("does not panic", func() {
-				// -- ARRANGE --
+				// -- GIVEN --
 				body := getHttpBody("{}")
 				req, err := http.NewRequestWithContext(ctxBg, http.MethodPost, "url", body)
 				expectErrToBeNil(err)
-				// -- ACT --
-				// -- ASSERT --
+				// -- WHEN --
+				// -- THEN --
 				Expect(func() { SafelyCloseBody(req.Body) }).ToNot(Panic())
 			})
 		})

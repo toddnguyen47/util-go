@@ -15,43 +15,43 @@ type TestStruct struct {
 }
 
 func Test_GivenValid_When_ThenReturnMap(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	testStruct := TestStruct{
 		Id:   makePtr("id"),
 		Name: nil,
 	}
 	jsonWrapper := jsonwrapper.NewDefaultJsonWrapper()
-	// -- ACT --
+	// -- WHEN --
 	map1, err := UnmarshalToMap(testStruct, jsonWrapper)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(t, err)
 	assert.Equal(t, *testStruct.Id, map1["id"])
 	assert.Nil(t, map1["name"])
 }
 
 func Test_GivenJsonMarshalError_When_ThenReturnErr(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	testChan := make(chan string)
 	errJson := new(ErrorJson)
 	errJson.marshalError = true
-	// -- ACT --
+	// -- WHEN --
 	map1, err := UnmarshalToMap(testChan, errJson)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(t, err)
 	assert.Equal(t, make(map[string]interface{}), map1)
 }
 
 func Test_GivenJsonUnmarshalError_When_ThenReturnErr(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	testStruct := TestStruct{
 		Id:   makePtr("id"),
 		Name: nil,
 	}
 	errJson := new(ErrorJson)
 	errJson.unmarshalError = true
-	// -- ACT --
+	// -- WHEN --
 	map1, err := UnmarshalToMap(testStruct, errJson)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(t, err)
 	assert.Equal(t, make(map[string]interface{}), map1)
 }

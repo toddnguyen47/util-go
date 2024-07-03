@@ -16,9 +16,9 @@ import (
 
 var errForTests = errors.New("errForTests")
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -61,51 +61,51 @@ func TestSaramaConfigTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *SaramaConfigTestSuite) Test_GivenProperSSLCerts_ThenGetConfigProperly() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	pubKey, privateKey := s.getCerts()
-	// -- ACT --
+	// -- WHEN --
 	config := GetSaramaConfigSsl(pubKey, privateKey)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), config)
 }
 
 func (s *SaramaConfigTestSuite) Test_GivenTlsError_ThenPanics() {
-	// -- ARRANGE --
-	// -- ACT --
-	// -- ASSERT --
+	// -- GIVEN --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		GetSaramaConfigSsl([]byte("hello"), []byte("world"))
 	})
 }
 
 func (s *SaramaConfigTestSuite) Test_GivenProperSASLSSLCerts_ThenGetConfigProperly() {
-	// -- ARRANGE --
-	// -- ACT --
+	// -- GIVEN --
+	// -- WHEN --
 	config := GetSaramaConfigSasl(s.principal, []byte("kerbKeyTab"), []byte("kerbConf"), []byte("sslCert"))
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), config)
 }
 
 func (s *SaramaConfigTestSuite) Test_GivenNonProperSASLSSLCerts_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_getCertsFrom = func(certsLocation string) (*x509.CertPool, error) {
 		return nil, errForTests
 	}
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		GetSaramaConfigSasl(s.principal, []byte("kerbKeyTab"), []byte("kerbConf"), []byte("sslCert"))
 	})
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *SaramaConfigTestSuite) resetMonkeyPatching() {
 }

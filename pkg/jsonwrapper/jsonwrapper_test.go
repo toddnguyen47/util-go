@@ -13,32 +13,32 @@ type testStruct struct {
 }
 
 func Test_GivenValidMarshal_When_ThenErrIsNil(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	jsonWrapper := NewDefaultJsonWrapper()
 	test1 := testStruct{
 		Id:   makePtr(t, "id"),
 		Name: nil,
 	}
-	// -- ACT --
+	// -- WHEN --
 	bytes1, err := jsonWrapper.Marshal(test1)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(t, err)
 	assert.Greater(t, len(string(bytes1)), 0)
 }
 
 func Test_GivenInvalidMarshal_When_ThenErrIsNil(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	jsonWrapper := NewDefaultJsonWrapper()
 	chan1 := make(chan string)
-	// -- ACT --
+	// -- WHEN --
 	bytes1, err := jsonWrapper.Marshal(chan1)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(t, err)
 	assert.Equal(t, len(string(bytes1)), 0)
 }
 
 func Test_GivenValidUnmarshal_When_ThenErrIsNil(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	jsonWrapper := NewDefaultJsonWrapper()
 	test1 := testStruct{
 		Id:   makePtr(t, "id"),
@@ -46,15 +46,15 @@ func Test_GivenValidUnmarshal_When_ThenErrIsNil(t *testing.T) {
 	}
 	bytes1, err := jsonWrapper.Marshal(test1)
 	assert.Nil(t, err)
-	// -- ACT --
+	// -- WHEN --
 	var output map[string]interface{}
 	err = jsonWrapper.Unmarshal(bytes1, &output)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(t, err)
 }
 
 func Test_GivenInvalidUnmarshal_When_ThenErrIsNil(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	jsonWrapper := NewDefaultJsonWrapper()
 	test1 := testStruct{
 		Id:   makePtr(t, "id"),
@@ -62,33 +62,33 @@ func Test_GivenInvalidUnmarshal_When_ThenErrIsNil(t *testing.T) {
 	}
 	bytes1, err := jsonWrapper.Marshal(test1)
 	assert.Nil(t, err)
-	// -- ACT --
+	// -- WHEN --
 	chan1 := make(chan string)
 	err = jsonWrapper.Unmarshal(bytes1, &chan1)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(t, err)
 }
 
 func Test_GivenEncodingProperly_ThenErrIsNil(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	a := testStruct{
 		Id:   makePtr(t, "id"),
 		Name: makePtr(t, "name & address"),
 	}
-	// -- ACT --
+	// -- WHEN --
 	b1, err := MarshalNoEscapeHtml(a)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(t, err)
 	str1 := string(b1)
 	assert.True(t, strings.Contains(str1, "name & address"), "should contain `&`")
 }
 
 func Test_GivenEncodingImproperly_ThenErrIsNotNil(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	a := make(chan string)
-	// -- ACT --
+	// -- WHEN --
 	b1, err := MarshalNoEscapeHtml(a)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(t, err)
 	assert.Equal(t, []byte{}, b1)
 }

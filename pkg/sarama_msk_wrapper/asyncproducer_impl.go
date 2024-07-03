@@ -7,6 +7,7 @@ import (
 
 	"github.com/IBM/sarama"
 	"github.com/rs/zerolog"
+	"github.com/toddnguyen47/util-go/pkg/timeisoparser"
 )
 
 func (a1 *asyncProducerImpl) PublishMessage(message sarama.ProducerMessage) error {
@@ -99,14 +100,19 @@ func (a1 *asyncProducerImpl) Start() {
 			ticker.Stop()
 		}()
 
-	ProducerLoop:
-		for {
+		keepRunning := true
+		for keepRunning {
 			select {
-			case <-a1.asyncProducer.Successes():
+			case msg := <-a1.asyncProducer.Successes():
 				a1.successCount.Add(1)
+				encodedKey := getProducerEncodedKey(msg)
+				logger.Info().
+					Str("topic", msg.Topic).
+					Str("key", encodedKey).
+					Msg("SUCCESS producing message")
 			case err := <-a1.asyncProducer.Errors():
 				a1.funcErrorHandling(err)
-				logger.Error().Fields(fields).Err(err).Msg("ERROR producing message")
+				logger.Error().Fields(fields).Err(err.Err).Msg("ERROR producing message")
 				a1.errorCount.Add(1)
 			case <-ticker.C:
 				enqueuedCountStr := _printer.Sprintf(_formatDigit, a1.enqueuedCount.Load())
@@ -119,7 +125,7 @@ func (a1 *asyncProducerImpl) Start() {
 					Str("errorCount", errorCountStr).Msg("resetting ticker")
 				a1.resetCount()
 			case <-a1.stopChan:
-				break ProducerLoop
+				keepRunning = false
 			}
 		}
 
@@ -131,4 +137,17 @@ func (a1 *asyncProducerImpl) resetCount() {
 	a1.enqueuedCount.Store(0)
 	a1.successCount.Store(0)
 	a1.errorCount.Store(0)
+}
+
+func getProducerEncodedKey(msg *sarama.ProducerMessage) string {
+	now := time.Now().UTC()
+	nowStr := now.Format(timeisoparser.ISO8601Millis)
+	if msg == nil || msg.Key == nil {
+		return nowStr
+	}
+	encodedKey, err := msg.Key.Encode()
+	if err != nil {
+		return nowStr
+	}
+	return string(encodedKey)
 }

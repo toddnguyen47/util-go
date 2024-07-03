@@ -36,11 +36,11 @@ func (i1 *impl) start() {
 }
 
 func (i1 *impl) startInfLoop() {
-InfLoop:
-	for {
+	keepRunning := true
+	for keepRunning {
 		select {
 		case <-i1.stopChan:
-			break InfLoop
+			keepRunning = false
 		case t1 := <-i1.ticker.C:
 			i1.idleFunc(t1)
 		}

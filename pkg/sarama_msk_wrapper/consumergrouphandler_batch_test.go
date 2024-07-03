@@ -67,16 +67,16 @@ func TestConsumerGroupHandlerBatchTestSuite(t *testing.T) {
 // ----------------------------------------------------------------------------
 
 func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenSuccessfulBatchProcessor_ThenReturnNil() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	var wg sync.WaitGroup
 	numMessages := s.batchSize * 5
 	wg.Add(numMessages)
 	go s.mockSendingMessagesToGroupClaim(&wg, numMessages, true, 0*time.Millisecond)
-	// -- ACT --
+	// -- WHEN --
 	s.sutImpl.MarkNotReady()
 	err := s.sutImpl.ConsumeClaim(s.mockSess, s.mockConsumerGroupClaim)
 	wg.Wait()
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), s.batchSize, s.mockBatchProcessor.mpfBatch.GetCount())
 	assert.Equal(s.T(), numMessages, s.mockBatchProcessor.mpfProcess.GetCount())
@@ -84,12 +84,12 @@ func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenSuccessfulBatchProcessor_
 }
 
 func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenSuccessfulBatchProcessorWithCancellingContext_ThenReturnNil() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	var wg sync.WaitGroup
 	numMessages := s.batchSize * 5
 	wg.Add(numMessages)
 	go s.mockSendingMessagesToGroupClaim(&wg, numMessages, false, 0*time.Millisecond)
-	// -- ACT --
+	// -- WHEN --
 	go func() {
 		time.Sleep(500 * time.Millisecond)
 		fmt.Println("cancelling session")
@@ -97,7 +97,7 @@ func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenSuccessfulBatchProcessorW
 	}()
 	err := s.sutImpl.ConsumeClaim(s.mockSess, s.mockConsumerGroupClaim)
 	wg.Wait()
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), s.batchSize, s.mockBatchProcessor.mpfBatch.GetCount())
 	assert.Equal(s.T(), numMessages, s.mockBatchProcessor.mpfProcess.GetCount())
@@ -106,15 +106,15 @@ func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenSuccessfulBatchProcessorW
 }
 
 func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenTimedOut_ThenProcessCurrentBatch() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	var wg sync.WaitGroup
 	numMessages := s.batchSize * 5
 	wg.Add(numMessages)
 	go s.mockSendingMessagesToGroupClaim(&wg, numMessages, true, s.timeout>>1)
-	// -- ACT --
+	// -- WHEN --
 	err := s.sutImpl.ConsumeClaim(s.mockSess, s.mockConsumerGroupClaim)
 	wg.Wait()
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.Greater(s.T(), s.mockBatchProcessor.mpfBatch.GetCount(), s.batchSize)
 	assert.Equal(s.T(), numMessages, s.mockBatchProcessor.mpfProcess.GetCount())
@@ -122,16 +122,16 @@ func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenTimedOut_ThenProcessCurre
 }
 
 func (s *ConsumerGroupHandlerBatchTestSuite) Test_GivenTwoFailedMessages_ThenDoNotMarkThemAsProcessed() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.mockBatchProcessor.mpfProcess.SetCode("FF")
 	var wg sync.WaitGroup
 	numMessages := s.batchSize * 5
 	wg.Add(numMessages)
 	go s.mockSendingMessagesToGroupClaim(&wg, numMessages, true, 0*time.Millisecond)
-	// -- ACT --
+	// -- WHEN --
 	err := s.sutImpl.ConsumeClaim(s.mockSess, s.mockConsumerGroupClaim)
 	wg.Wait()
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), s.batchSize, s.mockBatchProcessor.mpfBatch.GetCount())
 	assert.Equal(s.T(), numMessages, s.mockBatchProcessor.mpfProcess.GetCount())

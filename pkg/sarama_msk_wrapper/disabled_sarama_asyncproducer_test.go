@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -39,15 +39,15 @@ func TestDisabledSaramaAsyncProducerTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *DisabledSaramaAsyncProducerTestSuite) Test_GivenDisabledAsyncProducer_ThenEveryFuncIsOk() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	sutDisabled := NewDisabledSaramaAsyncProducer()
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.NotNil(s.T(), sutDisabled.Input())
 	assert.NotNil(s.T(), sutDisabled.Successes())
 	assert.NotNil(s.T(), sutDisabled.Errors())
@@ -70,9 +70,9 @@ func (s *DisabledSaramaAsyncProducerTestSuite) Test_GivenDisabledAsyncProducer_T
 	assert.NotNil(s.T(), sutDisabled.Input())
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *DisabledSaramaAsyncProducerTestSuite) resetMonkeyPatching() {
 }

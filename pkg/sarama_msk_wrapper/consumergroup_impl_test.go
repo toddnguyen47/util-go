@@ -11,9 +11,9 @@ import (
 	"github.com/toddnguyen47/util-go/pkg/pointerutils"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -64,19 +64,19 @@ func TestConsumerGroupTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOk_ThenReturnProperObject() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	SetLogLevel("INFO")
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return s.mockConsumerGroup, nil
 	}
 	sleepTime := 100 * time.Millisecond
 	s.config.Common.MaxRestarts = pointerutils.PtrUint32(10)
-	// -- ACT --
+	// -- WHEN --
 	sutConsumerWrapper := NewConsumerWrapper(s.config, s.mockProcessor)
 	sutConsumerWrapper.SetErrorHandlingFunction(func(err error) {
 		s.errorList = append(s.errorList, err)
@@ -94,18 +94,18 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOk_ThenReturnProperO
 		assert.True(s.T(), sutConsumerWrapper.HasStopped())
 	}()
 	time.Sleep(sleepTime)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), sutConsumerWrapper)
 	assert.Equal(s.T(), 1, sutConsumerWrapper.GetErrorCount())
 }
 
 func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupBatchInitOk_ThenReturnNil() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return s.mockConsumerGroup, nil
 	}
 	sleepTime := 100 * time.Millisecond
-	// -- ACT --
+	// -- WHEN --
 	s.config.Common.BatchSize = 5
 	s.config.Common.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
 	s.config.Common.DurationToResetCounter = pointerutils.PtrDuration(30 * time.Minute)
@@ -122,18 +122,18 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupBatchInitOk_ThenReturnNi
 		assert.True(s.T(), sutConsumerWrapper.HasStopped())
 	}()
 	time.Sleep(sleepTime)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), sutConsumerWrapper)
 	assert.Equal(s.T(), 1, sutConsumerWrapper.GetErrorCount())
 }
 
 func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOkContextCancelled_ThenReturnProperObject() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return s.mockConsumerGroup, nil
 	}
 	sleepTime := 100 * time.Millisecond
-	// -- ACT --
+	// -- WHEN --
 	sutConsumerWrapper := NewConsumerWrapper(s.config, s.mockProcessor)
 	sutConsumerWrapper.Start()
 	time.Sleep(500 * time.Millisecond)
@@ -145,20 +145,20 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupInitOkContextCancelled_T
 		assert.True(s.T(), sutConsumerWrapper.HasStopped())
 	}()
 	time.Sleep(sleepTime)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), sutConsumerWrapper)
 	assert.NotNil(s.T(), sutConsumerWrapper.GetConsumerGroup())
 }
 
 func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	pubKey, privateKey := getCerts(s.T())
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return nil, errForTests
 	}
 	sutConsumerWrapperId := "ConsumerGroupId"
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		config := ConsumerGroupConfig{
 			Common: ConsumerGroupConfigCommon{
@@ -173,14 +173,14 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupError_ThenPanic() {
 }
 
 func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupReturnsErr_ThenReturnEarly() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return s.mockConsumerGroup, nil
 	}
 	s.mockConsumerGroup.mpfConsume.SetCode("FFP")
 	sleepTime := 100 * time.Millisecond
 	s.config.Common.DurationToResetCounter = &sleepTime
-	// -- ACT --
+	// -- WHEN --
 	sutConsumerWrapper := NewConsumerWrapperAutoStart(s.config, s.mockProcessor)
 	sutConsumerWrapper.Start()
 	assert.False(s.T(), sutConsumerWrapper.HasStopped())
@@ -191,17 +191,17 @@ func (s *ConsumerGroupTestSuite) Test_GivenConsumerGroupReturnsErr_ThenReturnEar
 		assert.True(s.T(), sutConsumerWrapper.HasStopped())
 	}()
 	time.Sleep(sleepTime)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), sutConsumerWrapper)
 }
 
 func (s *ConsumerGroupTestSuite) Test_GivenNewConsumerWrapperConfigValidationError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return s.mockConsumerGroup, nil
 	}
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		config := ConsumerGroupConfig{}
 		NewConsumerWrapper(config, s.mockProcessor)
@@ -209,13 +209,13 @@ func (s *ConsumerGroupTestSuite) Test_GivenNewConsumerWrapperConfigValidationErr
 }
 
 func (s *ConsumerGroupTestSuite) Test_GivenCountersReset_ThenCounterIs0() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return s.mockConsumerGroup, nil
 	}
 	sleepTime := 100 * time.Millisecond
 	s.config.Common.DurationToResetCounter = &sleepTime
-	// -- ACT --
+	// -- WHEN --
 	sutConsumerWrapper := NewConsumerWrapper(s.config, s.mockProcessor)
 	sutConsumerWrapper.Start()
 	s.mockConsumerGroup.errorChan <- errForTests
@@ -227,18 +227,18 @@ func (s *ConsumerGroupTestSuite) Test_GivenCountersReset_ThenCounterIs0() {
 		assert.True(s.T(), sutConsumerWrapper.HasStopped())
 	}()
 	time.Sleep(sleepTime)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), sutConsumerWrapper)
 	assert.Equal(s.T(), 0, sutConsumerWrapper.GetErrorCount())
 }
 
 func (s *ConsumerGroupTestSuite) Test_GivenBatchConfigErrorNoTopics_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return s.mockConsumerGroup, nil
 	}
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	s.config.Common.BatchSize = 5
 	s.config.Common.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
 	s.config.Common.Topics = make([]string, 0)
@@ -248,12 +248,12 @@ func (s *ConsumerGroupTestSuite) Test_GivenBatchConfigErrorNoTopics_ThenPanic() 
 }
 
 func (s *ConsumerGroupTestSuite) Test_GivenBatchSizeIsZero_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return s.mockConsumerGroup, nil
 	}
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	s.config.Common.BatchSize = 0
 	s.config.Common.BatchTimeout = pointerutils.PtrDuration(1 * time.Minute)
 	assert.Panics(s.T(), func() {
@@ -262,26 +262,26 @@ func (s *ConsumerGroupTestSuite) Test_GivenBatchSizeIsZero_ThenPanic() {
 }
 
 func (s *ConsumerGroupTestSuite) Test_GivenConsumeFailsMoreThan5Times_ThenStop() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_saramaNewConsumerGroup = func(addrs []string, groupID string, config *sarama.Config) (sarama.ConsumerGroup, error) {
 		return s.mockConsumerGroup, nil
 	}
 	s.mockConsumerGroup.consumeWaitForStop = false
 	SetLogLevel("INFO")
 	_terminationDelay = 5 * time.Millisecond
-	// -- ACT --
+	// -- WHEN --
 	sutConsumerWrapper := NewConsumerWrapperAutoStart(s.config, s.mockProcessor)
 	s.mockConsumerGroup.errorChan <- errForTests
 	time.Sleep(100 * time.Millisecond)
 	sutConsumerWrapper.Stop()
-	// -- ASSERT --
+	// -- THEN --
 	assert.True(s.T(), sutConsumerWrapper.HasStopped())
 	assert.NotNil(s.T(), sutConsumerWrapper)
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *ConsumerGroupTestSuite) resetMonkeyPatching() {
 	_saramaNewConsumerGroup = sarama.NewConsumerGroup

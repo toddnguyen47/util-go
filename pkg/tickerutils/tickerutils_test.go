@@ -49,12 +49,12 @@ func TestTickerUtilsTestSuite(t *testing.T) {
 // ----------------------------------------------------------------------------
 
 func (s *TickerUtilsTestSuite) Test_GivenTickerTimedOut_ThenFunctionIsCalled() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	sleepTime := 10 * time.Millisecond
 	sutTicker2 := NewTicker2(sleepTime, s.testFuncIdle)
-	// -- ACT --
+	// -- WHEN --
 	time.Sleep(sleepTime * 5)
-	// -- ASSERT --
+	// -- THEN --
 	sutTicker2.Stop()
 	// Stop twice on purpose
 	sutTicker2.Stop()

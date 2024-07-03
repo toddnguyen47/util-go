@@ -44,8 +44,8 @@ func (c1 *consumerWrapperImpl) startSync() {
 			ticker.Stop()
 		}()
 
-		ErrorLoop:
-		for {
+		keepRunning := true
+		for keepRunning {
 			select {
 			case consumerError := <-c1.consumerGroup.Errors():
 				logger.Error().Fields(fields).Err(consumerError).Msg("error consuming message")
@@ -56,7 +56,7 @@ func (c1 *consumerWrapperImpl) startSync() {
 					Str("errorCount", errorCountStr).Msg("resetting counter for ConsumerGroup")
 				c1.resetCount()
 			case <-c1.stopChan:
-				break ErrorLoop
+				keepRunning = false
 			}
 		}
 	}()

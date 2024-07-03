@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -40,38 +40,38 @@ func TestMockClientTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *MockClientTestSuite) Test_GivenNewMockClient_ThenReturnMockClient() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	mockClient := NewMockClient(s.T())
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url", strings.NewReader("{}"))
 	assert.Nil(s.T(), err)
-	// -- ACT --
+	// -- WHEN --
 	resp, err := mockClient.Do(req)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), resp)
 }
 
 func (s *MockClientTestSuite) Test_GivenSetCodeFail_ThenReturnError() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	mockClient := NewMockClient(s.T())
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url", strings.NewReader("{}"))
 	assert.Nil(s.T(), err)
 	mockClient.MpfDo().SetCode("FFP")
-	// -- ACT --
+	// -- WHEN --
 	resp, err := mockClient.Do(req)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), &http.Response{}, resp)
 	assert.NotNil(s.T(), mockClient.SavedRequest())
 }
 
 func (s *MockClientTestSuite) Test_GivenExpectedResp_ThenReturnResp() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	mockClient := NewMockClient(s.T())
 	req, err := http.NewRequestWithContext(s.ctxBg, http.MethodGet, "url", strings.NewReader("{}"))
 	assert.Nil(s.T(), err)
@@ -80,17 +80,17 @@ func (s *MockClientTestSuite) Test_GivenExpectedResp_ThenReturnResp() {
 		Body:       io.NopCloser(strings.NewReader("{}")),
 	}
 	mockClient.SetExpectedResponse(&expectedResp)
-	// -- ACT --
+	// -- WHEN --
 	resp, err := mockClient.Do(req)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), &expectedResp, resp)
 	assert.Equal(s.T(), &expectedResp, mockClient.ExpectedResponse())
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *MockClientTestSuite) resetMonkeyPatching() {
 }

@@ -31,10 +31,10 @@ var _ = Describe("{{RenameYourTestClassTestSuite}}", func() {
 
 	When("JSON Marshal error", func() {
 		It("returns an error", func() {
-			// -- ARRANGE --
+			// -- GIVEN --
 			var err error = nil
-			// -- ACT --
-			// -- ASSERT --
+			// -- WHEN --
+			// -- THEN --
 			Expect(err).To(BeNil())
 			Expect(_ctxBg).To(Equal(context.Background()))
 		})

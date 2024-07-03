@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -37,15 +37,15 @@ func TestDisabledConsumerGroupTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *DisabledConsumerGroupTestSuite) Test_GivenDisabledConsumer_ThenAllFunctionsWorkFine() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	sutDisabled := NewDisabledSaramaConsumerGroup()
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Nil(s.T(), sutDisabled.Consume(s.ctxBg, []string{"topic1", "topic2"}, nil))
 	assert.NotNil(s.T(), sutDisabled.Errors())
 	assert.Nil(s.T(), sutDisabled.Close())
@@ -56,9 +56,9 @@ func (s *DisabledConsumerGroupTestSuite) Test_GivenDisabledConsumer_ThenAllFunct
 	sutDisabled.ResumeAll()
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *DisabledConsumerGroupTestSuite) resetMonkeyPatching() {
 }

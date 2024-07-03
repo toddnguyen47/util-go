@@ -18,18 +18,18 @@ func (t testStruct) CustomMarshal() ([]byte, error) {
 }
 
 func Test_GivenTwoDifferentSourceInfo_When_ThenDigestShouldBeSame(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	var ts1 testStruct
 	var ts2 testStruct
 	var ts3 testStruct
 	getTestStruct(t, &ts1)
 	getTestStruct(t, &ts2)
 	getTestStruct(t, &ts3)
-	// -- ACT --
+	// -- WHEN --
 	digest1 := ComputeHash(ts1)
 	digest2 := ComputeHash(ts2)
 	digest3 := ComputeHash(ts3)
-	// -- ASSERT --
+	// -- THEN --
 	expectedDigest := "a3028ede34709cf8f497fd7d9501049243d7eb75bdcf037085dae333313cd2dc617c3eb11eff4cf2519be1a40e47b6ae8eca013ae7f8c923324217986b95db26"
 	assert.Equal(t, digest1, digest2)
 	assert.Equal(t, digest2, digest3)
@@ -39,18 +39,18 @@ func Test_GivenTwoDifferentSourceInfo_When_ThenDigestShouldBeSame(t *testing.T) 
 }
 
 func Test_GivenTwoDifferentSourceInfo_When32bit_ThenDigestShouldBeSame(t *testing.T) {
-	// -- ARRANGE --
+	// -- GIVEN --
 	var ts1 testStruct
 	var ts2 testStruct
 	var ts3 testStruct
 	getTestStruct(t, &ts1)
 	getTestStruct(t, &ts2)
 	getTestStruct(t, &ts3)
-	// -- ACT --
+	// -- WHEN --
 	digest1 := ComputeHashWithHashLen(ts1, 16)
 	digest2 := ComputeHashWithHashLen(ts2, 16)
 	digest3 := ComputeHashWithHashLen(ts3, 16)
-	// -- ASSERT --
+	// -- THEN --
 	assert.Equal(t, digest1, digest2)
 	assert.Equal(t, digest2, digest3)
 }

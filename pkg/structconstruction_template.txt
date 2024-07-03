@@ -9,9 +9,9 @@ func NewChangeYourStructName() *ChangeYourStructName {
 // Test Files
 
 func Test_GivenChangeYourStructNameConstruction_When_ThenStructIsConstructedCorrectly(t *testing.T) {
-	// -- ARRANGE --
-	// -- ACT --
+	// -- GIVEN --
+	// -- WHEN --
 	structPtr1 := NewChangeYourStructName()
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(t, structPtr1)
 }

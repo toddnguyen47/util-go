@@ -41,11 +41,11 @@ func Test{{RenameYourTestClassTestSuite}}(t *testing.T) {
 // ----------------------------------------------------------------------------
 
 func (s *{{RenameYourTestClassTestSuite}}) Test_GivenJsonUnmarshalError_WhenProcessing_ThenSkipThatRecord() {
-	// -- ARRANGE --
+	// -- GIVEN --
 
-	// -- ACT --
+	// -- WHEN --
 
-	// -- ASSERT --
+	// -- THEN --
 }
 
 // ----------------------------------------------------------------------------

@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -41,16 +41,16 @@ func TestConcurrentListTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenAppendingAndGetting_ThenReturnProperList() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	l1 := NewConcurrentList[int]()
 	var wg sync.WaitGroup
 	wg.Add(s.maxInserts)
-	// -- ACT --
+	// -- WHEN --
 	for i := 0; i < s.maxInserts; i++ {
 		go func() {
 			defer wg.Done()
@@ -58,7 +58,7 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenAppendingAndGetti
 		}()
 	}
 	wg.Wait()
-	// -- ASSERT --
+	// -- THEN --
 	assert.Equal(s.T(), s.maxInserts, l1.Size())
 	assert.False(s.T(), l1.IsEmpty())
 	newList := l1.GetList()
@@ -66,12 +66,12 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenAppendingAndGetti
 }
 
 func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenGettingBeforeAppending_ThenReturnProperList() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	l1 := NewConcurrentList[int]()
 	l1.Append(42)
 	var wg sync.WaitGroup
 	wg.Add(s.maxInserts)
-	// -- ACT --
+	// -- WHEN --
 	for i := 0; i < s.maxInserts; i++ {
 		go func() {
 			defer wg.Done()
@@ -85,7 +85,7 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenGettingBeforeAppe
 		}()
 	}
 	wg.Wait()
-	// -- ASSERT --
+	// -- THEN --
 	assert.Equal(s.T(), s.maxInserts+1, l1.Size())
 	assert.False(s.T(), l1.IsEmpty())
 	newList := l1.GetList()
@@ -93,12 +93,12 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenGettingBeforeAppe
 }
 
 func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenUpdating_ThenReturnProperList() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	l1 := NewConcurrentList[int]()
 	l1.Append(42)
 	var wg sync.WaitGroup
 	wg.Add(s.maxInserts)
-	// -- ACT --
+	// -- WHEN --
 	for i := 0; i < s.maxInserts; i++ {
 		newRand := rand.Intn(1000)
 		go func(i1 int) {
@@ -111,7 +111,7 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenUpdating_ThenRetu
 		}(newRand)
 	}
 	wg.Wait()
-	// -- ASSERT --
+	// -- THEN --
 	assert.Equal(s.T(), s.maxInserts+1, l1.Size())
 	assert.False(s.T(), l1.IsEmpty())
 	newList := l1.GetList()
@@ -122,11 +122,11 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenUpdating_ThenRetu
 }
 
 func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenDeleting_ThenReturnProperList() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	l1 := NewConcurrentList[int]()
 	var wg sync.WaitGroup
 	wg.Add(s.maxInserts)
-	// -- ACT --
+	// -- WHEN --
 	for i := 0; i < s.maxInserts; i++ {
 		go func() {
 			defer wg.Done()
@@ -145,7 +145,7 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenDeleting_ThenRetu
 		}()
 	}
 	wg.Wait()
-	// -- ASSERT --
+	// -- THEN --
 	assert.Equal(s.T(), s.maxInserts/2, l1.Size())
 	assert.False(s.T(), l1.IsEmpty())
 	newList := l1.GetList()
@@ -155,9 +155,9 @@ func (s *ConcurrentListTestSuite) Test_GivenConcurrentList_WhenDeleting_ThenRetu
 	assert.True(s.T(), ok)
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *ConcurrentListTestSuite) resetMonkeyPatching() {
 }

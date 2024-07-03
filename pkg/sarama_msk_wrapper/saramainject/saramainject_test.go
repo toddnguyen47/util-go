@@ -16,9 +16,9 @@ import (
 var errForTests = errors.New("errForTests")
 var mpfWriteDir testhelpers.MockPassFail
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -56,16 +56,16 @@ func TestSaramaInjectTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *SaramaInjectTestSuite) Test_GivenProperSASLSSLCerts_WhenInject_ThenGetConfigProperly() {
-	// -- ARRANGE --
-	// -- ACT --
+	// -- GIVEN --
+	// -- WHEN --
 	path := Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	certs, err := GetCertsFrom(path.SslCert)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotEqual(s.T(), "", path.KerbKeytab)
 	assert.NotEqual(s.T(), "", path.KerbConf)
 	assert.NotEqual(s.T(), "", path.SslCert)
@@ -75,11 +75,11 @@ func (s *SaramaInjectTestSuite) Test_GivenProperSASLSSLCerts_WhenInject_ThenGetC
 }
 
 func (s *SaramaInjectTestSuite) Test_GivenNotProperSslCert_ThenReturnError() {
-	// -- ARRANGE --
-	// -- ACT --
+	// -- GIVEN --
+	// -- WHEN --
 	path := Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	certs, err := GetCertsFrom(path.SslCert)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotEqual(s.T(), "", path.KerbKeytab)
 	assert.NotEqual(s.T(), "", path.KerbConf)
 	assert.NotEqual(s.T(), "", path.SslCert)
@@ -88,62 +88,62 @@ func (s *SaramaInjectTestSuite) Test_GivenNotProperSslCert_ThenReturnError() {
 }
 
 func (s *SaramaInjectTestSuite) Test_GivenOsMkdirAllError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	_osMkdirAll = func(path string, perm os.FileMode) error {
 		return errForTests
 	}
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	})
 }
 
 func (s *SaramaInjectTestSuite) Test_GivenInjectKerbKeytabError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	mockOsWriteFile(s.T())
 	mpfWriteDir.SetCode("FPP")
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	})
 }
 
 func (s *SaramaInjectTestSuite) Test_GivenInjectKerbConfError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	mockOsWriteFile(s.T())
 	mpfWriteDir.SetCode("PFP")
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	})
 }
 
 func (s *SaramaInjectTestSuite) Test_GivenInjectSslCertError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	mockOsWriteFile(s.T())
 	mpfWriteDir.SetCode("PPF")
-	// -- ACT --
-	// -- ASSERT --
+	// -- WHEN --
+	// -- THEN --
 	assert.Panics(s.T(), func() {
 		Inject(s.principal, []byte("kerbKeytab"), []byte("kerbConf"), []byte("sslCert"))
 	})
 }
 
 func (s *SaramaInjectTestSuite) Test_GivenPathDoesNotExist_ThenReturnErr() {
-	// -- ARRANGE --
-	// -- ACT --
+	// -- GIVEN --
+	// -- WHEN --
 	certs, err := GetCertsFrom("somewhere over the rainbow")
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), err)
 	assert.Nil(s.T(), certs)
 }
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *SaramaInjectTestSuite) resetMonkeyPatching() {
 	_osMkdirAll = os.MkdirAll

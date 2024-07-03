@@ -15,9 +15,9 @@ import (
 
 var errForTests = errors.New("errForTests")
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region SETUP
-// ############################################################################
+// ------------------------------------------------------------
 
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
@@ -61,12 +61,12 @@ func TestAsyncProducerTestSuite(t *testing.T) {
 
 // #endregion
 
-// ############################################################################
+// ------------------------------------------------------------
 // #region TESTS ARE BELOW
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOk_ThenSentOk() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.resetMonkeyPatching()
 	_saramaNewAsyncProducer = func(addrs []string, conf *sarama.Config) (sarama.AsyncProducer, error) {
 		return s.mockAsyncProducer1, nil
@@ -84,13 +84,13 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOk_ThenSentOk() {
 		s.errorList = append(s.errorList, err)
 	})
 	msg := s.setUpProducerMessage()
-	// -- ACT --
+	// -- WHEN --
 	err := sutAsyncProducer.SendMessage(msg)
 	assert.False(s.T(), sutAsyncProducer.HasClosed())
 	time.Sleep(sleepTime)
 	sutAsyncProducer.Stop()
 	s.mockAsyncProducer1.stop()
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.True(s.T(), sutAsyncProducer.HasClosed())
 	assert.Equalf(s.T(), 1, getIntFromAtomic(&s.mockAsyncProducer1.inputCount), "should be same input count")
@@ -102,7 +102,7 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOk_ThenSentOk() {
 }
 
 func (s *AsyncProducerTestSuite) Test_GivenImproperConfig_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.resetMonkeyPatching()
 	assert.Panics(s.T(), func() {
 		config := AsyncProducerConfig{}
@@ -111,7 +111,7 @@ func (s *AsyncProducerTestSuite) Test_GivenImproperConfig_ThenPanic() {
 }
 
 func (s *AsyncProducerTestSuite) Test_GivenStoppedProducer_ThenSendMessageReturnsError() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.resetMonkeyPatching()
 	_saramaNewAsyncProducer = func(addrs []string, conf *sarama.Config) (sarama.AsyncProducer, error) {
 		return s.mockAsyncProducer1, nil
@@ -119,16 +119,16 @@ func (s *AsyncProducerTestSuite) Test_GivenStoppedProducer_ThenSendMessageReturn
 	sutAsyncProducer := NewAsyncProducerWrapperAutoStart(s.config)
 	s.mockAsyncProducer1.closeCode = "FP"
 	msg := s.setUpProducerMessage()
-	// -- ACT --
+	// -- WHEN --
 	sutAsyncProducer.Stop()
 	sutAsyncProducer.Stop()
 	err := sutAsyncProducer.PublishMessage(msg)
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), err)
 }
 
 func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOneErrorOneOk_ThenSentOk() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.resetMonkeyPatching()
 	_saramaNewAsyncProducer = func(addrs []string, conf *sarama.Config) (sarama.AsyncProducer, error) {
 		return s.mockAsyncProducer1, nil
@@ -140,7 +140,7 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOneErrorOneOk_ThenSentOk
 	})
 	s.mockAsyncProducer1.inputErrorCode = "FP"
 	msg := s.setUpProducerMessage()
-	// -- ACT --
+	// -- WHEN --
 	err := sutAsyncProducer.SendMessage(msg)
 	assert.Nil(s.T(), err)
 	msg2 := s.setUpProducerMessage()
@@ -150,7 +150,7 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOneErrorOneOk_ThenSentOk
 	time.Sleep(100 * time.Millisecond)
 	sutAsyncProducer.Stop()
 	s.mockAsyncProducer1.stop()
-	// -- ASSERT --=
+	// -- THEN --=
 	assert.True(s.T(), sutAsyncProducer.HasClosed())
 	assert.Equalf(s.T(), 2, getIntFromAtomic(&s.mockAsyncProducer1.inputCount), "should be same input count")
 	assert.Equal(s.T(), 1, getIntFromAtomic(&s.mockAsyncProducer1.errorCount))
@@ -161,7 +161,7 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerSendsOneErrorOneOk_ThenSentOk
 }
 
 func (s *AsyncProducerTestSuite) Test_GivenGettingCertsError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.resetMonkeyPatching()
 	_saramaNewAsyncProducer = func(addrs []string, conf *sarama.Config) (sarama.AsyncProducer, error) {
 		return s.mockAsyncProducer1, nil
@@ -173,7 +173,7 @@ func (s *AsyncProducerTestSuite) Test_GivenGettingCertsError_ThenPanic() {
 }
 
 func (s *AsyncProducerTestSuite) Test_GivenNewAsyncProducerError_ThenPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.resetMonkeyPatching()
 	_saramaNewAsyncProducer = func(addrs []string, conf *sarama.Config) (sarama.AsyncProducer, error) {
 		return s.mockAsyncProducer1, errForTests
@@ -184,7 +184,7 @@ func (s *AsyncProducerTestSuite) Test_GivenNewAsyncProducerError_ThenPanic() {
 }
 
 func (s *AsyncProducerTestSuite) Test_GivenMessageKeyParsedError_ThenDoNotPanic() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.resetMonkeyPatching()
 	_saramaNewAsyncProducer = func(addrs []string, conf *sarama.Config) (sarama.AsyncProducer, error) {
 		return s.mockAsyncProducer1, nil
@@ -198,13 +198,13 @@ func (s *AsyncProducerTestSuite) Test_GivenMessageKeyParsedError_ThenDoNotPanic(
 	sutAsyncProducer.Start()
 	msg := s.setUpProducerMessage()
 	msg.Key = errorEncoder(5)
-	// -- ACT --
+	// -- WHEN --
 	err := sutAsyncProducer.PublishMessage(msg)
 	assert.False(s.T(), sutAsyncProducer.HasClosed())
 	time.Sleep(sleepTime)
 	sutAsyncProducer.Stop()
 	s.mockAsyncProducer1.stop()
-	// -- ASSERT --
+	// -- THEN --
 	assert.Nil(s.T(), err)
 	assert.True(s.T(), sutAsyncProducer.HasClosed())
 	assert.Equalf(s.T(), 1, getIntFromAtomic(&s.mockAsyncProducer1.inputCount), "should be same input count")
@@ -215,7 +215,7 @@ func (s *AsyncProducerTestSuite) Test_GivenMessageKeyParsedError_ThenDoNotPanic(
 }
 
 func (s *AsyncProducerTestSuite) Test_GivenProducerHasNotBeenStartedWhenPublishing_ThenReturnErr() {
-	// -- ARRANGE --
+	// -- GIVEN --
 	s.resetMonkeyPatching()
 	_saramaNewAsyncProducer = func(addrs []string, conf *sarama.Config) (sarama.AsyncProducer, error) {
 		return s.mockAsyncProducer1, nil
@@ -225,19 +225,41 @@ func (s *AsyncProducerTestSuite) Test_GivenProducerHasNotBeenStartedWhenPublishi
 	sutAsyncProducer := NewAsyncProducerWrapper(s.config)
 	assert.NotNil(s.T(), sutAsyncProducer.GetAsyncProducer())
 	msg := s.setUpProducerMessage()
-	// -- ACT --
+	// -- WHEN --
 	err := sutAsyncProducer.SendMessage(msg)
 	assert.False(s.T(), sutAsyncProducer.HasClosed())
 	time.Sleep(sleepTime)
 	sutAsyncProducer.Stop()
 	s.mockAsyncProducer1.stop()
-	// -- ASSERT --
+	// -- THEN --
 	assert.NotNil(s.T(), err)
 }
 
-// ############################################################################
+func (s *AsyncProducerTestSuite) Test_GivenKeyExistsButCannotBeEncoded_WhenGetProducerEncodedKey_ThenReturnKey() {
+	// -- GIVEN --
+	msg := &sarama.ProducerMessage{
+		Key: errorEncoder(1),
+	}
+	// -- WHEN --
+	key := getProducerEncodedKey(msg)
+	// -- THEN --
+	assert.NotEqual(s.T(), "", key)
+}
+
+func (s *AsyncProducerTestSuite) Test_GivenKeyExists_WhenGetProducerEncodedKey_ThenReturnKey() {
+	// -- GIVEN --
+	msg := &sarama.ProducerMessage{
+		Key: sarama.StringEncoder("hello world"),
+	}
+	// -- WHEN --
+	key := getProducerEncodedKey(msg)
+	// -- THEN --
+	assert.Equal(s.T(), "hello world", key)
+}
+
+// ------------------------------------------------------------
 // #region TEST HELPERS
-// ############################################################################
+// ------------------------------------------------------------
 
 func (s *AsyncProducerTestSuite) resetMonkeyPatching() {
 	_saramaNewAsyncProducer = sarama.NewAsyncProducer
