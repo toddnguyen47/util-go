@@ -39,7 +39,7 @@ func Test_GivenEncodingImproperly_ThenErrIsNotNil(t *testing.T) {
 
 func Test_GivenSimpleJsonData_ThenIterateProperly(t *testing.T) {
 	// -- GIVEN --
-	data := []byte(`{"key": [1,2,3]}`)
+	data := []byte(`{"key": [1,2,3], "key2": null}`)
 	var inputData map[string]any
 	err := json.Unmarshal(data, &inputData)
 	assert.NoError(t, err)

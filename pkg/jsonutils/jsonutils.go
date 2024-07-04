@@ -29,28 +29,31 @@ func MarshalNoEscapeHtml(v any) ([]byte, error) {
 //
 // Sample usage:
 //
-//	var inputMap map[string]any
-//	// a1 is any input
+//	var inputMap map[string]interface{}
+//	// a1 is any input / struct
 //	err := json.Unmarshal(a1, &inputMap)
 //	if err != nil {
 //		panic(err)
 //	}
 //	currentKey := make([]string, 0)
-//	map1 := make(map[string]any)
+//	map1 := make(map[string]interface{})
 //	jsonutils.IterateJson(inputMap, currentKey, map1)
 //	// Do stuff with map1 as needed
-func IterateJson(jsonData any, currentKey []string, currentMap map[string]any) {
+func IterateJson(jsonData interface{}, currentKey []string, currentMap map[string]interface{}) {
+	if jsonData == nil {
+		return
+	}
 	type1 := strings.ToLower(reflect.TypeOf(jsonData).String())
-	if strings.Contains(type1, "map") {
-		map1 := jsonData.(map[string]any)
+	if strings.EqualFold(type1, "map[string]interface {}") {
+		map1 := jsonData.(map[string]interface{})
 		for key, val := range map1 {
 			currentKey = append(currentKey, key)
 			IterateJson(val, currentKey, currentMap)
 			// Pop off list now
 			currentKey = currentKey[0 : len(currentKey)-1]
 		}
-	} else if strings.Contains(type1, "[]") {
-		l1 := jsonData.([]any)
+	} else if strings.EqualFold(type1, "[]interface {}") {
+		l1 := jsonData.([]interface{})
 		for idx, val := range l1 {
 			currentKey = append(currentKey, strconv.Itoa(idx))
 			IterateJson(val, currentKey, currentMap)
