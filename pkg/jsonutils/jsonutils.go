@@ -41,8 +41,10 @@ func MarshalNoEscapeHtml(v any) ([]byte, error) {
 //	// Do stuff with map1 as needed
 func IterateJson(jsonData interface{}, currentKey []string, currentMap map[string]interface{}) {
 	if jsonData == nil {
+		setData(jsonData, currentKey, currentMap)
 		return
 	}
+
 	type1 := strings.ToLower(reflect.TypeOf(jsonData).String())
 	if strings.EqualFold(type1, "map[string]interface {}") {
 		map1 := jsonData.(map[string]interface{})
@@ -61,7 +63,11 @@ func IterateJson(jsonData interface{}, currentKey []string, currentMap map[strin
 			currentKey = currentKey[0 : len(currentKey)-1]
 		}
 	} else {
-		key := strings.Join(currentKey, ".")
-		currentMap[key] = jsonData
+		setData(jsonData, currentKey, currentMap)
 	}
+}
+
+func setData(jsonData interface{}, currentKey []string, currentMap map[string]interface{}) {
+	key := strings.Join(currentKey, ".")
+	currentMap[key] = jsonData
 }
