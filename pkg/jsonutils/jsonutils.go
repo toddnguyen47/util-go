@@ -11,7 +11,7 @@ import (
 // MarshalNoEscapeHtml - marshal JSON without escaping HTML
 // Ref: https://stackoverflow.com/a/28596225/6323360
 // Ref for trimming `\n`: https://stackoverflow.com/questions/28595664/how-to-stop-json-marshal-from-escaping-and#comment122847570_28596225
-func MarshalNoEscapeHtml(v any) ([]byte, error) {
+func MarshalNoEscapeHtml(v interface{}) ([]byte, error) {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
@@ -35,13 +35,18 @@ func MarshalNoEscapeHtml(v any) ([]byte, error) {
 //	if err != nil {
 //		panic(err)
 //	}
-//	currentKey := make([]string, 0)
-//	map1 := make(map[string]interface{})
-//	jsonutils.IterateJson(inputMap, currentKey, map1)
+//	map1 := jsonutils.IterateJson(inputMap)
 //	// Do stuff with map1 as needed
-func IterateJson(jsonData interface{}, currentKey []string, currentMap map[string]interface{}) {
+func IterateJson(jsonData map[string]interface{}) map[string]interface{} {
+	stack := make([]jsonPathNode, 0)
+	map1 := make(map[string]interface{})
+	iterateJsonHelper(jsonData, stack, map1)
+	return map1
+}
+
+func iterateJsonHelper(jsonData interface{}, stack []jsonPathNode, currentMap map[string]interface{}) {
 	if jsonData == nil {
-		setData(jsonData, currentKey, currentMap)
+		setData(jsonData, stack, currentMap)
 		return
 	}
 
@@ -49,25 +54,25 @@ func IterateJson(jsonData interface{}, currentKey []string, currentMap map[strin
 	if strings.EqualFold(type1, "map[string]interface {}") {
 		map1 := jsonData.(map[string]interface{})
 		for key, val := range map1 {
-			currentKey = append(currentKey, key)
-			IterateJson(val, currentKey, currentMap)
+			stack = append(stack, jsonPathNode{key: key, elem: jsonElementObject})
+			iterateJsonHelper(val, stack, currentMap)
 			// Pop off list now
-			currentKey = currentKey[0 : len(currentKey)-1]
+			stack = stack[0 : len(stack)-1]
 		}
 	} else if strings.EqualFold(type1, "[]interface {}") {
 		l1 := jsonData.([]interface{})
 		for idx, val := range l1 {
-			currentKey = append(currentKey, strconv.Itoa(idx))
-			IterateJson(val, currentKey, currentMap)
+			stack = append(stack, jsonPathNode{key: strconv.Itoa(idx), elem: jsonElementArray})
+			iterateJsonHelper(val, stack, currentMap)
 			// Pop off list now
-			currentKey = currentKey[0 : len(currentKey)-1]
+			stack = stack[0 : len(stack)-1]
 		}
 	} else {
-		setData(jsonData, currentKey, currentMap)
+		setData(jsonData, stack, currentMap)
 	}
 }
 
-func setData(jsonData interface{}, currentKey []string, currentMap map[string]interface{}) {
-	key := strings.Join(currentKey, ".")
+func setData(jsonData interface{}, stack []jsonPathNode, currentMap map[string]interface{}) {
+	key := getKey(stack)
 	currentMap[key] = jsonData
 }

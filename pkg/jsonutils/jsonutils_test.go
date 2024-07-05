@@ -2,6 +2,7 @@ package jsonutils
 
 import (
 	"encoding/json"
+	"os"
 	"strings"
 	"testing"
 
@@ -43,13 +44,26 @@ func Test_GivenSimpleJsonData_ThenIterateProperly(t *testing.T) {
 	var inputData map[string]any
 	err := json.Unmarshal(data, &inputData)
 	assert.NoError(t, err)
-	map1 := make(map[string]any)
 	// -- WHEN --
-	IterateJson(inputData, []string{}, map1)
+	map1 := IterateJson(inputData)
 	// -- THEN --
-	assert.Equal(t, map1["key.0"], float64(1))
-	assert.Equal(t, map1["key.1"], float64(2))
-	assert.Equal(t, map1["key.2"], float64(3))
+	assert.Equal(t, map1["$.key[0]"], float64(1))
+	assert.Equal(t, map1["$.key[1]"], float64(2))
+	assert.Equal(t, map1["$.key[2]"], float64(3))
+}
+
+func Test_GivenComplexJsonData_ThenIterateProperly(t *testing.T) {
+	// -- GIVEN --
+	data, err := os.ReadFile("testdata/example1.json")
+	assert.NoError(t, err)
+	var inputData map[string]any
+	err = json.Unmarshal(data, &inputData)
+	assert.NoError(t, err)
+	// -- WHEN --
+	map1 := IterateJson(inputData)
+	// -- THEN --
+	assert.Equal(t, map1["$.web-app.servlet[0].servlet-class"], "org.cofax.cds.CDSServlet")
+	assert.Equal(t, map1["$.web-app.servlet[4].init-param.omegaServer"], nil)
 }
 
 func makePtr(_ *testing.T, str string) *string {
