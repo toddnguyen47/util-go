@@ -34,6 +34,10 @@ func TestMapEqualFoldTestSuite(t *testing.T) {
 	suite.Run(t, new(MapEqualFoldTestSuite))
 }
 
+type EmptyStruct struct{}
+
+func (e *EmptyStruct) String() string { return "" }
+
 // ----------------------------------------------------------------------------
 // #endregion SETUP
 // \--------------------------------------------------------------------------/
@@ -44,7 +48,7 @@ func TestMapEqualFoldTestSuite(t *testing.T) {
 
 func (s *MapEqualFoldTestSuite) Test_MapEmptyStruct() {
 	// -- GIVEN --
-	map1 := NewMapEmptyStruct()
+	map1 := NewMapEqualFold[*EmptyStruct]()
 	map1.Set("hElLo", &EmptyStruct{})
 	// -- WHEN --
 	es, found := map1.Get("HELLO")
@@ -59,7 +63,7 @@ func (s *MapEqualFoldTestSuite) Test_MapEmptyStruct() {
 }
 
 // ----------------------------------------------------------------------------
-// #endregion TESTS
+// #endregion TESTS``
 // \--------------------------------------------------------------------------/
 
 // /--------------------------------------------------------------------------\
