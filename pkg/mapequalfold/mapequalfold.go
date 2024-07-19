@@ -20,3 +20,8 @@ func (m *MapEqualFold[T]) Get(key string) (T, bool) {
 func (m *MapEqualFold[T]) Set(key string, value T) {
 	(*m)[strings.ToUpper(key)] = value
 }
+
+// Empty struct if you only care about the keys (e.g. for a set)
+type EmptyStruct struct{}
+
+func (e *EmptyStruct) String() string { return "" }

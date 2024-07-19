@@ -34,10 +34,6 @@ func TestMapEqualFoldTestSuite(t *testing.T) {
 	suite.Run(t, new(MapEqualFoldTestSuite))
 }
 
-type EmptyStruct struct{}
-
-func (e *EmptyStruct) String() string { return "" }
-
 // ----------------------------------------------------------------------------
 // #endregion SETUP
 // \--------------------------------------------------------------------------/
