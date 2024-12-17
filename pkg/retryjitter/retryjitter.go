@@ -1,17 +1,20 @@
 package retryjitter
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/toddnguyen47/util-go/pkg/randomutils"
 )
 
-var _minSleepTimeMillis int64 = 50
+var _minSleepTimeMillis int64 = 100
+var _maxSleepTimeMillis int64 = 20 * 10_000 // 20 seconds
 
 // Retry - retry with exponential backoff and jitter. Default timeout is 100 milliseconds for the first sleep.
 // If you want to customize the sleep time, call RetryWithTimeout().
+//
+// Ref: https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html#ExponentialBackoff
+// Set max time to 20 seconds
 //
 // Ref: https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
 //
@@ -36,25 +39,8 @@ func RetryWithTimeout(retryTimes int, timeoutMilliseconds int, funcToRetry func(
 	keepRetrying := true
 	var err error
 
-	timeoutMillisInner := int64(timeoutMilliseconds)
-	if timeoutMillisInner <= 0 {
-		fmt.Println("timeout passed is less than or equal to zero; defaulting to 100")
-		timeoutMillisInner = 100
-	}
-
-	minSleepMillisInner := _minSleepTimeMillis
-	if minSleepMillisInner > timeoutMillisInner {
-		minSleepMillisInner = 0
-	}
-
-	for ; count <= retryTimes && keepRetrying; count += 1 {
-		if count > 0 {
-			maxSleep := timeoutMillisInner << (count - 1)
-			sleepTimeInt64 := randomutils.GetRandomWithMin(minSleepMillisInner, maxSleep)
-			log.Info().Int("count", count).AnErr("previousError", err).
-				Int64("sleeping for x milliseconds", sleepTimeInt64).Msg("retry count logging")
-			time.Sleep(time.Duration(sleepTimeInt64) * time.Millisecond)
-		}
+	for ; count <= retryTimes && keepRetrying; count++ {
+		SleepIncrementalBackoffJitter(count, timeoutMilliseconds)
 		err = funcToRetry()
 		if err == nil {
 			keepRetrying = false
@@ -62,4 +48,28 @@ func RetryWithTimeout(retryTimes int, timeoutMilliseconds int, funcToRetry func(
 	}
 
 	return err
+}
+
+// SleepIncrementalBackoffJitter - Sleep with incremental backoff and jitter.
+// Reference: https://docs.aws.amazon.com/general/latest/gr/api-retries.html
+// (1 << n) is equivalent to (2^n). Max sleep time will be 20 seconds (20_000 milliseconds)
+func SleepIncrementalBackoffJitter(count int, sleepTimeMillis int) {
+	if count > 0 {
+		timeoutMillisInner := int64(sleepTimeMillis)
+		if timeoutMillisInner <= 0 {
+			log.Info().Msg("timeout passed is less than or equal to zero; defaulting to 100 milliseconds")
+			// Defaults to 100 milliseconds
+			timeoutMillisInner = 100
+		}
+		maxSleep := timeoutMillisInner << (count - 1)
+		sleepTimeInt64 := randomutils.GetRandomWithMin(_minSleepTimeMillis, maxSleep)
+		if sleepTimeInt64 > _maxSleepTimeMillis {
+			sleepTimeInt64 = _maxSleepTimeMillis
+		}
+		log.Info().
+			Int("count", count).
+			Int64("sleeping for x milliseconds", sleepTimeInt64).
+			Msg("SleepIncrementalBackoffJitter logging")
+		time.Sleep(time.Duration(sleepTimeInt64) * time.Millisecond)
+	}
 }

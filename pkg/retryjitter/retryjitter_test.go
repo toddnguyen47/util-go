@@ -86,4 +86,5 @@ func Test_GivenRetryFailure_ThenReturnErr(t *testing.T) {
 }
 
 func resetMonkeyPatching(_ *testing.T) {
+	_maxSleepTimeMillis = 10
 }
