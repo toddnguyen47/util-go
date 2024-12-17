@@ -34,7 +34,7 @@ func Retry(retryTimes int, funcToRetry func() error) error {
 
 // RetryWithTimeout - Same as Retry, except passing in a timeout. We have to pass an int as we need to
 // randomize the time we are sleeping, from 0 to maxTime (maxTime is calculated per retry count).
-func RetryWithTimeout(retryTimes int, timeoutMilliseconds int, funcToRetry func() error) error {
+func RetryWithTimeout(retryTimes int, timeoutMilliseconds int64, funcToRetry func() error) error {
 	count := 0
 	keepRetrying := true
 	var err error
@@ -53,7 +53,7 @@ func RetryWithTimeout(retryTimes int, timeoutMilliseconds int, funcToRetry func(
 // SleepIncrementalBackoffJitter - Sleep with incremental backoff and jitter.
 // Reference: https://docs.aws.amazon.com/general/latest/gr/api-retries.html
 // (1 << n) is equivalent to (2^n). Max sleep time will be 20 seconds (20_000 milliseconds)
-func SleepIncrementalBackoffJitter(count int, sleepTimeMillis int) {
+func SleepIncrementalBackoffJitter(count int, sleepTimeMillis int64) {
 	if count > 0 {
 		timeoutMillisInner := int64(sleepTimeMillis)
 		if timeoutMillisInner <= 0 {
