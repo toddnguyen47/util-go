@@ -60,5 +60,5 @@ func (s *{{RenameYourTestClassTestSuite}}) resetMonkeyPatching() {
 }
 
 // ----------------------------------------------------------------------------
-// #region TEST HELPERS
+// #endregion TEST HELPERS
 // \--------------------------------------------------------------------------/
