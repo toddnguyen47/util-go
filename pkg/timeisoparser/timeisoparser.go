@@ -22,6 +22,11 @@ const (
 	GoUnixEpoch = int64(1136239445)
 )
 
+var (
+	maxTime          = time.Date(9999, 12, 31, 23, 59, 59, 999999999, time.UTC)
+	maxTimeISOMillis = maxTime.Format(ISO8601Millis)
+)
+
 var timeLayoutList = []string{ISO8601, ISO8601Millis}
 
 func NowUTC() time.Time {
@@ -121,4 +126,12 @@ func GetDatesInRange(rangeStart, rangeEnd time.Time) []string {
 	}
 
 	return times
+}
+
+func MaxTime() time.Time {
+	return maxTime
+}
+
+func MaxTimeISOMillis() string {
+	return maxTimeISOMillis
 }

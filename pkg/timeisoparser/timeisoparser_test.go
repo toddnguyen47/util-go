@@ -175,3 +175,13 @@ func Test_GivenEndParseError_ThenReturnZeroDays(t *testing.T) {
 
 	assert.Equal(t, 0, len(list1))
 }
+
+func Test_GivenMaxTime_ThenReturnMaxTime(t *testing.T) {
+	maxTime := MaxTime()
+	assert.True(t, time.Date(9999, 12, 31, 23, 59, 59, 999999999, time.UTC).Equal(maxTime))
+}
+
+func Test_GivenMaxTimeISOMillis_ThenReturnMaxTimeMillis(t *testing.T) {
+	maxTime := MaxTimeISOMillis()
+	assert.Equal(t, "9999-12-31T23:59:59.999Z", maxTime)
+}
