@@ -45,14 +45,21 @@ func TestSampleInterfaceTestSuite(t *testing.T) {
 
 func (s *SampleInterfaceTestSuite) Test_GivenGetItemOk_ThenReturnItem() {
 	// -- GIVEN --
-	getter := NewSampleInterfaceGetter(15 * time.Minute)
+	getter := NewSampleInterfaceGetter(1 * time.Second)
 	// -- WHEN --
 	item1 := getter.Get()
 	item2 := getter.Get()
+	time.Sleep(2 * time.Second)
+	item3 := getter.Get()
+	item4 := getter.Get()
 	// -- THEN --
 	s.NotNil(item1)
 	s.NotNil(item2)
+	s.NotNil(item3)
+	s.NotNil(item4)
 	s.Equal(item1.SampleFunc(), item2.SampleFunc())
+	s.Equal(item1.SampleFunc(), item3.SampleFunc())
+	s.Equal(item1.SampleFunc(), item4.SampleFunc())
 }
 
 // ----------------------------------------------------------------------------
