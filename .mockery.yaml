@@ -8,6 +8,14 @@ packages:
     interfaces:
       AsyncProducerWrapper:
         config:
-          dir: "pkg/sarama_msk_wrapper/mockstestify"
-          filename: "mockstestify_asyncproducerwrapper.go"
-          outpkg: "mockstestify_sarama_msk_wrapper"
+          dir: "pkg/sarama_msk_wrapper/mocktestify"
+          filename: "mocktestify_asyncproducerwrapper.go"
+          outpkg: "mocktestify_sarama_msk_wrapper"
+  net/http:
+    config:
+    interfaces:
+      ResponseWriter:
+        config:
+          dir: "pkg/testhelpers"
+          filename: "mocktestify_http_responsewriter.go"
+          outpkg: "testhelpers"

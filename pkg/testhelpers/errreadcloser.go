@@ -1,6 +1,8 @@
 package testhelpers
 
-import "errors"
+import (
+	"errors"
+)
 
 // ErrReadCloser - Ref: https://stackoverflow.com/a/45126402/6323360
 type ErrReadCloser int
