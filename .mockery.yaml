@@ -1,0 +1,13 @@
+# Run with `mockery`: https://vektra.github.io/mockery/latest/configuration/
+
+with-expecter: true
+issue-845-fix: True
+packages:
+  github.com/toddnguyen47/util-go/pkg/sarama_msk_wrapper:
+    config:
+    interfaces:
+      AsyncProducerWrapper:
+        config:
+          dir: "pkg/sarama_msk_wrapper/mockstestify"
+          filename: "mockstestify_asyncproducerwrapper.go"
+          outpkg: "mockstestify_sarama_msk_wrapper"
